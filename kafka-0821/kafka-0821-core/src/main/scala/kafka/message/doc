@@ -1,0 +1,2 @@
+message    --封装kafka的ByteBufferMessageSet
+封装多条数据组成一个数据集或者压缩数据集。

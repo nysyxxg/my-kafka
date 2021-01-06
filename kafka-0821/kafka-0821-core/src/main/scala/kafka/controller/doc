@@ -1,0 +1,3 @@
+contoroller  
+--负责中央控制器选举，partition的leader选举，副本分配，副本重新分配，partition和replica扩容。
+		

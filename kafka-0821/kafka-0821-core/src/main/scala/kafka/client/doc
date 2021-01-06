@@ -1,0 +1,3 @@
+
+client    --该模块比较简单，就一个类，Producer读取kafka broker元数据信息， topic和partitions，以及leader
+		

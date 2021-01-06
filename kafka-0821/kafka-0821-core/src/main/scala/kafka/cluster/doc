@@ -1,0 +1,3 @@
+cluster   
+
+--该模块包含几个实体类，Broker,Cluster,Partition,Replica,解释他们之间关系：Cluster由多个broker组成，一个Broker包含多个partition，一个                                 topic的所有partitions分布在不同broker的中，一个Replica包含多个Partition。

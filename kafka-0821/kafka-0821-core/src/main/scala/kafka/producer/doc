@@ -1,0 +1,26 @@
+producer          --producer实现模块，包括同步和异步发送消息。
+
+producer的发送方式剖析
+Kafka提供了Producer类作为java producer的api，该类有sync和async两种发送方式。
+
+
+
+重难点理解：
+刷新metadata并不仅在第一次初始化时做。为了能适应kafka broker运行中因为各种原因挂掉、paritition改变等变化，
+eventHandler会定期的再去刷新一次该metadata，刷新的间隔用参数topic.metadata.refresh.interval.ms定义，默认值是10分钟。
+
+这里有三点需要强调：
+客户端调用send, 才会新建SyncProducer，只有调用send才会去定期刷新metadata
+在每次取metadata时，kafka会新建一个SyncProducer去取metadata，逻辑处理完后再close。
+根据当前SyncProducer(一个Broker的连接)取得的最新的完整的metadata，刷新ProducerPool中到broker的连接.
+每10分钟的刷新会直接重新把到每个broker的socket连接重建，意味着在这之后的第一个请求会有几百毫秒的延迟。如果不想要该延迟，
+把topic.metadata.refresh.interval.ms值改为-1，这样只有在发送失败时，才会重新刷新。Kafka的集群中如果某个partition所在的broker挂了，可以检查错误后重启重新加入集群，手动做rebalance，producer的连接会再次断掉，直到rebalance完成，那么刷新后取到的连接着中就会有这个新加入的broker。
+说明：每个SyncProducer实例化对象会建立一个socket连接
+
+特别注意:
+在ClientUtils.fetchTopicMetadata调用完成后，回到BrokerPartitionInfo.updateInfo继续执行，
+在其末尾，pool会根据上面取得的最新的metadata建立所有的SyncProducer，即Socket通道producerPool.updateProducer(topicsMetadata)
+在ProducerPool中，SyncProducer的数目是由该topic的partition数目控制的，即每一个SyncProducer对应一个broker，
+内部封了一个到该broker的socket连接。每次刷新时，会把已存在SyncProducer给close掉，即关闭socket连接，
+然后新建SyncProducer，即新建socket连接，去覆盖老的。
+如果不存在，则直接创建新的。

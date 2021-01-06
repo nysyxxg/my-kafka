@@ -1,0 +1,22 @@
+consumer    
+
+--consumer处理模块，负责所有客户端消费者数据和逻辑处理
+2.kafka文件系统架构
+
+2.1 文件系统数据流
+下面用图形表示介绍客户端处理几个过程如下：
+
+当建立连接请求时，首先客户端向kafka broker发送连接请求，broker中由Acceptor thread线程接收并建立连接后，
+把client的socket以轮询方式转交给相应的processor thread。
+当client向broker发送数据请求，由processor thread处理并接收client数据放到request缓冲区中，
+以待IO thread进行逻辑处理和计算并把返回result放到response缓冲区中.
+接着唤醒processor thread，processor thread抱住response队列循环发送所有response数据给client.
+
+2.2 kafka文件系统存储结构
+
+paritions分布规则，kafka集群由多个kafka broker组成，一个topic的partitions会分布在一个或多个broker上，
+topic的partitions在kafka集群上分配规则为，安装paritions索引编号依次有序分布在broker上，
+当partitions数量 > brokers数量，会依次轮回再次迭代分配。
+partitions命名规则,paritions名称为:topic-name-index,  index分区索引编号，从0开始依次递增。
+producer，每个producer可以发送msg到topic任意一个或多个partitons。
+consumer，同一个Consumer Group中的Consumers，Kafka将相应Topic中的每个消息只发送给其中一个Consumer.

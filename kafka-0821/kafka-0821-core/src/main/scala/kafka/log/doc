@@ -1,0 +1,1 @@
+log      --kafka文件系统，负责处理和存储所有kafka的topic数据。

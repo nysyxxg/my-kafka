@@ -1,0 +1,6 @@
+
+server   ---kafka 核心服务类
+
+该模块涉及的内容较多，有Leader和Offset的checkpoint，动态配置，延时创建和删除Topic，Leader的选举，
+Admin和Replica的管理，以及各种元数据的缓存等内容。
+
