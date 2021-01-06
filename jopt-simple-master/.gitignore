@@ -1,0 +1,13 @@
+*~
+.*~
+build
+*.iml
+*.ipr
+*.iws
+release.properties
+target
+.classpath
+.project
+.settings
+.checkstyle
+.idea
