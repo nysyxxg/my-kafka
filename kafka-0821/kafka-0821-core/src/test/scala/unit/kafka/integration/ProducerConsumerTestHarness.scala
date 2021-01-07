@@ -18,8 +18,8 @@
 package kafka.integration
 
 import kafka.consumer.SimpleConsumer
-import org.scalatest.junit.JUnit3Suite
 import kafka.producer.Producer
+import org.scalatest.junit.JUnit3Suite
 import kafka.utils.{StaticPartitioner, TestUtils}
 import kafka.serializer.StringEncoder
 

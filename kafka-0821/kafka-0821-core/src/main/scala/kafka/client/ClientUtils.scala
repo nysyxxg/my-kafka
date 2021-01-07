@@ -19,15 +19,17 @@
 import scala.collection._
 import kafka.cluster._
 import kafka.api._
-import kafka.producer._
 import kafka.common.{ErrorMapping, KafkaException}
-import kafka.utils.{Utils, Logging}
+import kafka.utils.{Logging, Utils}
 import java.util.Properties
+
 import util.Random
- import kafka.network.BlockingChannel
- import kafka.utils.ZkUtils._
- import org.I0Itec.zkclient.ZkClient
- import java.io.IOException
+import kafka.network.BlockingChannel
+import kafka.utils.ZkUtils._
+import org.I0Itec.zkclient.ZkClient
+import java.io.IOException
+
+import kafka.producer.{ProducerConfig, ProducerPool, SyncProducer}
 import org.apache.kafka.common.utils.Utils.{getHost, getPort}
 
  /**

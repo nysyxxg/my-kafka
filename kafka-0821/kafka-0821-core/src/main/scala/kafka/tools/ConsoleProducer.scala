@@ -20,13 +20,12 @@ package kafka.tools
 import kafka.common._
 import kafka.message._
 import kafka.serializer._
-import kafka.utils.{ToolsUtils, CommandLineUtils}
-import kafka.producer.{NewShinyProducer,OldProducer,KeyedMessage}
-
+import kafka.utils.{CommandLineUtils, ToolsUtils}
 import java.util.Properties
 import java.io._
 
 import joptsimple._
+import kafka.producer.{KeyedMessage, NewShinyProducer, OldProducer}
 
 object ConsoleProducer {
 

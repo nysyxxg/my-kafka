@@ -19,18 +19,16 @@ package kafka.tools
 
 import kafka.consumer._
 import kafka.metrics.KafkaMetricsGroup
-import kafka.producer.{BaseProducer, NewShinyProducer, OldProducer}
 import kafka.serializer._
 import kafka.utils._
 import org.apache.kafka.clients.producer.{ProducerConfig, ProducerRecord}
-
 import java.util.Random
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
-import java.util.concurrent.{BlockingQueue, ArrayBlockingQueue, CountDownLatch, TimeUnit}
+import java.util.concurrent.{ArrayBlockingQueue, BlockingQueue, CountDownLatch, TimeUnit}
 
 import scala.collection.JavaConversions._
-
 import joptsimple.OptionParser
+import kafka.producer.{BaseProducer, NewShinyProducer, OldProducer}
 
 object MirrorMaker extends Logging {
 

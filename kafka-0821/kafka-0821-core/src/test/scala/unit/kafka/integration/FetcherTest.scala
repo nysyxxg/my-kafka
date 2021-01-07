@@ -19,15 +19,15 @@ package kafka.integration
 
 import java.util.concurrent._
 import java.util.concurrent.atomic._
+
 import scala.collection._
 import junit.framework.Assert._
-
 import kafka.cluster._
 import kafka.server._
 import org.scalatest.junit.JUnit3Suite
 import kafka.consumer._
-import kafka.serializer._
 import kafka.producer.{KeyedMessage, Producer}
+import kafka.serializer._
 import kafka.utils.TestUtils._
 import kafka.utils.TestUtils
 

@@ -18,15 +18,17 @@
 package kafka.producer.async
 
 import kafka.common._
-import kafka.message.{NoCompressionCodec, Message, ByteBufferMessageSet}
-import kafka.producer._
+import kafka.message.{ByteBufferMessageSet, Message, NoCompressionCodec}
 import kafka.serializer.Encoder
-import kafka.utils.{Utils, Logging, SystemTime}
+import kafka.utils.{Logging, SystemTime, Utils}
+
 import scala.util.Random
-import scala.collection.{Seq, Map}
+import scala.collection.{Map, Seq}
 import scala.collection.mutable.{ArrayBuffer, HashMap, Set}
 import java.util.concurrent.atomic._
-import kafka.api.{TopicMetadata, ProducerRequest}
+
+import kafka.api.{ProducerRequest, TopicMetadata}
+import kafka.producer._
 
 /**
  * Producer平滑扩容机制

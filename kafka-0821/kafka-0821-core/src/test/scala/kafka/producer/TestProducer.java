@@ -1,4 +1,4 @@
-package kafka.producer.javaapi;
+package kafka.producer;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Random;

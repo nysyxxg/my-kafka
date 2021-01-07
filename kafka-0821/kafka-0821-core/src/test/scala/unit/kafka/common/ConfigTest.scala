@@ -18,11 +18,12 @@
 package unit.kafka.common
 
 import junit.framework.Assert._
+
 import collection.mutable.ArrayBuffer
 import org.junit.Test
 import kafka.common.InvalidConfigException
-import kafka.producer.ProducerConfig
 import kafka.consumer.ConsumerConfig
+import kafka.producer.ProducerConfig
 
 class ConfigTest {
 

@@ -17,8 +17,8 @@
 
 package kafka.javaapi.producer
 
-import kafka.producer.ProducerConfig
-import kafka.producer.KeyedMessage
+import kafka.producer.{KeyedMessage, ProducerConfig}
+
 import scala.collection.mutable
 
 class Producer[K,V](private val underlying: kafka.producer.Producer[K,V]) // for testing only

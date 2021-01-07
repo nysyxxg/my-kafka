@@ -24,5 +24,6 @@
     <orderEntry type="library" name="Maven: org.jboss.netty:netty:3.2.2.Final" level="project" />
     <orderEntry type="library" name="Maven: net.sf.jopt-simple:jopt-simple:6.0-alpha-4-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
+    <orderEntry type="library" name="scala-sdk-2.10.6" level="application" />
   </component>
 </module>

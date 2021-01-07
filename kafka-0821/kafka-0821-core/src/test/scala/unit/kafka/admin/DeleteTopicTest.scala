@@ -26,11 +26,9 @@ import kafka.utils.{ ZkUtils, TestUtils }
 import kafka.server.{ OffsetCheckpoint, KafkaServer, KafkaConfig }
 import org.junit.Test
 import kafka.common._
-import kafka.producer.{ ProducerConfig, Producer }
 import java.util.Properties
 import kafka.api._
 import kafka.consumer.SimpleConsumer
-import kafka.producer.KeyedMessage
 import kafka.common.TopicAndPartition
 import kafka.api.PartitionOffsetRequestInfo
 

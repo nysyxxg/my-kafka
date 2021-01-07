@@ -1,4 +1,4 @@
-package demo02;
+package kafka.producer;
 
 import kafka.examples.KafkaProperties;
 

@@ -51,7 +51,6 @@ class NewShinyProducer(producerProps: Properties) extends BaseProducer {
 }
 
 class OldProducer(producerProps: Properties) extends BaseProducer {
-  import kafka.producer.{KeyedMessage, ProducerConfig}
 
   // default to byte array partitioner
   if (producerProps.getProperty("partitioner.class") == null)

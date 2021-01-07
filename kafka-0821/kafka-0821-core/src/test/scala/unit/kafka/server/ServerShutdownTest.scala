@@ -18,18 +18,17 @@ package kafka.server
 
 import kafka.zk.ZooKeeperTestHarness
 import kafka.consumer.SimpleConsumer
-import kafka.producer._
 import kafka.utils.{IntEncoder, TestUtils, Utils}
 import kafka.utils.TestUtils._
 import kafka.api.FetchRequestBuilder
 import kafka.message.ByteBufferMessageSet
 import kafka.serializer.StringEncoder
-
 import java.io.File
 
 import org.junit.Test
 import org.scalatest.junit.JUnit3Suite
 import junit.framework.Assert._
+import kafka.producer.KeyedMessage
 
 class ServerShutdownTest extends JUnit3Suite with ZooKeeperTestHarness {
   val port = TestUtils.choosePort

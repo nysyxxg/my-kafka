@@ -18,17 +18,16 @@
 package kafka.tools
 
 import kafka.metrics.KafkaMetricsReporter
-import kafka.producer.{OldProducer, NewShinyProducer}
-import kafka.utils.{ToolsUtils, VerifiableProperties, Logging, CommandLineUtils}
+import kafka.utils.{CommandLineUtils, Logging, ToolsUtils, VerifiableProperties}
 import kafka.message.CompressionCodec
 import kafka.serializer._
-
 import java.util.concurrent.{CountDownLatch, Executors}
 import java.util.concurrent.atomic.AtomicLong
 import java.util._
 import java.text.SimpleDateFormat
 import java.math.BigInteger
 
+import kafka.producer.{NewShinyProducer, OldProducer}
 import org.apache.log4j.Logger
 
 /**

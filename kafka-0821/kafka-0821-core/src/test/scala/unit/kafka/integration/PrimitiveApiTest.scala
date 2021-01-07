@@ -18,20 +18,23 @@
 package kafka.integration
 
 import java.nio.ByteBuffer
+
 import junit.framework.Assert._
-import kafka.api.{PartitionFetchInfo, FetchRequest, FetchRequestBuilder}
-import kafka.server.{KafkaRequestHandler, KafkaConfig}
-import kafka.producer.{KeyedMessage, Producer}
+import kafka.api.{FetchRequest, FetchRequestBuilder, PartitionFetchInfo}
+import kafka.server.{KafkaConfig, KafkaRequestHandler}
 import org.apache.log4j.{Level, Logger}
 import org.I0Itec.zkclient.ZkClient
 import kafka.zk.ZooKeeperTestHarness
 import org.scalatest.junit.JUnit3Suite
+
 import scala.collection._
 import kafka.admin.AdminUtils
-import kafka.common.{TopicAndPartition, ErrorMapping, UnknownTopicOrPartitionException, OffsetOutOfRangeException}
+import kafka.common.{ErrorMapping, OffsetOutOfRangeException, TopicAndPartition, UnknownTopicOrPartitionException}
 import kafka.utils.{StaticPartitioner, TestUtils, Utils}
 import kafka.serializer.StringEncoder
 import java.util.Properties
+
+import kafka.producer.{KeyedMessage, Producer}
 
 /**
  * End to end tests of the primitive apis against a local server

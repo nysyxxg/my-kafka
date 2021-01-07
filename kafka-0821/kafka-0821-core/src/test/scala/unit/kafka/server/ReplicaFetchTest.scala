@@ -20,11 +20,11 @@ package kafka.server
 import org.scalatest.junit.JUnit3Suite
 import kafka.zk.ZooKeeperTestHarness
 import kafka.utils.TestUtils._
-import kafka.producer.KeyedMessage
 import kafka.serializer.StringEncoder
 import kafka.utils.TestUtils
 import junit.framework.Assert._
 import kafka.common._
+import kafka.producer.KeyedMessage
 
 class ReplicaFetchTest extends JUnit3Suite with ZooKeeperTestHarness  {
   val props = createBrokerConfigs(2,false)

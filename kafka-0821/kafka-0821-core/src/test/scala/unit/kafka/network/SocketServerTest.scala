@@ -19,17 +19,22 @@ package kafka.network;
 
 import java.net._
 import java.io._
+
 import org.junit._
 import org.scalatest.junit.JUnitSuite
 import java.util.Random
+
 import junit.framework.Assert._
-import kafka.producer.SyncProducerConfig
 import kafka.api.ProducerRequest
 import java.nio.ByteBuffer
+
 import kafka.common.TopicAndPartition
 import kafka.message.ByteBufferMessageSet
 import java.nio.channels.SelectionKey
+
+import kafka.producer.SyncProducerConfig
 import kafka.utils.TestUtils
+
 import scala.collection.Map
 
 class SocketServerTest extends JUnitSuite {

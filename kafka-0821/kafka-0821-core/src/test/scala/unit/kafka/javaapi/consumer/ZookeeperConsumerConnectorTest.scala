@@ -21,19 +21,18 @@ import kafka.server._
 import kafka.message._
 import kafka.serializer._
 import kafka.integration.KafkaServerTestHarness
-import kafka.producer.KeyedMessage
 import kafka.javaapi.producer.Producer
 import kafka.utils.IntEncoder
 import kafka.utils.{Logging, TestUtils}
-import kafka.consumer.{KafkaStream, ConsumerConfig}
+import kafka.consumer.{ConsumerConfig, KafkaStream}
 import kafka.zk.ZooKeeperTestHarness
 import kafka.common.MessageStreamsExistException
 
 import scala.collection.JavaConversions
-
 import org.scalatest.junit.JUnit3Suite
 import org.apache.log4j.{Level, Logger}
 import junit.framework.Assert._
+import kafka.producer.KeyedMessage
 
 
 class ZookeeperConsumerConnectorTest extends JUnit3Suite with KafkaServerTestHarness with ZooKeeperTestHarness with Logging {

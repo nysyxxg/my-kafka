@@ -19,21 +19,19 @@ package kafka.log4j
 
 import kafka.consumer.SimpleConsumer
 import kafka.server.{KafkaConfig, KafkaServer}
-import kafka.utils.{TestUtils, Utils, Logging}
+import kafka.utils.{Logging, TestUtils, Utils}
 import kafka.api.FetchRequestBuilder
-import kafka.producer.async.MissingConfigException
 import kafka.serializer.Encoder
 import kafka.zk.ZooKeeperTestHarness
-
 import java.util.Properties
 import java.io.File
 
 import org.apache.log4j.spi.LoggingEvent
-import org.apache.log4j.{PropertyConfigurator, Logger}
+import org.apache.log4j.{Logger, PropertyConfigurator}
 import org.junit.{After, Before, Test}
 import org.scalatest.junit.JUnit3Suite
-
 import junit.framework.Assert._
+import kafka.producer.async.MissingConfigException
 
 class KafkaLog4jAppenderTest extends JUnit3Suite with ZooKeeperTestHarness with Logging {
 

@@ -27,23 +27,19 @@ import java.util.Properties
 import org.apache.kafka.common.utils.Utils._
 
 import collection.mutable.ListBuffer
-
 import org.I0Itec.zkclient.ZkClient
-
 import kafka.server._
-import kafka.producer._
 import kafka.message._
 import kafka.api._
 import kafka.cluster.Broker
-import kafka.consumer.{KafkaStream, ConsumerConfig}
-import kafka.serializer.{StringEncoder, DefaultEncoder, Encoder}
+import kafka.consumer.{ConsumerConfig, KafkaStream}
+import kafka.serializer.{DefaultEncoder, Encoder, StringEncoder}
 import kafka.common.TopicAndPartition
 import kafka.admin.AdminUtils
-import kafka.producer.ProducerConfig
 import kafka.log._
-
 import junit.framework.AssertionFailedError
 import junit.framework.Assert._
+import kafka.producer._
 import org.apache.kafka.clients.producer.KafkaProducer
 
 import scala.collection.Map

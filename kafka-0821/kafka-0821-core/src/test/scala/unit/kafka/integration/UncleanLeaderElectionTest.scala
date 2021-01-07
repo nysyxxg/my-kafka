@@ -22,6 +22,7 @@ import scala.util.Random
 import org.apache.log4j.{Level, Logger}
 import org.scalatest.junit.JUnit3Suite
 import java.util.Properties
+
 import junit.framework.Assert._
 import kafka.admin.AdminUtils
 import kafka.common.FailedToSendMessageException

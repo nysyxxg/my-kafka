@@ -18,14 +18,13 @@ package kafka.server
 
 import kafka.utils.TestUtils._
 import kafka.utils.IntEncoder
-import kafka.utils.{Utils, TestUtils}
+import kafka.utils.{TestUtils, Utils}
 import kafka.zk.ZooKeeperTestHarness
 import kafka.common._
-import kafka.producer.{KeyedMessage, Producer}
 import kafka.serializer.StringEncoder
-
 import java.io.File
 
+import kafka.producer.{KeyedMessage, Producer}
 import org.scalatest.junit.JUnit3Suite
 import org.junit.Assert._
 

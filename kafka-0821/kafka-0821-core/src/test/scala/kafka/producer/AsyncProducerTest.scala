@@ -19,6 +19,7 @@ package kafka.producer
 
 import java.util.Properties
 import java.util.concurrent.LinkedBlockingQueue
+
 import junit.framework.Assert._
 import org.easymock.EasyMock
 import org.junit.Test
@@ -26,11 +27,12 @@ import kafka.api._
 import kafka.cluster.Broker
 import kafka.common._
 import kafka.message._
-import kafka.producer.async._
+import kafka.producer.async.{DefaultEventHandler, EventHandler, ProducerSendThread}
 import kafka.serializer._
 import kafka.server.KafkaConfig
 import kafka.utils.TestUtils._
 import org.scalatest.junit.JUnit3Suite
+
 import scala.collection.Map
 import scala.collection.mutable.ArrayBuffer
 import kafka.utils._
