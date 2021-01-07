@@ -18,11 +18,11 @@ package kafka.examples;
 
 public interface KafkaProperties {
 	// 单机模式
-	// final static String Broker_List = "localhost:9092";
-	// final static String ZK_CONNECT = "127.0.0.1:2181";
+	 final static String Broker_List = "localhost:9092";
+	 final static String ZK_CONNECT = "127.0.0.1:2181";
 	// 集群模式
-	public final static String Broker_List = "localhost1:9093,localhost2:9094,localhost3:9095";
-	public final static String ZK_CONNECT = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
+//	public final static String Broker_List = "localhost1:9093,localhost2:9094,localhost3:9095";
+//	public final static String ZK_CONNECT = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
 
 	final static String GroupId = "group1";
 

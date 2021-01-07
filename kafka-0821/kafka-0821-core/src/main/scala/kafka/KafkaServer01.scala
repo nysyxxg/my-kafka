@@ -33,7 +33,7 @@ object KafkaServer01 extends Logging {
 
   def main(args: Array[String]): Unit = {
     var args = new Array[String](1);
-    args(0) = "../config/server-1.properties"
+    args(0) = "D:\\my-kafka\\kafka-0821\\config\\server-1.properties"
     print(args(0))
     if (args.length != 1) {
       println("USAGE: java [options] %s server.properties".format(classOf[KafkaServer].getSimpleName()))
