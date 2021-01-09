@@ -1,0 +1,59 @@
+<!-- - Copyright 1999-2011 Alibaba Group. - - Licensed under the Apache License,
+    Version 2.0 (the "License"); - you may not use this file except in compliance
+    with the License. - You may obtain a copy of the License at - - http://www.apache.org/licenses/LICENSE-2.0
+    - - Unless required by applicable law or agreed to in writing, software -
+    distributed under the License is distributed on an "AS IS" BASIS, - WITHOUT
+    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. - See the
+    License for the specific language governing permissions and - limitations
+    under the License. -->
+<assembly>
+    <id>assembly</id>
+    <formats>
+        <!--<format>tar.gz</format>-->
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <!-- <fileMode>0100</fileMode> -->
+        </fileSet>
+        <fileSet>
+            <directory>../config</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>
+        <!--如果工程依赖其他项目的conf，可以在这里添加-->
+        <!--<fileSet>
+            <directory>../pre-api/src/main/assembly/conf</directory>
+            <outputDirectory>conf</outputDirectory>
+        </fileSet>-->
+        <fileSet>
+            <directory>../libs</directory>
+            <outputDirectory>libs</outputDirectory>
+        </fileSet>
+
+        <!--<fileSet>-->
+            <!--<directory>kafka-0821-clients/target/*.jar</directory>-->
+            <!--<outputDirectory>libs</outputDirectory>-->
+        <!--</fileSet>-->
+
+        <!--<fileSet>-->
+            <!--<directory>kafka-0821-common/target/*.jar</directory>-->
+            <!--<outputDirectory>libs</outputDirectory>-->
+        <!--</fileSet>-->
+
+        <!--<fileSet>-->
+            <!--<directory>kafka-0821-core/target/*.jar</directory>-->
+            <!--<outputDirectory>libs</outputDirectory>-->
+        <!--</fileSet>-->
+
+    </fileSets>
+
+    <!-- 将工程的依赖包打包到lib目录下。 -->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>libs</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+</assembly>

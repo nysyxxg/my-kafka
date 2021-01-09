@@ -15,6 +15,7 @@
         <module>kafka-0821-core</module>
         <module>kafka-0821-contrib</module>
         <module>kafka-0821-examples</module>
+        <module>kafka-0821-assembly</module>
     </modules>
 
 

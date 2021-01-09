@@ -10,6 +10,7 @@
         <module name="hadoop-consumer" />
         <module name="hadoop-producer" />
         <module name="hadoop-test" />
+        <module name="kafka-0821-assembly" />
         <module name="kafka-0821-clients" />
         <module name="kafka-0821-common" />
         <module name="kafka-0821-core" />
@@ -21,6 +22,7 @@
       <module name="hadoop-producer" target="1.8" />
       <module name="hadoop-test" target="1.8" />
       <module name="kafka-0821" target="1.8.0_152-release" />
+      <module name="kafka-0821-assembly" target="1.8.0_152-release" />
       <module name="kafka-0821-clients" target="8" />
       <module name="kafka-0821-common" target="8" />
       <module name="kafka-0821-contrib" target="1.8" />

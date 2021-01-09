@@ -6,6 +6,7 @@
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-assembly/kafka-0821-assembly.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-assembly/kafka-0821-assembly.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-clients/kafka-0821-clients.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-clients/kafka-0821-clients.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-common/kafka-0821-common.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-common/kafka-0821-common.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/kafka-0821-contrib.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/kafka-0821-contrib.iml" />

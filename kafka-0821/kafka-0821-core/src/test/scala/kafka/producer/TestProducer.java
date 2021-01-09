@@ -4,9 +4,7 @@ import java.util.Properties;
 import java.util.Random;
 
 import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
-     
+
 public class TestProducer {
     
     public static void main(String[] args) {
@@ -14,7 +12,7 @@ public class TestProducer {
         Random rnd = new Random();
         
         Properties props = new Properties();
-        props.put("metadata.broker.list", "localhost1:9093,localhost2:9094,localhost3:9095");
+        props.put("metadata.broker.list", "localhost1:9092");
         props.put("serializer.class", "kafka.serializer.StringEncoder"); //默认字符串编码消息
         props.put("partitioner.class", "example.producer.SimplePartitioner");
         props.put("request.required.acks", "1");

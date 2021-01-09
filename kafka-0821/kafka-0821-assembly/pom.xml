@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>kafka-0821</artifactId>
+        <groupId>kafka-0821</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>kafka-0821-assembly</artifactId>
+
+
+
+    <dependencies>
+
+        <dependency>
+            <groupId>kafka-0821</groupId>
+            <artifactId>kafka-0821-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>kafka-0821</groupId>
+            <artifactId>kafka-0821-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>kafka-0821</groupId>
+            <artifactId>kafka-0821-clients</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+    </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <!--描述文件路径-->
+                    <descriptor>assembly/assembly.xml</descriptor>
+                    <!-- 生成的tar.gz文件的名字,如果没有设置就默认用pom文件里的artifactId+version-->
+                    <finalName>${project.name}-${project.version}</finalName>
+                    <!--属性控制是否在生成的打包文件的文件名中包含assembly id-->
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- 绑定到package生命周期阶段上 -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
