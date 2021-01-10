@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/HeiMa-Kafka-Study/HeiMa-Kafka-Study.iml" filepath="$PROJECT_DIR$/HeiMa-Kafka-Study/HeiMa-Kafka-Study.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ShangGuigu-Kafka-Study/ShangGuigu-Kafka-Study.iml" filepath="$PROJECT_DIR$/ShangGuigu-Kafka-Study/ShangGuigu-Kafka-Study.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-consumer/hadoop-consumer.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-consumer/hadoop-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" />

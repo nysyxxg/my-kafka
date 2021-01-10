@@ -107,8 +107,7 @@ public class DataGenerator {
         FileSystem fs = outPath.getFileSystem(conf);
         if (fs.exists(outPath)) fs.delete(outPath);
         
-        KafkaETLRequest request =
-            new KafkaETLRequest(_topic, "tcp://" + formatAddress(_uri.getHost(), _uri.getPort()), 0);
+        KafkaETLRequest request = new KafkaETLRequest(_topic, "tcp://" + formatAddress(_uri.getHost(), _uri.getPort()), 0);
 
         System.out.println("Dump " + request.toString() + " to " + outPath.toUri().toString());
         byte[] bytes = request.toString().getBytes("UTF-8");

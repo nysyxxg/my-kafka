@@ -11,8 +11,6 @@
 
     <artifactId>kafka-0821-core</artifactId>
 
-
-
     <dependencies>
 
         <dependency>
@@ -54,16 +52,16 @@
 
 
         <dependency>
-             <groupId>net.sf.jopt-simple</groupId>
+            <groupId>net.sf.jopt-simple</groupId>
             <artifactId>jopt-simple</artifactId>
             <version>6.0-alpha-4-SNAPSHOT</version>
         </dependency>
 
 
         <!--<dependency>-->
-            <!--<groupId>org.scala-lang</groupId>-->
-            <!--<artifactId>scala-library</artifactId>-->
-            <!--<version>2.10.12</version>-->
+        <!--<groupId>org.scala-lang</groupId>-->
+        <!--<artifactId>scala-library</artifactId>-->
+        <!--<version>2.10.12</version>-->
         <!--</dependency>-->
 
         <!-- Test Dependency -->
@@ -86,32 +84,32 @@
     <build>
         <!--<plugins>-->
 
-            <!--<plugin>-->
-                <!--<groupId>net.alchim31.maven</groupId>-->
-                <!--<artifactId>scala-maven-plugin</artifactId>-->
-                <!--<version>4.4.0</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<id>compile-scala</id>-->
-                        <!--<phase>compile</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>add-source</goal>-->
-                            <!--<goal>compile</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                    <!--<execution>-->
-                        <!--<id>test-compile-scala</id>-->
-                        <!--<phase>test-compile</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>add-source</goal>-->
-                            <!--<goal>testCompile</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<scalaVersion>2.10.6</scalaVersion>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+        <!--<plugin>-->
+        <!--<groupId>net.alchim31.maven</groupId>-->
+        <!--<artifactId>scala-maven-plugin</artifactId>-->
+        <!--<version>4.4.0</version>-->
+        <!--<executions>-->
+        <!--<execution>-->
+        <!--<id>compile-scala</id>-->
+        <!--<phase>compile</phase>-->
+        <!--<goals>-->
+        <!--<goal>add-source</goal>-->
+        <!--<goal>compile</goal>-->
+        <!--</goals>-->
+        <!--</execution>-->
+        <!--<execution>-->
+        <!--<id>test-compile-scala</id>-->
+        <!--<phase>test-compile</phase>-->
+        <!--<goals>-->
+        <!--<goal>add-source</goal>-->
+        <!--<goal>testCompile</goal>-->
+        <!--</goals>-->
+        <!--</execution>-->
+        <!--</executions>-->
+        <!--<configuration>-->
+        <!--<scalaVersion>2.10.6</scalaVersion>-->
+        <!--</configuration>-->
+        <!--</plugin>-->
         <!--</plugins>-->
     </build>
 
