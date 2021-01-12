@@ -31,7 +31,7 @@
       <module name="kafka-0821-contrib" target="1.8" />
       <module name="kafka-0821-core" target="1.8.0_152-release" />
       <module name="kafka-0821-examples" target="1.8" />
-      <module name="ShangGuigu-Kafka-Study" target="7" />
+      <module name="ShangGuigu-Kafka-Study" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>

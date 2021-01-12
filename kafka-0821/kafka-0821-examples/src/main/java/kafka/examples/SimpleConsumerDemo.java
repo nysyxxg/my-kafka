@@ -45,10 +45,10 @@ public class SimpleConsumerDemo {
     }
     
     private static void generateData() {
-        MyProducer producer2 = new MyProducer(KafkaProperties.topic2);
+        MyProducer producer2 = new MyProducer(KafkaProperties.topic_Test);
         producer2.start();
         
-        MyProducer producer3 = new MyProducer(KafkaProperties.topic3);
+        MyProducer producer3 = new MyProducer(KafkaProperties.topic_Test);
         producer3.start();
         try {
             Thread.sleep(1000);
@@ -85,8 +85,8 @@ public class SimpleConsumerDemo {
         }};
         req = new FetchRequestBuilder()
                 .clientId(KafkaProperties.clientId)
-                .addFetch(KafkaProperties.topic2, 0, 0L, 100)
-                .addFetch(KafkaProperties.topic3, 0, 0L, 100)
+                .addFetch(KafkaProperties.topic_Test, 0, 0L, 100)
+                .addFetch(KafkaProperties.topic_Test, 0, 0L, 100)
                 .build();
         fetchResponse = simpleConsumer.fetch(req);
         int fetchReq = 0;

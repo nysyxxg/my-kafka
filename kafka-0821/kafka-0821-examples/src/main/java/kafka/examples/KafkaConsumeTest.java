@@ -24,7 +24,7 @@ package kafka.examples;
 public class KafkaConsumeTest implements KafkaProperties {
 	public static void main(String[] args) {
 
-		MyConsumer consumerThread = new MyConsumer(KafkaProperties.topic1);
+		MyConsumer consumerThread = new MyConsumer(KafkaProperties.topic_Test);
 		consumerThread.start();
 
 	}

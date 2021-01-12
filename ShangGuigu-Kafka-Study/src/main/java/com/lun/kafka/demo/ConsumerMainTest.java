@@ -1,6 +1,5 @@
-package kafka.demo;
+package com.lun.kafka.demo;
 
-import kafka.examples.KafkaProperties;
 
 /**
  * 使用多线线程消费kafka数据
@@ -17,14 +16,14 @@ public class ConsumerMainTest {
    	
 	   String zooKeeper = KafkaProperties.ZK_CONNECT;  
        String groupId = KafkaProperties.GroupId;  
-       String topic = KafkaProperties.topic3;  
-       int threads = 2;  
+       String topic = KafkaProperties.topicTest;
+       int threads = 3;
   
        ConsumerGroupExample example = new ConsumerGroupExample(zooKeeper, groupId, topic);  
        example.run(threads);  
   
        try {  
-           Thread.sleep(10000);  
+           Thread.sleep(610000);
        } catch (InterruptedException ie) {  
   
        }  

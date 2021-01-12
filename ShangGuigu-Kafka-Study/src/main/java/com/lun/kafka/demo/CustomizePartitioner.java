@@ -1,8 +1,11 @@
-package kafka.demo;
+package com.lun.kafka.demo;
 
 import kafka.producer.Partitioner;
 import kafka.utils.VerifiableProperties;
 
+/**
+ * 自定义分区
+ */
 public class CustomizePartitioner implements Partitioner {
     
     public CustomizePartitioner(VerifiableProperties props) {

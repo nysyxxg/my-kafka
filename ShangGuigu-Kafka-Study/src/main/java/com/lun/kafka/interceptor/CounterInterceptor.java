@@ -13,8 +13,6 @@ public class CounterInterceptor implements ProducerInterceptor<String, String>{
 	
 	@Override
 	public void configure(Map<String, ?> configs) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

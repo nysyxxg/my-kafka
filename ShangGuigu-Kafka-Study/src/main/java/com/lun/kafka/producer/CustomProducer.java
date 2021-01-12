@@ -11,7 +11,7 @@ public class CustomProducer {
     public static void main(String[] args) {
         
         String topic = "test1";
-        String bootstrapServers = "172.21.1.167:9091,172.21.1.167:9092,172.21.1.167:9093";
+        String bootstrapServers = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
         
         Properties props = new Properties();
         // kafka 集群， broker-list
@@ -31,9 +31,8 @@ public class CustomProducer {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<>(props);
-        for (int i = 0; i < 100; i++) {
-            producer.send(new ProducerRecord<String, String>(topic, "test-" + Integer.toString(i),
-                    "test-" + Integer.toString(i)));
+        for (int i = 400; i < 500; i++) {
+            producer.send(new ProducerRecord<String, String>(topic, "test-" + Integer.toString(i), "test-" + Integer.toString(i)));
         }
         producer.close();
     }

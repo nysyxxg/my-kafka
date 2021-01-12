@@ -35,7 +35,7 @@ public class MyProducer extends Thread {
             KeyedMessage keyedMessage = new KeyedMessage<String, String>(topic, messageStr);
             producer.send(keyedMessage);
             messageNo++;
-            if (messageNo == 10) {
+            if (messageNo == 100) {
                 break;
             }
         }

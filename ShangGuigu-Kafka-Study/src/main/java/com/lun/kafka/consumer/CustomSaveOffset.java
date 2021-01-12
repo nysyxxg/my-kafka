@@ -32,7 +32,6 @@ public class CustomSaveOffset {
 			// 该方法会在 Rebalance 之后调用
 			@Override
 			public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-
 				currentOffset.clear();
 				for (TopicPartition partition : partitions) {
 					consumer.seek(partition, getOffset(partition));// 定位到最近提交的 offset 位置继续消费
@@ -57,5 +56,8 @@ public class CustomSaveOffset {
 
 	// 提交该消费者所有分区的 offset
 	private static void commitOffset(Map<TopicPartition, Long> currentOffset) {
+		// 保存zk
+		// 保存db
+		// 保存redis
 	}
 }

@@ -1,4 +1,4 @@
-package kafka.demo;
+package com.lun.kafka.demo;
 
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
@@ -23,8 +23,7 @@ public class ConsumerService implements Runnable {
         while (it.hasNext()) {
             by = it.next().message();
             String value = new String(by);
-            System.out.println("Thread " + m_threadNumber + ": " + value);
-            System.out.println(Thread.currentThread().getName() + " ....Shutting down Thread: " + m_threadNumber);
+            System.out.println(Thread.currentThread().getName() + " ....Shutting down Thread: " + " Thread " + m_threadNumber + ": " + value);
         }
     }
 }  

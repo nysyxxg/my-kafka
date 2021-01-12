@@ -25,7 +25,6 @@ public class TimeInterceptor implements ProducerInterceptor<String, String> {
 
 	@Override
 	public void onAcknowledgement(RecordMetadata metadata, Exception exception) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 }

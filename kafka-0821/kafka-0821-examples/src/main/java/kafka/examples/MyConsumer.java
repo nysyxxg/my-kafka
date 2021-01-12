@@ -18,8 +18,7 @@ public class MyConsumer extends Thread {
     private final String topic;
     
     public MyConsumer(String topic) {
-        consumer = kafka.consumer.Consumer.createJavaConsumerConnector(
-                createConsumerConfig());
+        consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
         this.topic = topic;
     }
     
