@@ -43,8 +43,7 @@ import static org.apache.kafka.common.utils.Utils.formatAddress;
 @SuppressWarnings("deprecation")
 public class DataGenerator {
 
-	protected final static Random RANDOM = new Random(
-			System.currentTimeMillis());
+	protected final static Random RANDOM = new Random(System.currentTimeMillis());
 
 	protected Props _props;
 	protected Producer _producer = null;
@@ -86,7 +85,7 @@ public class DataGenerator {
 			Long timestamp = RANDOM.nextLong();
 			if (timestamp < 0) timestamp = -timestamp;
 			byte[] bytes = timestamp.toString().getBytes("UTF8");
-            list.add(new KeyedMessage<Integer, byte[]>(_topic, null, bytes));
+			list.add(new KeyedMessage<Integer, byte[]>(_topic, null, bytes));
 		}
 		// send events
 		System.out.println(" send " + list.size() + " " + _topic + " count events to " + _uri);
@@ -95,7 +94,7 @@ public class DataGenerator {
 		// close the producer
 		_producer.close();
 		
-		// generate offset files
+		// generate offset files save to  hdfs
 		generateOffsets();
 	}
 
@@ -105,7 +104,9 @@ public class DataGenerator {
         conf.setCompressMapOutput(false);
         Path outPath = new Path(_offsetsDir + Path.SEPARATOR + "1.dat");
         FileSystem fs = outPath.getFileSystem(conf);
-        if (fs.exists(outPath)) fs.delete(outPath);
+        if (fs.exists(outPath)) {
+        	fs.delete(outPath);
+		}
         
         KafkaETLRequest request = new KafkaETLRequest(_topic, "tcp://" + formatAddress(_uri.getHost(), _uri.getPort()), 0);
 
