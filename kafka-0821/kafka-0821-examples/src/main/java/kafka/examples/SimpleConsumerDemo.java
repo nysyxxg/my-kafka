@@ -67,6 +67,7 @@ public class SimpleConsumerDemo {
                 KafkaProperties.clientId);
         
         System.out.println("Testing single fetch");
+        
         FetchRequest req = new FetchRequestBuilder()
                 .clientId(KafkaProperties.clientId)
                 .addFetch(KafkaProperties.topic2, 0, 0L, 100)

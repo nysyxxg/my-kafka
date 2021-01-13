@@ -42,29 +42,30 @@ public class MyConsumer extends Thread {
     
     public void run() {
         Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-        topicCountMap.put(topic, new Integer(1));
+        topicCountMap.put(topic, new Integer(1));// 设置需要几个消费者
         Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-        KafkaStream<byte[], byte[]> stream = consumerMap.get(topic).get(0);
-        ConsumerIterator<byte[], byte[]> it = stream.iterator();
-        while (it.hasNext()) {
-            //System.out.println(new String(it.next().message()));
-            
-            MessageAndMetadata<byte[], byte[]> message = it.next();
-            String topic = message.topic();
-            int partition = message.partition();
-            long offset = message.offset();
-            byte[] keyByte = message.key();
-            String key = null;
-            if (keyByte != null) {
-                key = new String(keyByte);
+    
+        List<KafkaStream<byte[], byte[]>>  kafkaStreamsList =  consumerMap.get(topic);
+        for(KafkaStream<byte[], byte[]> stream :kafkaStreamsList) {
+            ConsumerIterator<byte[], byte[]> it = stream.iterator();
+            while (it.hasNext()) {
+                //System.out.println(new String(it.next().message()));
+                MessageAndMetadata<byte[], byte[]> message = it.next();
+                String topic = message.topic();
+                int partition = message.partition();
+                long offset = message.offset();
+                byte[] keyByte = message.key();
+                String key = null;
+                if (keyByte != null) {
+                    key = new String(keyByte);
+                }
+                String msg = new String(message.message());
+                // 在这里处理消息,这里仅简单的输出
+                // 如果消息消费失败，可以将已上信息打印到日志中，活着发送到报警短信和邮件中，以便后续处理
+                System.out.println("consumerid:" + KafkaProperties.clientId + ", thread : " + Thread.currentThread().getName()
+                        + ", topic : " + topic + ", partition : " + partition
+                        + ", offset : " + offset + " , key : " + key + " , mess : " + msg);
             }
-            String msg = new String(message.message());
-            // 在这里处理消息,这里仅简单的输出
-            // 如果消息消费失败，可以将已上信息打印到日志中，活着发送到报警短信和邮件中，以便后续处理
-            System.out.println("consumerid:" + KafkaProperties.clientId + ", thread : " + Thread.currentThread().getName()
-                    + ", topic : " + topic + ", partition : " + partition
-                    + ", offset : " + offset + " , key : " + key + " , mess : " + msg);
         }
-        
     }
 }
