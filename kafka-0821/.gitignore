@@ -16,7 +16,6 @@ userDict/
 libs
 adapter.csv
 store_lock
-bin/*
 !/.project
 .project
 .settings

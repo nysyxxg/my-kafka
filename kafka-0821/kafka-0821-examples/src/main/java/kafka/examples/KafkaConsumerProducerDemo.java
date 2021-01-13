@@ -17,12 +17,22 @@
 package kafka.examples;
 
 public class KafkaConsumerProducerDemo implements KafkaProperties {
+    
+    public static void main1(String[] args)
+    {
+        Producer producerThread = new Producer(KafkaProperties.topic);
+        producerThread.start();
+        
+        Consumer consumerThread = new Consumer(KafkaProperties.topic);
+        consumerThread.start();
+        
+    }
+    
     public static void main(String[] args) {
         MyProducer producerThread = new MyProducer(KafkaProperties.topic1);
         producerThread.start();
         
         MyConsumer consumerThread = new MyConsumer(KafkaProperties.topic1);
         consumerThread.start();
-        
     }
 }

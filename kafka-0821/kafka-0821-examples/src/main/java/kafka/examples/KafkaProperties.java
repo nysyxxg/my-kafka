@@ -35,7 +35,7 @@ public interface KafkaProperties {
 	final static int reconnectInterval = 10000;
 
 	final static String topic_Test = "test";
-
+	final static String topic = "topic1";
 	final static String topic1 = "topic1";
 	final static String topic2 = "topic2";
 	final static String topic3 = "topic3";
