@@ -18,8 +18,7 @@ package kafka.examples;
 
 public class KafkaConsumerProducerDemo implements KafkaProperties {
     
-    public static void main1(String[] args)
-    {
+    public static void main1(String[] args) {
         Producer producerThread = new Producer(KafkaProperties.topic);
         producerThread.start();
         
@@ -32,7 +31,7 @@ public class KafkaConsumerProducerDemo implements KafkaProperties {
         MyProducer producerThread = new MyProducer(KafkaProperties.topic1);
         producerThread.start();
         
-        MyConsumer consumerThread = new MyConsumer(KafkaProperties.topic1);
-        consumerThread.start();
+//        MyConsumer consumerThread = new MyConsumer(KafkaProperties.topic1);
+//        consumerThread.start();
     }
 }

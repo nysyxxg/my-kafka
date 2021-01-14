@@ -240,7 +240,7 @@ class ConsumerConfig private (val props: VerifiableProperties) extends ZKConfig(
 
   /** Select a strategy for assigning partitions to consumer streams. Possible values: range, roundrobin */
   // partition.assignment.strategy : 默认值： range
-  // 选择向consumer 流分配partitions的策略，可选值：range(排序)，roundrobin(轮询调度算法)
+  // 选择向consumer 流分配partitions的策略，可选值：range(范围)，roundrobin(轮询调度算法)
   /**
    * partition.assignment.strategy：  range
    * 在“range”和“roundrobin”策略之间选择一种作为分配partitions给consumer 数据流的策略；

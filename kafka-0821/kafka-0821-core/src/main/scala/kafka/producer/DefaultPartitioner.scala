@@ -24,6 +24,6 @@ class DefaultPartitioner(props: VerifiableProperties = null) extends Partitioner
   private val random = new java.util.Random
   
   def partition(key: Any, numPartitions: Int): Int = {
-    Utils.abs(key.hashCode) % numPartitions
+    Utils.abs(key.hashCode) % numPartitions  // 默认分区策略-hashcode取模
   }
 }

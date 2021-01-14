@@ -31,7 +31,7 @@ import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.message.MessageAndOffset;
 
-public class SimpleConsumerDemo {
+public class SimpleConsumerDemoV0 {
     
     private static void printMessages(ByteBufferMessageSet messageSet) throws UnsupportedEncodingException {
         Iterator<MessageAndOffset> it = messageSet.iterator();
