@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 一个简单的读优化映射实现，它只同步写操作，并在每次修改时执行完整拷贝
  * A simple read-optimized map implementation that synchronizes only writes and does a full copy on each modification
  */
 public class CopyOnWriteMap<K, V> implements ConcurrentMap<K, V> {
@@ -31,7 +32,7 @@ public class CopyOnWriteMap<K, V> implements ConcurrentMap<K, V> {
     }
 
     public CopyOnWriteMap(Map<K, V> map) {
-        this.map = Collections.unmodifiableMap(map);
+        this.map = Collections.unmodifiableMap(map); // 不能修改的map
     }
 
     @Override

@@ -72,6 +72,7 @@ public final class RecordAccumulator {
     // 队列中的具体内容就是ProducerBatch(消息批次).即Deque< ProducerBatch >。
     // 通俗来讲，ProducerBatch为一个消息批次，可以将较小的ProducerRecord拼凑成一个较大的ProducerBatch.
     // 来减少网络请求次数提高吞吐量。当然ProducerRecord即为我们的消息。
+    // 为每个分区维护也一个双端队列，队列中的对象就是消息批次
     private final ConcurrentMap<TopicPartition, Deque<RecordBatch>> batches;
 
     /**
@@ -328,7 +329,7 @@ public final class RecordAccumulator {
         Deque<RecordBatch> d = this.batches.get(tp);
         if (d != null)
             return d;
-        this.batches.putIfAbsent(tp, new ArrayDeque<RecordBatch>());
+        this.batches.putIfAbsent(tp, new ArrayDeque<RecordBatch>());//如果是空的，就new一个新的数组双端队列
         return this.batches.get(tp);
     }
 
