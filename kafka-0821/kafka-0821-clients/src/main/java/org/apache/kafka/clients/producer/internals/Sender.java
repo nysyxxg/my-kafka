@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The background thread that handles the sending of produce requests to the Kafka cluster. This thread makes metadata
  * requests to renew its view of the cluster and then sends produce requests to the appropriate nodes.
+ * Sender 线程主要作用：负责从RecordAccumulator中获取消息并将其发送到kafka的broker中。
  */
 public class Sender implements Runnable {
 

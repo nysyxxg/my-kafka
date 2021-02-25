@@ -44,13 +44,13 @@ import org.apache.kafka.common.utils.Time;
  */
 public final class BufferPool {
 
-    private final long totalMemory;
+    private final long totalMemory; // 记录累加器，内存大小
     private final int poolableSize;
     private final boolean blockOnExhaustion;
     private final ReentrantLock lock;
     private final Deque<ByteBuffer> free;
     private final Deque<Condition> waiters;
-    private long availableMemory;
+    private long availableMemory; // 可用的内存大小
     private final Metrics metrics;
     private final Time time;
     private final Sensor waitTime;

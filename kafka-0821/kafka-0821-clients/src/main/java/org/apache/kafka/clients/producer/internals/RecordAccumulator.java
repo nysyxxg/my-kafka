@@ -49,6 +49,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * The accumulator uses a bounded amount of memory and append calls will block when that memory is exhausted, unless
  * this behavior is explicitly disabled.
+ * 消息累加器
+ *     RecordAccumulator也叫消息累加器，主要用来缓存消息以便Sender线程可以批量发送，进而减少网络传输的资源消耗来提升性能。
+ *     是在客户端开辟出的一块内存区域
+ *
  */
 public final class RecordAccumulator {
 
@@ -59,15 +63,22 @@ public final class RecordAccumulator {
     private final int batchSize;
     private final long lingerMs;
     private final long retryBackoffMs;
+    // 在RecordAccumulator的内部还有一个BufferPool，主要来实现ButeBuffer的复用。
+    // 不过BufferPool只针对特定大小的ByteBuffer进行管理。
+    // 超过大小是不会进入BufferPool的。可以通过参数batch.size来指定。默认为16384B.
     private final BufferPool free;
     private final Time time;
+    //  RecordAccumulator的内部为每个分区都维护了一个双端队列。
+    // 队列中的具体内容就是ProducerBatch(消息批次).即Deque< ProducerBatch >。
+    // 通俗来讲，ProducerBatch为一个消息批次，可以将较小的ProducerRecord拼凑成一个较大的ProducerBatch.
+    // 来减少网络请求次数提高吞吐量。当然ProducerRecord即为我们的消息。
     private final ConcurrentMap<TopicPartition, Deque<RecordBatch>> batches;
 
     /**
      * Create a new record accumulator
      * 
      * @param batchSize The size to use when allocating {@link org.apache.kafka.common.record.MemoryRecords} instances
-     * @param totalSize The maximum memory the record accumulator can use.
+     * @param totalSize The maximum memory the record accumulator can use.   记录累加器可以使用的最大内存。
      * @param lingerMs An artificial delay time to add before declaring a records instance that isn't full ready for
      *        sending. This allows time for more records to arrive. Setting a non-zero lingerMs will trade off some
      *        latency for potentially better throughput due to more batching (and hence fewer, larger requests).
@@ -78,9 +89,10 @@ public final class RecordAccumulator {
      * @param metrics The metrics
      * @param time The time instance to use
      * @param metricTags additional key/value attributes of the metric
+     *                   参数buffer.memory，默认为33554432B，及32MB. 指定RecordAccumulator缓存的大小
      */
-    public RecordAccumulator(int batchSize,
-                             long totalSize,
+    public RecordAccumulator(int batchSize, // 批次记录大小
+                             long totalSize, // 记录累加器可以使用的最大内存。设置累加器最大内存大小
                              long lingerMs,
                              long retryBackoffMs,
                              boolean blockOnBufferFull,
