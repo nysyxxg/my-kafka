@@ -2,3 +2,24 @@ cluster
 --该模块包含几个实体类，Broker,Cluster,Partition,Replica,
 解释他们之间关系：Cluster由多个broker组成，一个Broker包含多个partition，
 一个topic的所有partitions分布在不同broker的中，一个Replica包含多个Partition。
+
+Kafka怎么样才能不丢消息？
+
+再次说明下acks的语义
+如果acks=all，代表消息需要在所有ISR都被持久化成功后，Broker才可以告诉生产者，消息已经发送成功了。
+
+acks=all时，消息需要在所有ISR都被持久化成功后，这里为什么不设计成，消息需要在所有的Follower都被持久化成功后。
+
+这个当然是有原因的，之后的文章再详细讲解这个设计问题。
+
+这里就涉及到一个关键的问题，3个ISR不代表3个Node（1 Leader + 2 Followers）。
+如果在一些特殊情况下，部分在ISR中的Follower被被剔除ISR，极端情况下，
+最后的ISR中只有Leader一个，消息被Leader持久化成功后，就给触发了DelayedProduce的tryComplete，
+因为完全符合上面表达的语义：如果acks=all，代表消息需要在所有ISR都被持久化成功后，
+Broker才可以告诉生产者，消息已经发送成功了，只是这次所有的ISR就Leader自己。
+
+作者：艾瑞克的技术江湖
+链接：https://www.jianshu.com/p/1de494673b89
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+

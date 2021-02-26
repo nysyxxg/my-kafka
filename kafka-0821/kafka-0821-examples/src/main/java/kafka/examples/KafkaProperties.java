@@ -18,8 +18,12 @@ package kafka.examples;
 
 public interface KafkaProperties {
 	// 单机模式
-	 final static String Broker_List = "localhost:9092";
-	 final static String ZK_CONNECT = "localhost:2181";
+//	 final static String Broker_List = "localhost:9092";
+//	 final static String ZK_CONNECT = "localhost:2181";
+	
+		 final static String Broker_List = "xxg.kafka.cn:9095";
+	 final static String ZK_CONNECT = "xxg.kafka.cn:2181";
+	
 //    final static String Broker_List = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
 //    final static String ZK_CONNECT = "xxg.kafka.cn:2181";
 	// 集群模式

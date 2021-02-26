@@ -60,7 +60,7 @@ public final class RecordAccumulator {
 
     private volatile boolean closed;
     private int drainIndex;
-    private final int batchSize;
+    private final int batchSize; // 用来指定  RecordBatch 可以复用内存区域的大小
     private final long lingerMs;
     private final long retryBackoffMs;
     // 在RecordAccumulator的内部还有一个BufferPool，主要来实现ButeBuffer的复用。
@@ -92,7 +92,7 @@ public final class RecordAccumulator {
      * @param metricTags additional key/value attributes of the metric
      *                   参数buffer.memory，默认为33554432B，及32MB. 指定RecordAccumulator缓存的大小
      */
-    public RecordAccumulator(int batchSize, // 批次记录大小
+    public RecordAccumulator(int batchSize, //
                              long totalSize, // 记录累加器可以使用的最大内存。设置累加器最大内存大小
                              long lingerMs,
                              long retryBackoffMs,
@@ -222,10 +222,10 @@ public final class RecordAccumulator {
 
         boolean exhausted = this.free.queued() > 0;
         for (Map.Entry<TopicPartition, Deque<RecordBatch>> entry : this.batches.entrySet()) {
-            TopicPartition part = entry.getKey();
+            TopicPartition part = entry.getKey();  // 从TopicPartition分区到Node节点进行转换，找到对应的Node节点
             Deque<RecordBatch> deque = entry.getValue();
 
-            Node leader = cluster.leaderFor(part);
+            Node leader = cluster.leaderFor(part);// 找到分区的leader
             if (leader == null) {
                 unknownLeadersExist = true;
             } else if (!readyNodes.contains(leader)) {
@@ -288,7 +288,7 @@ public final class RecordAccumulator {
         Map<Integer, List<RecordBatch>> batches = new HashMap<Integer, List<RecordBatch>>();
         for (Node node : nodes) {
             int size = 0;
-            List<PartitionInfo> parts = cluster.partitionsForNode(node.id());
+            List<PartitionInfo> parts = cluster.partitionsForNode(node.id());// 根据节点的id 得到这个机器上的分区信息
             List<RecordBatch> ready = new ArrayList<RecordBatch>();
             /* to make starvation less likely this loop doesn't start at 0 */
             int start = drainIndex = drainIndex % parts.size();
@@ -308,7 +308,7 @@ public final class RecordAccumulator {
                                 RecordBatch batch = deque.pollFirst();
                                 batch.records.close();
                                 size += batch.records.sizeInBytes();
-                                ready.add(batch);
+                                ready.add(batch);// 添加消息批次
                                 batch.drainedMs = now;
                             }
                         }
@@ -316,7 +316,7 @@ public final class RecordAccumulator {
                 }
                 this.drainIndex = (this.drainIndex + 1) % parts.size();
             } while (start != drainIndex);
-            batches.put(node.id(), ready);
+            batches.put(node.id(), ready);// 将每个消息批次和机器节点id建立映射关系
         }
         return batches;
     }

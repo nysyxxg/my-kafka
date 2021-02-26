@@ -114,7 +114,7 @@ object LogConfig {
   val FlushMsProp = "flush.ms"
   val RetentionBytesProp = "retention.bytes"
   val RententionMsProp = "retention.ms"
-  val MaxMessageBytesProp = "max.message.bytes"
+  val MaxMessageBytesProp = "max.message.bytes" // 配置 broker端最大消息字节
   val IndexIntervalBytesProp = "index.interval.bytes"
   val DeleteRetentionMsProp = "delete.retention.ms"
   val FileDeleteDelayMsProp = "file.delete.delay.ms"

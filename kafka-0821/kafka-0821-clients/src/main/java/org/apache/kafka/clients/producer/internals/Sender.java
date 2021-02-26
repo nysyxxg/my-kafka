@@ -160,7 +160,7 @@ public class Sender implements Runnable {
             this.metadata.requestUpdate();
 
         // remove any nodes we aren't ready to send to
-        Iterator<Node> iter = result.readyNodes.iterator();
+        Iterator<Node> iter = result.readyNodes.iterator();// 开始遍历已经ready的集群节点
         long notReadyTimeout = Long.MAX_VALUE;
         while (iter.hasNext()) {
             Node node = iter.next();
@@ -170,9 +170,9 @@ public class Sender implements Runnable {
             }
         }
 
-        // create produce requests
+        // create produce requests   这将分配那些数据到对应的集群节点上，完成数据到节点的映射：key为集群节点的Id
         Map<Integer, List<RecordBatch>> batches = this.accumulator.drain(cluster, result.readyNodes, this.maxRequestSize, now);
-        List<ClientRequest> requests = createProduceRequests(batches, now);
+        List<ClientRequest> requests = createProduceRequests(batches, now); // 将发送数据的批次，封装为客户端请求
         sensors.updateProduceRequestMetrics(requests);
 
         // If we have any nodes that are ready to send + have sendable data, poll with 0 timeout so this can immediately
@@ -295,13 +295,14 @@ public class Sender implements Runnable {
 
     /**
      * Create a produce request from the given record batches
+     *  从给定的消息记录批次 --- 创建生产请求
      */
     private ClientRequest produceRequest(long now, int destination, short acks, int timeout, List<RecordBatch> batches) {
         Map<TopicPartition, ByteBuffer> produceRecordsByPartition = new HashMap<TopicPartition, ByteBuffer>(batches.size());
         Map<TopicPartition, RecordBatch> recordsByPartition = new HashMap<TopicPartition, RecordBatch>(batches.size());
         for (RecordBatch batch : batches) {
             TopicPartition tp = batch.topicPartition;
-            ByteBuffer recordsBuffer = batch.records.buffer();
+            ByteBuffer recordsBuffer = batch.records.buffer(); // 获取消息的bytebuffer
             recordsBuffer.flip();
             produceRecordsByPartition.put(tp, recordsBuffer);
             recordsByPartition.put(tp, batch);

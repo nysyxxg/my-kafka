@@ -39,7 +39,8 @@ public class ProducerConfig extends AbstractConfig {
 
     /** <code>bootstrap.servers</code> */
     public static final String BOOTSTRAP_SERVERS_CONFIG = "bootstrap.servers";
-    private static final String BOOSTRAP_SERVERS_DOC = "A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. Data will be load " + "balanced over all servers irrespective of which servers are specified here for bootstrapping&mdash;this list only "
+    private static final String BOOSTRAP_SERVERS_DOC = "A list of host/port pairs to use for establishing the initial connection to the Kafka cluster. Data will be load "
+                                                       + "balanced over all servers irrespective of which servers are specified here for bootstrapping&mdash;this list only "
                                                        + "impacts the initial hosts used to discover the full set of servers. This list should be in the form "
                                                        + "<code>host1:port1,host2:port2,...</code>. Since these servers are just used for the initial connection to "
                                                        + "discover the full cluster membership (which may change dynamically), this list need not contain the full set of "
@@ -48,16 +49,23 @@ public class ProducerConfig extends AbstractConfig {
 
     /** <code>metadata.fetch.timeout.ms</code> */
     public static final String METADATA_FETCH_TIMEOUT_CONFIG = "metadata.fetch.timeout.ms";
-    private static final String METADATA_FETCH_TIMEOUT_DOC = "The first time data is sent to a topic we must fetch metadata about that topic to know which servers host the " + "topic's partitions. This configuration controls the maximum amount of time we will block waiting for the metadata "
+    private static final String METADATA_FETCH_TIMEOUT_DOC = "The first time data is sent to a topic we must fetch metadata about that topic to know which servers host the "
+                                                             + "topic's partitions. This configuration controls the maximum amount of time we will block waiting for the metadata "
                                                              + "fetch to succeed before throwing an exception back to the client.";
 
-    /** <code>metadata.max.age.ms</code> */
-    public static final String METADATA_MAX_AGE_CONFIG = "metadata.max.age.ms";
-    private static final String METADATA_MAX_AGE_DOC = "The period of time in milliseconds after which we force a refresh of metadata even if we haven't seen any " + " partition leadership changes to proactively discover any new brokers or partitions.";
+    /** <code>metadata.max.age.ms</code>
+     *  (5 分钟） 如果在这个时间内元数据没有更新的话会被强制更新
+     * */
+    public static final String METADATA_MAX_AGE_CONFIG = "metadata.max.age.ms"; // 元数据更新时间设置，默认是5分钟
+    private static final String METADATA_MAX_AGE_DOC = "The period of time in milliseconds after which we force a refresh of metadata even if we haven't seen any "
+                                                       + " partition leadership changes to proactively discover any new brokers or partitions.";
 
-    /** <code>batch.size</code> */
+    /** <code>batch.size</code>
+     * 这个参数默认是16K，用于指定ProducerBatch可以复用的内存区域的大小。
+     * */
     public static final String BATCH_SIZE_CONFIG = "batch.size";
-    private static final String BATCH_SIZE_DOC = "The producer will attempt to batch records together into fewer requests whenever multiple records are being sent" + " to the same partition. This helps performance on both the client and the server. This configuration controls the "
+    private static final String BATCH_SIZE_DOC = "The producer will attempt to batch records together into fewer requests whenever multiple records are being sent"
+                                                 + " to the same partition. This helps performance on both the client and the server. This configuration controls the "
                                                  + "default batch size in bytes. "
                                                  + "<p>"
                                                  + "No attempt will be made to batch records larger than this size. "
@@ -68,9 +76,13 @@ public class ProducerConfig extends AbstractConfig {
                                                  + "batching entirely). A very large batch size may use memory a bit more wastefully as we will always allocate a "
                                                  + "buffer of the specified batch size in anticipation of additional records.";
 
-    /** <code>buffer.memory</code> */
+    /** <code>buffer.memory</code>
+     *  这个参数默认是32M，生产者客户端中 用于 缓存消息 的 缓存区大小。
+     *
+     * */
     public static final String BUFFER_MEMORY_CONFIG = "buffer.memory";
-    private static final String BUFFER_MEMORY_DOC = "The total bytes of memory the producer can use to buffer records waiting to be sent to the server. If records are " + "sent faster than they can be delivered to the server the producer will either block or throw an exception based "
+    private static final String BUFFER_MEMORY_DOC = "The total bytes of memory the producer can use to buffer records waiting to be sent to the server. If records are "
+                                                    + "sent faster than they can be delivered to the server the producer will either block or throw an exception based "
                                                     + "on the preference specified by <code>block.on.buffer.full</code>. "
                                                     + "<p>"
                                                     + "This setting should correspond roughly to the total memory the producer will use, but is not a hard bound since "
@@ -94,15 +106,24 @@ public class ProducerConfig extends AbstractConfig {
                                            + " acknowledge the record. This guarantees that the record will not be lost as long as at least one in-sync replica"
                                            + " remains alive. This is the strongest available guarantee.";
 
-    /** <code>timeout.ms</code> */
+    /** <code>timeout.ms</code>
+     *
+     *
+     * */
     public static final String TIMEOUT_CONFIG = "timeout.ms";
-    private static final String TIMEOUT_DOC = "The configuration controls the maximum amount of time the server will wait for acknowledgments from followers to " + "meet the acknowledgment requirements the producer has specified with the <code>acks</code> configuration. If the "
+    private static final String TIMEOUT_DOC = "The configuration controls the maximum amount of time the server will wait for acknowledgments from followers to "
+                                              + "meet the acknowledgment requirements the producer has specified with the <code>acks</code> configuration. If the "
                                               + "requested number of acknowledgments are not met when the timeout elapses an error will be returned. This timeout "
                                               + "is measured on the server side and does not include the network latency of the request.";
 
-    /** <code>linger.ms</code> */
+    /** <code>linger.ms</code>
+     *  这个参数用来指定生产者发送 ProducerBatch 之前等待更多的消息（ProducerRecord）加入ProducerBatch的时间，默认是0。
+     *  生产者客户端会在ProducerBatch被填满之前，或者等待时间超过linger.ms值时将数据发送出去。
+     *  增加这个参数，会增加消息的延迟，但是会提升一定的ten吐量
+     * */
     public static final String LINGER_MS_CONFIG = "linger.ms";
-    private static final String LINGER_MS_DOC = "The producer groups together any records that arrive in between request transmissions into a single batched request. " + "Normally this occurs only under load when records arrive faster than they can be sent out. However in some circumstances the client may want to "
+    private static final String LINGER_MS_DOC = "The producer groups together any records that arrive in between request transmissions into a single batched request. "
+                                                + "Normally this occurs only under load when records arrive faster than they can be sent out. However in some circumstances the client may want to "
                                                 + "reduce the number of requests even under moderate load. This setting accomplishes this by adding a small amount "
                                                 + "of artificial delay&mdash;that is, rather than immediately sending out a record the producer will wait for up to "
                                                 + "the given delay to allow other records to be sent so that the sends can be batched together. This can be thought "
@@ -114,20 +135,31 @@ public class ProducerConfig extends AbstractConfig {
 
     /** <code>client.id</code> */
     public static final String CLIENT_ID_CONFIG = "client.id";
-    private static final String CLIENT_ID_DOC = "The id string to pass to the server when making requests. The purpose of this is to be able to track the source " + "of requests beyond just ip/port by allowing a logical application name to be included with the request. The "
+    private static final String CLIENT_ID_DOC = "The id string to pass to the server when making requests. The purpose of this is to be able to track the source "
+                                                + "of requests beyond just ip/port by allowing a logical application name to be included with the request. The "
                                                 + "application can set any string it wants as this has no functional purpose other than in logging and metrics.";
 
-    /** <code>send.buffer.bytes</code> */
+    /** <code>send.buffer.bytes</code>
+     *   这个参数用来设置Socket发送消息缓冲区的大小，默认值为131072，即为128k.
+     *   如果设置为-1，则使用操作系统的默认值。
+     * */
     public static final String SEND_BUFFER_CONFIG = "send.buffer.bytes";
     private static final String SEND_BUFFER_DOC = "The size of the TCP send buffer to use when sending data";
 
-    /** <code>receive.buffer.bytes</code> */
+    /** <code>receive.buffer.bytes</code>
+     *  这个参数用来设置Socket接收消息缓冲区的大小，默认值为32768，即为32k.
+     *  如果设置为-1，则使用操作系统的默认值。
+     *  如果Producer与Kafka处于不同的机房，则可以适当的调大这个参数值。
+     * */
     public static final String RECEIVE_BUFFER_CONFIG = "receive.buffer.bytes";
     private static final String RECEIVE_BUFFER_DOC = "The size of the TCP receive buffer to use when reading data";
 
-    /** <code>max.request.size</code> */
+    /** <code>max.request.size</code>
+     *  这个参数用来限制【生产者客户端】发送的消息的最大值，默认是1M
+     * */
     public static final String MAX_REQUEST_SIZE_CONFIG = "max.request.size";
-    private static final String MAX_REQUEST_SIZE_DOC = "The maximum size of a request. This is also effectively a cap on the maximum record size. Note that the server " + "has its own cap on record size which may be different from this. This setting will limit the number of record "
+    private static final String MAX_REQUEST_SIZE_DOC = "The maximum size of a request. This is also effectively a cap on the maximum record size. Note that the server "
+                                                       + "has its own cap on record size which may be different from this. This setting will limit the number of record "
                                                        + "batches the producer will send in a single request to avoid sending huge requests.";
 
     /** <code>reconnect.backoff.ms</code> */
@@ -139,18 +171,27 @@ public class ProducerConfig extends AbstractConfig {
     private static final String BLOCK_ON_BUFFER_FULL_DOC = "When our memory buffer is exhausted we must either stop accepting new records (block) or throw errors. By default " + "this setting is true and we block, however in some scenarios blocking is not desirable and it is better to "
                                                            + "immediately give an error. Setting this to <code>false</code> will accomplish that: the producer will throw a BufferExhaustedException if a recrord is sent and the buffer space is full.";
 
-    /** <code>retries</code> */
+    /** <code>retries</code>
+     * retries 参数用来配置生产者重试的次数，默认值是0，即发生异常的时候不进行任何重试动作。
+     * */
     public static final String RETRIES_CONFIG = "retries";
     private static final String RETRIES_DOC = "Setting a value greater than zero will cause the client to resend any record whose send fails with a potentially transient error." + " Note that this retry is no different than if the client resent the record upon receiving the "
                                               + "error. Allowing retries will potentially change the ordering of records because if two records are "
                                               + "sent to a single partition, and the first fails and is retried but the second succeeds, then the second record "
                                               + "may appear first.";
 
-    /** <code>retry.backoff.ms</code> */
+    /** <code>retry.backoff.ms</code>
+     *   这个参数默认是100，他来设定两次重试之间的时间间隔，避免无效的频繁重试。
+     *   在配置retries 和 retry.backoff.ms之前，最好先估算一下可能的异常恢复时间，
+     *   这样可以设定总的重试时间大于这个异常恢复时间，以此避免生产者过早的放弃重试
+     * */
     public static final String RETRY_BACKOFF_MS_CONFIG = "retry.backoff.ms";
     private static final String RETRY_BACKOFF_MS_DOC = "The amount of time to wait before attempting to retry a failed produce request to a given topic partition." + " This avoids repeated sending-and-failing in a tight loop.";
 
-    /** <code>compression.type</code> */
+    /** <code>compression.type</code>
+     * 指定消息的压缩方式，默认值为“none”，默认情况下，消息不会被压缩，
+     * 该参数可以配置：gzip，snappy，lz4
+     * */
     public static final String COMPRESSION_TYPE_CONFIG = "compression.type";
     private static final String COMPRESSION_TYPE_DOC = "The compression type for all data generated by the producer. The default is none (i.e. no compression). Valid " + " values are <code>none</code>, <code>gzip</code>, <code>snappy</code>, or <code>lz4</code>. "
                                                        + "Compression is of full batches of data, so the efficacy of batching will also impact the compression ratio (more batching means better compression).";
@@ -168,7 +209,9 @@ public class ProducerConfig extends AbstractConfig {
     public static final String METRIC_REPORTER_CLASSES_CONFIG = "metric.reporters";
     private static final String METRIC_REPORTER_CLASSES_DOC = "A list of classes to use as metrics reporters. Implementing the <code>MetricReporter</code> interface allows " + "plugging in classes that will be notified of new metric creation. The JmxReporter is always included to register JMX statistics.";
 
-    /** <code>max.in.flight.requests.per.connection</code> */
+    /** <code>max.in.flight.requests.per.connection</code>
+     *  限制每个连接（也就是客户端和NOde之间的连接） 最多缓存的请求数。
+     * */
     public static final String MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION = "max.in.flight.requests.per.connection";
     private static final String MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION_DOC = "The maximum number of unacknowledged requests the client will send on a single connection before blocking.";
 

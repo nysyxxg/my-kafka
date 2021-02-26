@@ -54,6 +54,10 @@ trait SyncProducerConfigShared {
 
   /*
    * The ack timeout of the producer requests. Value must be non-negative and non-zero
+   *
+   * request.timeout.ms  这个参数用来配置producer等待请求响应的最长时间，默认值为30000.
+   * 请求超时之后可以选择进行重试。注意这个参数需要比broker端参数replica.lag.time.max.ms 的值要大，
+   * 这样可以减少因客户端重试而引起的消息重复的概率。
    */
   val requestTimeoutMs = props.getIntInRange("request.timeout.ms", SyncProducerConfig.DefaultAckTimeoutMs,
                                              (1, Integer.MAX_VALUE))

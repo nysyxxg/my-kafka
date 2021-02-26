@@ -316,18 +316,19 @@ class Partition(val topic: String,
         .format(oldHighWatermark, newHighWatermark, topic, partitionId, allLogEndOffsets.mkString(",")))
     }
   }
-
+  // // ISR缩减任务
   def maybeShrinkIsr(replicaMaxLagTimeMs: Long,  replicaMaxLagMessages: Long) {
     inWriteLock(leaderIsrUpdateLock) {
       leaderReplicaIfLocal() match {
         case Some(leaderReplica) =>
+          //  获取那些没有跟上的Follower
           val outOfSyncReplicas = getOutOfSyncReplicas(leaderReplica, replicaMaxLagTimeMs, replicaMaxLagMessages)
           if(outOfSyncReplicas.size > 0) {
-            val newInSyncReplicas = inSyncReplicas -- outOfSyncReplicas
+            val newInSyncReplicas = inSyncReplicas -- outOfSyncReplicas  // isr 集合减去 [没有跟上的Follower]
             assert(newInSyncReplicas.size > 0)
             info("Shrinking ISR for partition [%s,%d] from %s to %s".format(topic, partitionId,
               inSyncReplicas.map(_.brokerId).mkString(","), newInSyncReplicas.map(_.brokerId).mkString(",")))
-            // update ISR in zk and in cache
+            // update ISR in zk and in cache   // 把那些没有跟上的Follower从ISR中剔除
             updateIsr(newInSyncReplicas)
             // we may need to increment high watermark since ISR could be down to 1
             maybeIncrementLeaderHW(leaderReplica)
@@ -337,7 +338,7 @@ class Partition(val topic: String,
       }
     }
   }
-
+  // Follower是否跟上Leader的标准
   def getOutOfSyncReplicas(leaderReplica: Replica, keepInSyncTimeMs: Long, keepInSyncMessages: Long): Set[Replica] = {
     /**
      * there are two cases that need to be handled here -
@@ -347,6 +348,7 @@ class Partition(val topic: String,
      *                     follower is not catching up and should be removed from the ISR
      **/
     val leaderLogEndOffset = leaderReplica.logEndOffset
+    // Leader统计每一个Follower的LastCaughtUpTime（上一次追赶上的时间），如果和当前时间比大于10s。
     val candidateReplicas = inSyncReplicas - leaderReplica
     // Case 1 above
     val stuckReplicas = candidateReplicas.filter(r => (time.milliseconds - r.logEndOffsetUpdateTimeMs) > keepInSyncTimeMs)

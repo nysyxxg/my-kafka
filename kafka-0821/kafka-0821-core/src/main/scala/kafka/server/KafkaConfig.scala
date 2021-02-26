@@ -69,7 +69,7 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
     }
   }
 
-  /*********** General Configuration ***********/
+  /*********** General Configuration  服务端broker相关配置参数 ***********/
 
   /* the broker id for this server */
   val brokerId: Int = props.getIntInRange("broker.id", (0, Int.MaxValue))
@@ -125,6 +125,7 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
   val maxConnectionsPerIpOverrides = props.getMap("max.connections.per.ip.overrides").map(entry => (entry._1, entry._2.toInt))
 
   /* idle connections timeout: the server socket processor threads close the connections that idle more than this */
+  // 这个参数用来指定在多久之后关闭限制的连接
   val connectionsMaxIdleMs = props.getLong("connections.max.idle.ms", 10*60*1000L)
 
   /*********** Log Configuration ***********/

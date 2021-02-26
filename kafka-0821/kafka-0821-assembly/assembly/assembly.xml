@@ -21,7 +21,7 @@
         </fileSet>
         <fileSet>
             <directory>../config</directory>
-            <outputDirectory>conf</outputDirectory>
+            <outputDirectory>config</outputDirectory>
         </fileSet>
         <!--如果工程依赖其他项目的conf，可以在这里添加-->
         <!--<fileSet>

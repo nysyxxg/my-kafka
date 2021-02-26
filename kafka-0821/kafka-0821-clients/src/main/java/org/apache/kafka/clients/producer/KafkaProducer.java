@@ -187,7 +187,7 @@ public class KafkaProducer<K,V> implements Producer<K,V> {
                                                  time,
                                                  metricTags);
         List<InetSocketAddress> addresses = ClientUtils.parseAndValidateAddresses(config.getList(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG));
-        //  //往metadata中，填入初始的，配置的node列表
+        //  //往metadata中，填入初始的，配置的node列表，更新元数据信息
         this.metadata.update(Cluster.bootstrap(addresses), time.milliseconds());
 
         NetworkClient client = new NetworkClient(new Selector(this.metrics, time , "producer", metricTags),

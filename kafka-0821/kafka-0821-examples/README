@@ -17,3 +17,9 @@ To run the demo using scripts:
    2. For simple consumer demo, run bin/java-simple-consumer-demo.sh
    3. For unlimited producer-consumer run, run bin/java-producer-consumer-demo.sh
 
+
+启动ZK：
+
+sh bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
+
+sh bin/kafka-server-start.sh -daemon config/server.properties

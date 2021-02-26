@@ -32,14 +32,15 @@ import utils.{Utils, Logging}
 object Kafka extends Logging {
 
   def main(args: Array[String]): Unit = {
-    var args = new Array[String](1);
-    args(0) = "D:\\my-kafka\\kafka-0821\\config\\server.properties"
-    print(args(0))
+//    var args = new Array[String](1)
+//    args(0) = "D:\\my-kafka\\kafka-0821\\config\\server.properties"
+//    print(args(0))
+
     if (args.length != 1) {
       println("USAGE: java [options] %s server.properties".format(classOf[KafkaServer].getSimpleName()))
       System.exit(1)
     }
-  
+
     try {
       val props = Utils.loadProps(args(0)) //加载配置文件  
       val serverConfig = new KafkaConfig(props)
