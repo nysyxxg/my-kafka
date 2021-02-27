@@ -30,7 +30,7 @@ public interface KafkaProperties {
 //	public final static String Broker_List = "localhost1:9093,localhost2:9094,localhost3:9095";
 //	public final static String ZK_CONNECT = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
 
-	final static String GroupId = "group1";
+	final static String GroupId = "group3";
 
 	final static String kafkaServerURL = "xxg.kafka.cn";
 	final static int kafkaServerPort = 9092;

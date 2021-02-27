@@ -17,11 +17,12 @@ package org.apache.kafka.common;
  */
 public class PartitionInfo {
 
-    private final String topic;
-    private final int partition;
-    private final Node leader;
-    private final Node[] replicas;
-    private final Node[] inSyncReplicas;
+    private final String topic;  // 主题名称
+    private final int partition; // 代表分区编号
+    private final Node leader;  // 代表分区的leader副本所在的位置
+    private final Node[] replicas; //代表分区的AR集合
+    private final Node[] inSyncReplicas;  // 代表分区的ISR集合
+    private final Node[] offlineReplicas = null;  //  代表分区的OSR集合，旧的版本中不存在
 
     public PartitionInfo(String topic, int partition, Node leader, Node[] replicas, Node[] inSyncReplicas) {
         this.topic = topic;

@@ -110,7 +110,7 @@ public final class Cluster {
     }
 
     /**
-     * Get the current leader for the given topic-partition
+     * Get the current leader for the given topic-partition  找出分区的leader
      * @param topicPartition The topic and partition we want to know the leader for
      * @return The node that is the leader for this topic-partition, or null if there is currently no leader
      */
@@ -132,7 +132,7 @@ public final class Cluster {
     }
 
     /**
-     * Get the list of partitions for this topic
+     * Get the list of partitions for this topic   根据topic获取这个主题的元数据信息
      * @param topic The topic name
      * @return A list of partitions
      */

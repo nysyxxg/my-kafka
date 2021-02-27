@@ -42,7 +42,7 @@ public class MyConsumer extends Thread {
     
     public void run() {
         Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-        topicCountMap.put(topic, new Integer(1));// 设置需要几个消费者
+        topicCountMap.put(topic, new Integer(3));// 设置需要几个消费者
         Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
     
         List<KafkaStream<byte[], byte[]>>  kafkaStreamsList =  consumerMap.get(topic);

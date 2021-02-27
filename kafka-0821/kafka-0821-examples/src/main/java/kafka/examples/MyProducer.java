@@ -17,6 +17,7 @@ public class MyProducer extends Thread {
         /**
          * 笔者也是经常很长时间看源码分析，才明白了为什么ProducerConfig配置信息里面并不要求使用者提供完整的kafka集群的broker信息，
          * 而是任选一个或几个即可。因为他会通过您选择的broker和topics信息而获取最新的所有的broker信息。
+         * 通过设置的broker来获取topic的元数据信息
          */
         props.put("metadata.broker.list", KafkaProperties.Broker_List);
         props.put("request.required.acks", "-1");
@@ -35,8 +36,14 @@ public class MyProducer extends Thread {
             KeyedMessage keyedMessage = new KeyedMessage<String, String>(topic, messageStr);
             producer.send(keyedMessage);
             messageNo++;
-            if (messageNo == 100) {
+            if (messageNo == 1000000) {
                 break;
+            }
+    
+            try {
+                Thread.sleep(3 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
         
