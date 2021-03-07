@@ -91,7 +91,7 @@ public class Selector implements Selectable {
      */
     public Selector(Metrics metrics, Time time , String metricGrpPrefix , Map<String, String> metricTags) {
         try {
-            this.selector = java.nio.channels.Selector.open();
+            this.selector = java.nio.channels.Selector.open();  // 初始化nio的选择器
         } catch (IOException e) {
             throw new KafkaException(e);
         }

@@ -22,8 +22,8 @@ package org.apache.kafka.common;
 public final class TopicPartition {
 
     private int hash = 0;
-    private final int partition;
-    private final String topic;
+    private final int partition; // 分区自身编号
+    private final String topic;// 分区所属主题
 
     public TopicPartition(String topic, int partition) {
         this.partition = partition;

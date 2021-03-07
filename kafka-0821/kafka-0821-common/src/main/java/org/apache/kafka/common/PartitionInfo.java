@@ -20,7 +20,7 @@ public class PartitionInfo {
     private final String topic;  // 主题名称
     private final int partition; // 代表分区编号
     private final Node leader;  // 代表分区的leader副本所在的位置
-    private final Node[] replicas; //代表分区的AR集合
+    private final Node[] replicas; //代表分区的AR集合，AR = ISR + OSR
     private final Node[] inSyncReplicas;  // 代表分区的ISR集合
     private final Node[] offlineReplicas = null;  //  代表分区的OSR集合，旧的版本中不存在
 

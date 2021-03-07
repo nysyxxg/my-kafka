@@ -16,10 +16,13 @@
         <module name="kafka-0821-common" />
         <module name="kafka-0821-core" />
         <module name="kafka-0821-examples" />
+        <module name="kafka_book_demo" />
         <module name="ShangGuigu-Kafka-Study" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="8">
+      <module name="examples.org.apache.kafka.examples.main" target="1.7" />
+      <module name="examples.org.apache.kafka.examples.test" target="1.7" />
       <module name="hadoop-consumer" target="8" />
       <module name="hadoop-producer" target="1.8" />
       <module name="hadoop-test" target="1.8" />
@@ -29,8 +32,35 @@
       <module name="kafka-0821-clients" target="8" />
       <module name="kafka-0821-common" target="8" />
       <module name="kafka-0821-contrib" target="1.8" />
-      <module name="kafka-0821-core" target="1.8.0_152-release" />
+      <module name="kafka-0821-core" target="1.8" />
       <module name="kafka-0821-examples" target="1.8" />
+      <module name="kafka_book_demo" target="1.8" />
+      <module name="org.apache.kafka.api.main" target="1.7" />
+      <module name="org.apache.kafka.api.test" target="1.7" />
+      <module name="org.apache.kafka.clients.main" target="1.7" />
+      <module name="org.apache.kafka.clients.test" target="1.7" />
+      <module name="org.apache.kafka.connect.main" target="1.7" />
+      <module name="org.apache.kafka.connect.test" target="1.7" />
+      <module name="org.apache.kafka.core.main" target="1.7" />
+      <module name="org.apache.kafka.core.scoverage" target="1.7" />
+      <module name="org.apache.kafka.core.test" target="1.7" />
+      <module name="org.apache.kafka.core.testScoverage" target="1.7" />
+      <module name="org.apache.kafka.examples.main" target="1.7" />
+      <module name="org.apache.kafka.examples.test" target="1.7" />
+      <module name="org.apache.kafka.file.main" target="1.7" />
+      <module name="org.apache.kafka.file.test" target="1.7" />
+      <module name="org.apache.kafka.json.main" target="1.7" />
+      <module name="org.apache.kafka.json.test" target="1.7" />
+      <module name="org.apache.kafka.log4j-appender.main" target="1.7" />
+      <module name="org.apache.kafka.log4j-appender.test" target="1.7" />
+      <module name="org.apache.kafka.runtime.main" target="1.7" />
+      <module name="org.apache.kafka.runtime.test" target="1.7" />
+      <module name="org.apache.kafka.streams.main" target="1.7" />
+      <module name="org.apache.kafka.streams.test" target="1.7" />
+      <module name="org.apache.kafka.tools.main" target="1.7" />
+      <module name="org.apache.kafka.tools.test" target="1.7" />
+      <module name="org.apache.kafka.transforms.main" target="1.7" />
+      <module name="org.apache.kafka.transforms.test" target="1.7" />
       <module name="ShangGuigu-Kafka-Study" target="8" />
     </bytecodeTargetLevel>
   </component>

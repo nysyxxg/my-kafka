@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
  * Created by 朱小厮 on 2018/8/29.
  */
 public class KafkaProducerAnalysis {
-    public static final String brokerList = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
+    public static final String brokerList = "xxg.kafka.cn:9095";
+//    public static final String brokerList = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
     public static final String topic = "topic-demo";
     
     public static Properties initConfig() {
@@ -51,21 +52,21 @@ public class KafkaProducerAnalysis {
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, "hello, Kafka!");
         try {
             // 第一种方式: 同步发送
-            Future<RecordMetadata> future = producer.send(record);
-            future.get();
+//            Future<RecordMetadata> future = producer.send(record);
+//            future.get();
             
             // 第二种方式 ： 异步发送
-//            producer.send(record, new Callback() { // 发送消息之后，进行回调-返回记录的元数据信息
-//                @Override
-//                public void onCompletion(RecordMetadata metadata, Exception exception) {
-//                    if (exception == null) {
-//                        System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":");
-//                    }else if(exception != null){
-//                        // 说明存在异常
-//                        exception.printStackTrace();
-//                    }
-//                }
-//            });
+            producer.send(record, new Callback() { // 发送消息之后，进行回调-返回记录的元数据信息
+                @Override
+                public void onCompletion(RecordMetadata metadata, Exception exception) {
+                    if (exception == null) {
+                        System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":");
+                    }else if(exception != null){
+                        // 说明存在异常
+                        exception.printStackTrace();
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

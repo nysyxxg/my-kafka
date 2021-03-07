@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HeiMa-Kafka-Study/HeiMa-Kafka-Study.iml" filepath="$PROJECT_DIR$/HeiMa-Kafka-Study/HeiMa-Kafka-Study.iml" />
       <module fileurl="file://$PROJECT_DIR$/ShangGuigu-Kafka-Study/ShangGuigu-Kafka-Study.iml" filepath="$PROJECT_DIR$/ShangGuigu-Kafka-Study/ShangGuigu-Kafka-Study.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/examples/examples.org.apache.kafka.examples.main.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/examples/examples.org.apache.kafka.examples.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/examples/examples.org.apache.kafka.examples.test.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/examples/examples.org.apache.kafka.examples.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-consumer/hadoop-consumer.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-consumer/hadoop-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-producer/hadoop-producer.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/hadoop-test/hadoop-test.iml" />
@@ -14,7 +16,48 @@
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/kafka-0821-contrib.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-contrib/kafka-0821-contrib.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-core/kafka-0821-core.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-core/kafka-0821-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/kafka-0821/kafka-0821-examples/kafka-0821-examples.iml" filepath="$PROJECT_DIR$/kafka-0821/kafka-0821-examples/kafka-0821-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/kafka_book_demo/kafka_book_demo.iml" filepath="$PROJECT_DIR$/kafka_book_demo/kafka_book_demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/my-kafka.iml" filepath="$PROJECT_DIR$/.idea/my-kafka.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/api/org.apache.kafka.api.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.main.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.test.iml" filepath="$PROJECT_DIR$/.idea/modules/clients/org.apache.kafka.clients.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/org.apache.kafka.connect.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.scoverage.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.scoverage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.testScoverage.iml" filepath="$PROJECT_DIR$/.idea/modules/core/org.apache.kafka.core.testScoverage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.iml" filepath="$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.main.iml" filepath="$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.test.iml" filepath="$PROJECT_DIR$/.idea/modules/examples/org.apache.kafka.examples.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/file/org.apache.kafka.file.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/json/org.apache.kafka.json.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/org.apache.kafka.kafka-0.10.2.1-src.iml" filepath="$PROJECT_DIR$/.idea/modules/org.apache.kafka.kafka-0.10.2.1-src.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.iml" filepath="$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.main.iml" filepath="$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.test.iml" filepath="$PROJECT_DIR$/.idea/modules/log4j-appender/org.apache.kafka.log4j-appender.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/runtime/org.apache.kafka.runtime.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.main.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.test.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/org.apache.kafka.streams.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.iml" filepath="$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.main.iml" filepath="$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.test.iml" filepath="$PROJECT_DIR$/.idea/modules/tools/org.apache.kafka.tools.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.main.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.test.iml" filepath="$PROJECT_DIR$/.idea/modules/connect/transforms/org.apache.kafka.transforms.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/streams/examples/streams.org.apache.kafka.examples.iml" filepath="$PROJECT_DIR$/.idea/modules/streams/examples/streams.org.apache.kafka.examples.iml" />
     </modules>
   </component>
 </project>

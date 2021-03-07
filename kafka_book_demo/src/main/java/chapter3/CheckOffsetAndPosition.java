@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by 朱小厮 on 2018/7/28.
  */
 public class CheckOffsetAndPosition {
-    public static final String brokerList = "localhost:9092";
+    public static final String brokerList = "xxg.kafka.cn:9095";
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
     private static AtomicBoolean running = new AtomicBoolean(true);
@@ -33,7 +33,6 @@ public class CheckOffsetAndPosition {
         Properties props = initConfig();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 
-
         TopicPartition tp = new TopicPartition(topic, 0);
         consumer.assign(Arrays.asList(tp));
         long lastConsumedOffset = -1;
@@ -43,12 +42,18 @@ public class CheckOffsetAndPosition {
                 break;
             }
             List<ConsumerRecord<String, String>> partitionRecords = records.records(tp);
-            lastConsumedOffset = partitionRecords.get(partitionRecords.size() - 1).offset();
+            for(ConsumerRecord<String, String> consumerRecord:partitionRecords){// 开始处理消息
+                //处理消费数据的逻辑
+            }
+    
+            ConsumerRecord<String, String> record =  partitionRecords.get(partitionRecords.size() - 1);
+            lastConsumedOffset = record.offset(); // 获取最后消费记录的位移
             consumer.commitSync();//同步提交消费位移
         }
-        System.out.println("comsumed offset is " + lastConsumedOffset);
+        System.out.println("comsumed offset is " + lastConsumedOffset); // 消息消息最后的offset
         OffsetAndMetadata offsetAndMetadata = consumer.committed(tp);
-        System.out.println("commited offset is " + offsetAndMetadata.offset());
+        System.out.println("commited offset is " + offsetAndMetadata.offset()); // 最后提交的offset
+        
         long posititon = consumer.position(tp);
         System.out.println("the offset of the next record is " + posititon);
     }

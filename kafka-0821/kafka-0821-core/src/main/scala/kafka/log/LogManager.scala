@@ -185,6 +185,8 @@ class LogManager(val logDirs: Array[File],
                          period = retentionCheckMs, 
                          TimeUnit.MILLISECONDS)
       info("Starting log flusher with a default period of %d ms.".format(flushCheckMs))
+      // 日志定时刷新线程
+      // 那万一最近没有新的消息，但是累积的消息的量又达不到，就需要依靠下面这个定时任务来做时间维度的定期flush
       scheduler.schedule("kafka-log-flusher", 
                          flushDirtyLogs, 
                          delay = InitialTaskDelayMs, 

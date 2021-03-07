@@ -17,9 +17,9 @@ package org.apache.kafka.common;
  */
 public class Node {
 
-    private final int id;
-    private final String host;
-    private final int port;
+    private final int id; // kafka服务器编号，我们配置的broker.id
+    private final String host; // Ip地址或者hostname
+    private final int port;// 端口号
 
     public Node(int id, String host, int port) {
         super();

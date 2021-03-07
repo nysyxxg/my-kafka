@@ -26,11 +26,11 @@ public class CompanyDeserailizer implements Deserializer<Company> {
         int nameLen, addressLen;
         String name, address;
 
-        nameLen = buffer.getInt();
+        nameLen = buffer.getInt(); // 获取name数据的长度
         byte[] nameBytes = new byte[nameLen];
         buffer.get(nameBytes);
         
-        addressLen = buffer.getInt();
+        addressLen = buffer.getInt(); // 获取地址数据的长度
         byte[] addressBytes = new byte[addressLen];
         buffer.get(addressBytes);
 

@@ -3,7 +3,24 @@ cluster
 解释他们之间关系：Cluster由多个broker组成，一个Broker包含多个partition，
 一个topic的所有partitions分布在不同broker的中，一个Replica包含多个Partition。
 
+Kafka源码分析（七）消息发送可靠性——min.insync.replicas
 Kafka怎么样才能不丢消息？
+
+当producer向leader发送数据时，可以通过request.required.acks参数来设置数据可靠性的级别：
+
+1（默认）：这意味着producer在ISR中的leader已成功收到数据并得到确认。如果leader宕机了，则会丢失数据。
+0：这意味着producer无需等待来自broker的确认而继续发送下一批消息。这种情况下数据传输效率最高，但是数据可靠性确是最低的。
+-1：producer需要等待ISR中的所有follower都确认接收到数据后才算一次发送完成，可靠性最高。
+但是这样也不能保证数据不丢失，
+比如当ISR中只有leader时（前面ISR那一节讲到，ISR中的成员由于某些情况会增加也会减少，最少就只剩一个leader），
+这样就变成了acks=1的情况。
+如果要提高数据的可靠性，在设置request.required.acks=-1的同时，
+也要min.insync.replicas这个参数(可以在broker或者topic层面进行设置)的配合，
+这样才能发挥最大的功效。min.insync.replicas这个参数设定ISR中的最小副本数是多少，
+默认值为1，当且仅当request.required.acks参数设置为-1时，此参数才生效。
+如果ISR中的副本数少于min.insync.replicas配置的数量时，
+客户端会返回异常：org.apache.kafka.common.errors.NotEnoughReplicasExceptoin:
+Messages are rejected since there are fewer in-sync replicas than required。
 
 再次说明下acks的语义
 如果acks=all，代表消息需要在所有ISR都被持久化成功后，Broker才可以告诉生产者，消息已经发送成功了。
@@ -18,8 +35,102 @@ acks=all时，消息需要在所有ISR都被持久化成功后，这里为什么
 因为完全符合上面表达的语义：如果acks=all，代表消息需要在所有ISR都被持久化成功后，
 Broker才可以告诉生产者，消息已经发送成功了，只是这次所有的ISR就Leader自己。
 
+// ISR缩减任务
+def maybeShrinkIsr(replicaMaxLagTimeMs: Long) {
+    val leaderHWIncremented = inWriteLock(leaderIsrUpdateLock) {
+    leaderReplicaIfLocal match {
+    case Some(leaderReplica) =>
+        // 获取那些没有跟上的Follower
+        val outOfSyncReplicas = getOutOfSyncReplicas(leaderReplica, replicaMaxLagTimeMs)
+        if(outOfSyncReplicas.nonEmpty) {
+        val newInSyncReplicas = inSyncReplicas -- outOfSyncReplicas
+        assert(newInSyncReplicas.nonEmpty)
+        info("Shrinking ISR from %s to %s".format(inSyncReplicas.map(_.brokerId).mkString(","),
+            newInSyncReplicas.map(_.brokerId).mkString(",")))
+        // update ISR in zk and in cache
+        // 把那些没有跟上的Follower从ISR中剔除
+        updateIsr(newInSyncReplicas)
+        // code
+    }
+}
+
+// Follower是否跟上Leader的标准
+def getOutOfSyncReplicas(maxLagMs: Long): Set[Int] = {
+  // Leader统计每一个Follower的LastCaughtUpTime（上一次追赶上的时间），如果和当前时间比大于10s。
+  val candidateReplicaIds = inSyncReplicaIds - localBrokerId
+  val currentTimeMs = time.milliseconds()
+  val leaderEndOffset = localLogOrException.logEndOffset
+  candidateReplicaIds.filter(replicaId => isFollowerOutOfSync(replicaId, leaderEndOffset, currentTimeMs, maxLagMs))
+}
+
+这时如果Leader挂了，消息还是丢了。
+
+问题就出在ISR的数量是可以忽多忽少的，ISR的数量变成1的时候，情况就完全和ISR=1是相同的。
+
+Kafka当然是可以通过参数来限制ISR的数量的:【 min.insync.replicas = n】，代表的语义是，
+如果生产者acks=all，而在发送消息时，Broker的ISR数量没有达到n，Broker不能处理这条消息，需要直接给生产者报错。
+
+当然这个语义的解释已经足够清晰得表达了下面这段代码的意思
+def appendRecordsToLeader(records: MemoryRecords, isFromClient: Boolean, requiredAcks: Int = 0): LogAppendInfo = {
+    val (info, leaderHWIncremented) = inReadLock(leaderIsrUpdateLock) {
+        leaderReplicaIfLocal match {
+        case Some(leaderReplica) =>
+            val log = leaderReplica.log.get
+            val minIsr = log.config.minInSyncReplicas
+            val inSyncSize = inSyncReplicas.size
+
+            // Avoid writing to leader if there are not enough insync replicas to make it safe
+            if (inSyncSize < minIsr && requiredAcks == -1) {
+            throw new NotEnoughReplicasException("Number of insync replicas for partition %s is [%d], below required minimum [%d]"
+                .format(topicPartition, inSyncSize, minIsr))
+            }
+            // code
+    }
+    // code
+}
+这样的Fast-Fail处理，在当ISR不足时，也能够避由于Leader宕机引起的消息丢失。
+
+问题解决了么？还没有，请看下篇分解。
+Kafka源码分析（八）消息发送可靠性——flush.messages
+
+继续解答问题：
+Kafka怎么样才能不丢消息？
+
+考虑一种比较极端的情况，整个Kafka集群用的是同一路电源，在掉电的情况下，消息是有可能丢失的，
+即便消息已经被复制所有的ISR上。默认情况下，Kafka的刷盘是异步刷盘，也就是说，
+把消息写进OS的Page Cache后，已经别当成持久化成功了，但是此时的消息没有被sync到磁盘，
+如果所有ISR的消息都在Page Cache上而不在磁盘中，整体掉电重启后，消息就再也无法被消费者消费到，那么消息也就丢失。
+
+private def append(records: MemoryRecords, isFromClient: Boolean, assignOffsets: Boolean, leaderEpoch: Int): LogAppendInfo = {
+    maybeHandleIOException(s"Error while appending records to $topicPartition in dir ${dir.getParent}") {
+        // code
+        segment.append(largestOffset = appendInfo.lastOffset,
+            largestTimestamp = appendInfo.maxTimestamp,
+            shallowOffsetOfMaxTimestamp = appendInfo.offsetOfMaxTimestamp,
+            records = validRecords)
+        // code
+        // unflushedMessages方法定义
+        // def unflushedMessages: Long = this.logEndOffset - this.recoveryPoint
+        // 当没有刷盘的消息累积到flushInterval时，做一次flush
+        if (unflushedMessages >= config.flushInterval)
+            flush()
+        // code
+    }
+}
+那万一最近没有新的消息，但是累积的消息的量又达不到，就需要依靠下面这个定时任务来做时间维度的定期flush
+
+scheduler.schedule("kafka-log-flusher",
+                flushDirtyLogs _,
+                delay = InitialTaskDelayMs,
+                period = flushCheckMs,
+                TimeUnit.MILLISECONDS)
+
+如果将flush.messages设置为1，那么每一条消息都会刷盘，配合前面整理的acks、min.insync.replicas，
+会使消息可靠性得到大幅度得提升，
+但是flush.messages=1会严重影响性能，可以在部分可靠性要求高的Topic级别进行配置。
+
 作者：艾瑞克的技术江湖
-链接：https://www.jianshu.com/p/1de494673b89
+链接：https://www.jianshu.com/p/b291de91800d
 来源：简书
 著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
 

@@ -24,7 +24,7 @@ public class KafkaThread extends Thread {
 
     public KafkaThread(final String name, Runnable runnable, boolean daemon) {
         super(runnable, name);
-        setDaemon(daemon);
+        setDaemon(daemon); // 设置为后台线程
         setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             public void uncaughtException(Thread t, Throwable e) {
                 log.error("Uncaught exception in " + name + ": ", e);

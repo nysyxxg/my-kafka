@@ -25,9 +25,6 @@ public class DataUtil {
         String uuid = RandomUtil.getUUID();
         
         DataVo dataVo = new DataVo();
-        dataVo.setDatabase("test_db");
-        dataVo.setTableName("test_people");
-        
         dataVo.setDataStamp(System.currentTimeMillis() / 1000 + "");
         dataVo.setUuId(uuid);
         dataVo.setMsgId(uuid);

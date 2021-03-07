@@ -23,9 +23,11 @@ import java.util.*;
 public final class Cluster {
 
     private final List<Node> nodes;//Node也就是Broker
+    //  每个topic的分区信息，对应这个分区的详细信息
     private final Map<TopicPartition, PartitionInfo> partitionsByTopicPartition;   //Topic/Partion和broker list的映射关系
-    private final Map<String, List<PartitionInfo>> partitionsByTopic;
-    private final Map<String, List<PartitionInfo>> availablePartitionsByTopic;
+    private final Map<String, List<PartitionInfo>> partitionsByTopic; // 一个topic对应的分区集合信息
+    private final Map<String, List<PartitionInfo>> availablePartitionsByTopic; //一个topic对应可用的分区
+    // 一台服务对应哪些分区信息，数据结构：服务器编码Id 和 分区集合
     private final Map<Integer, List<PartitionInfo>> partitionsByNode;
 
     /**

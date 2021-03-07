@@ -47,7 +47,9 @@ public class ProducerConfig extends AbstractConfig {
                                                        + "servers (you may want more than one, though, in case a server is down). If no server in this list is available sending "
                                                        + "data will fail until on becomes available.";
 
-    /** <code>metadata.fetch.timeout.ms</code> */
+    /** <code>metadata.fetch.timeout.ms</code>
+     *
+     * */
     public static final String METADATA_FETCH_TIMEOUT_CONFIG = "metadata.fetch.timeout.ms";
     private static final String METADATA_FETCH_TIMEOUT_DOC = "The first time data is sent to a topic we must fetch metadata about that topic to know which servers host the "
                                                              + "topic's partitions. This configuration controls the maximum amount of time we will block waiting for the metadata "
@@ -162,7 +164,9 @@ public class ProducerConfig extends AbstractConfig {
                                                        + "has its own cap on record size which may be different from this. This setting will limit the number of record "
                                                        + "batches the producer will send in a single request to avoid sending huge requests.";
 
-    /** <code>reconnect.backoff.ms</code> */
+    /** <code>reconnect.backoff.ms</code>
+     *
+     * */
     public static final String RECONNECT_BACKOFF_MS_CONFIG = "reconnect.backoff.ms";
     private static final String RECONNECT_BACKOFF_MS_DOC = "The amount of time to wait before attempting to reconnect to a given host when a connection fails." + " This avoids a scenario where the client repeatedly attempts to connect to a host in a tight loop.";
 
@@ -211,6 +215,8 @@ public class ProducerConfig extends AbstractConfig {
 
     /** <code>max.in.flight.requests.per.connection</code>
      *  限制每个连接（也就是客户端和NOde之间的连接） 最多缓存的请求数。
+     *  发送数据的时候，其实是有多个网络连接，每个网络连接可以忍受Producer端发送给broker消息然后这些消息没有响应的个数。
+     *  假设你连续发送了10个消息，但是其中6个没有响应，超出了设置最大值5，会发送重试机制
      * */
     public static final String MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION = "max.in.flight.requests.per.connection";
     private static final String MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION_DOC = "The maximum number of unacknowledged requests the client will send on a single connection before blocking.";
@@ -222,7 +228,7 @@ public class ProducerConfig extends AbstractConfig {
     /** <code>value.serializer</code> */
     public static final String VALUE_SERIALIZER_CLASS_CONFIG = "value.serializer";
     private static final String VALUE_SERIALIZER_CLASS_DOC = "Serializer class for value that implements the <code>Serializer</code> interface.";
-
+    // 初始化参数配置默认值
     static {
         config = new ConfigDef().define(BOOTSTRAP_SERVERS_CONFIG, Type.LIST, Importance.HIGH, BOOSTRAP_SERVERS_DOC)
                                 .define(BUFFER_MEMORY_CONFIG, Type.LONG, 32 * 1024 * 1024L, atLeast(0L), Importance.HIGH, BUFFER_MEMORY_DOC)

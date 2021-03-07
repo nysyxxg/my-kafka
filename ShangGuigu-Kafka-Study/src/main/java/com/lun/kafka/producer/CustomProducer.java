@@ -35,14 +35,19 @@ public class CustomProducer {
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<>(props);
-//        for (int i = 400; i < 500; i++) {
-//            producer.send(new ProducerRecord<String, String>(topic, "test-" + Integer.toString(i), "test-" + Integer.toString(i)));
+//        for (int i = 1; i < 10; i++) {
+//            String data = "test-" + Integer.toString(i);
+//            System.out.println(data);
+//            producer.send(new ProducerRecord<String, String>(topic, "test-" + Integer.toString(i), data));
 //        }
-        
-        for (int i = 1; i < 2; i++) {
+//
+        for (int i = 1; i < 2000; i++) {
             People people = DataUtil.getPeople();
             DataVo dataVo = DataUtil.getDataVo(people);
             dataVo.setDbType("mysql");
+            dataVo.setDatabase("test_db");
+            dataVo.setTableName("test_people,peopleInfo");
+
             String jsondata = null;
             try {
                 jsondata = DataUtil.getJsonData(dataVo);

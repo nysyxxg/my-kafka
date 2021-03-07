@@ -121,7 +121,7 @@ object LogConfig {
   val MinCleanableDirtyRatioProp = "min.cleanable.dirty.ratio"
   val CleanupPolicyProp = "cleanup.policy"
   val UncleanLeaderElectionEnableProp = "unclean.leader.election.enable"
-  val MinInSyncReplicasProp = "min.insync.replicas"
+  val MinInSyncReplicasProp = "min.insync.replicas"  // 设置最小isr副本个数
 
   val ConfigNames = Set(SegmentBytesProp,
                         SegmentMsProp,

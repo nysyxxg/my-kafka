@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
+    <profile name="Gradle 1" modules="org.apache.kafka.core.main,org.apache.kafka.core.test">
+      <option name="postfixOps" value="true" />
+      <option name="implicitConversions" value="true" />
+      <option name="existentials" value="true" />
+      <option name="deprecationWarnings" value="true" />
+      <option name="uncheckedWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-target:jvm-1.7" />
+        <parameter value="-encoding" />
+        <parameter value="utf8" />
+        <parameter value="-Xlog-reflective-calls" />
+      </parameters>
+    </profile>
     <profile name="Maven 1" modules="kafka-0821,kafka-0821-clients,kafka-0821-common,kafka-0821-core,kafka-0821-examples" />
   </component>
 </project>

@@ -23,13 +23,13 @@ public class ProducerSelfSerializer {
         // 1: 首先经过 拦截器
         properties.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, ProducerInterceptorPrefix.class.getName());
         
-        // 2： 经过 序列化器
+        // 2： 然后经过 序列化器
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         // 使用自定义的序列化
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, CompanySerializer.class.getName());
 //        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,ProtostuffSerializer.class.getName());
         properties.put("bootstrap.servers", brokerList);
-        // 3: 经过 自定义分区
+        // 3: 最后经过 自定义分区
         properties.put(ProducerConfig.PARTITIONER_CLASS_CONFIG, DemoPartitioner.class.getName());
         
         KafkaProducer<String, Company> producer = new KafkaProducer<>(properties);
