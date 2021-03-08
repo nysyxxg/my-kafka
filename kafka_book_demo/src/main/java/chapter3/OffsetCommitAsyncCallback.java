@@ -26,7 +26,7 @@ public class OffsetCommitAsyncCallback {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"); // 默认三个值：latest， none
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return props;
     }
@@ -37,6 +37,7 @@ public class OffsetCommitAsyncCallback {
         consumer.subscribe(Arrays.asList(topic));
 
         try {
+            // 第二种
             while (running.get()) {
                 ConsumerRecords<String, String> records = consumer.poll(1000);
                 for (ConsumerRecord<String, String> record : records) {
@@ -58,15 +59,22 @@ public class OffsetCommitAsyncCallback {
             consumer.close();
         }
 
-        //
+        // 第一种
         try {
             while (running.get()) {
+    
+                ConsumerRecords<String, String> records = consumer.poll(1000);
+                for (ConsumerRecord<String, String> record : records) {
+                    //do some logical processing.
+                }
+                
                 //poll records and do some logical processing.
                 consumer.commitAsync();
             }
         } finally {
             try {
-                consumer.commitSync();
+                // 再次执行一次同步提交
+                consumer.commitSync();  // 这个代码作用：在消费者正常退出时，为位移提交【把关保证】添加的。
             } finally {
                 consumer.close();
             }

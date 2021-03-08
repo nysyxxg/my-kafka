@@ -1,4 +1,4 @@
-package chapter3;
+package chapter3.SyncCommit;
 
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -18,36 +18,33 @@ public class OffsetCommitSyncSingle {
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
     private static AtomicBoolean running = new AtomicBoolean(true);
-
+    
     public static Properties initConfig() {
         Properties props = new Properties();
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return props;
     }
-
+    
     public static void main(String[] args) {
         Properties props = initConfig();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Arrays.asList(topic));
-
+        
         int i = 0;
         try {
             while (running.get()) {
                 ConsumerRecords<String, String> records = consumer.poll(1000);
-                for (ConsumerRecord<String, String> record : records) {
+                for (ConsumerRecord<String, String> record : records) {  // 这个方法，就是没消息一条消息，提交一次位移
                     //do some logical processing.
-                    long offset = record.offset();
-                    TopicPartition partition =
-                            new TopicPartition(record.topic(), record.partition());
-                    consumer.commitSync(Collections
-                            .singletonMap(partition, new OffsetAndMetadata(offset + 1)));
+                    long offset = record.offset(); // 获取这个消息的offset
+                    TopicPartition partition = new TopicPartition(record.topic(), record.partition());
+                    // 该方法提供了一个offset的参数，用来提交指定分区的位移。
+                    consumer.commitSync(Collections.singletonMap(partition, new OffsetAndMetadata(offset + 1)));
                 }
             }
 

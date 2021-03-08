@@ -1,4 +1,4 @@
-package chapter3;
+package chapter3.SyncCommit;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -6,14 +6,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by 朱小厮 on 2018/7/29.
  */
-public class OffsetCommitSync {
+public class OffsetCommitSyncBatch {
     public static final String brokerList = "localhost:9092";
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
@@ -35,16 +37,23 @@ public class OffsetCommitSync {
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Arrays.asList(topic));
 
-        try {
-            while (running.get()) {
-                ConsumerRecords<String, String> records = consumer.poll(1000);
-                for (ConsumerRecord<String, String> record : records) {
-                    //do some logical processing.
-                }
-                consumer.commitSync();
+        final int minBatchSize = 200; // 设置提交批次大小
+        List<ConsumerRecord> buffer = new ArrayList<>();
+        while (running.get()) {
+            ConsumerRecords<String, String> records = consumer.poll(1000);
+            
+            for (ConsumerRecord<String, String> record : records) {
+                buffer.add(record); // 将获取的消息存储到list中，
             }
-        } finally {
-            consumer.close();
+            
+            if (buffer.size() >= minBatchSize) { // 如果超出大小，就同步提交位移
+                //do some logical processing with buffer.
+                // 此处批量处理逻辑
+                
+                // 提交位移
+                consumer.commitSync();
+                buffer.clear();
+            }
         }
     }
 }

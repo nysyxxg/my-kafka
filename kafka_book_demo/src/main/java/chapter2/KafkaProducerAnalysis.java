@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
  * Created by 朱小厮 on 2018/8/29.
  */
 public class KafkaProducerAnalysis {
-    public static final String brokerList = "xxg.kafka.cn:9095";
-//    public static final String brokerList = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
+    public static final String brokerList = "xxg.kafka.cn:9092";
+    //    public static final String brokerList = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
     public static final String topic = "topic-demo";
     
     public static Properties initConfig() {
@@ -40,14 +40,14 @@ public class KafkaProducerAnalysis {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.RETRIES_CONFIG,10);// 设置重试次数
+        props.put(ProducerConfig.RETRIES_CONFIG, 10);// 设置重试次数
         return props;
     }
     
     public static void main(String[] args) throws InterruptedException {
         Properties props = initConfig();
 //        KafkaProducer<String, String> producer = new KafkaProducer<>(props);
-        KafkaProducer<String, String> producer = new KafkaProducer<>(props,new StringSerializer(), new StringSerializer());
+        KafkaProducer<String, String> producer = new KafkaProducer<>(props, new StringSerializer(), new StringSerializer());
         
         ProducerRecord<String, String> record = new ProducerRecord<>(topic, "hello, Kafka!");
         try {
@@ -56,17 +56,20 @@ public class KafkaProducerAnalysis {
 //            future.get();
             
             // 第二种方式 ： 异步发送
-            producer.send(record, new Callback() { // 发送消息之后，进行回调-返回记录的元数据信息
-                @Override
-                public void onCompletion(RecordMetadata metadata, Exception exception) {
-                    if (exception == null) {
-                        System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":");
-                    }else if(exception != null){
-                        // 说明存在异常
-                        exception.printStackTrace();
+            for (int i = 0; i < 100; i++) {
+                producer.send(record, new Callback() { // 发送消息之后，进行回调-返回记录的元数据信息
+                    @Override
+                    public void onCompletion(RecordMetadata metadata, Exception exception) {
+                        if (exception == null) {
+                            System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":" + "发送成功！");
+                        } else if (exception != null) {
+                            // 说明存在异常
+                            exception.printStackTrace();
+                            System.out.println("---发送失败！");
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

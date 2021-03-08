@@ -1,54 +1,55 @@
-package chapter3;
+package chapter3.seek;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
-import java.util.ArrayList;
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.Set;
 
 /**
- * Created by 朱小厮 on 2018/7/29.
+ * 代码清单3-5
+ * Created by 朱小厮 on 2018/8/19.
  */
-public class OffsetCommitSyncBatch {
+public class SeekDemo {
     public static final String brokerList = "localhost:9092";
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
-    private static AtomicBoolean running = new AtomicBoolean(true);
-
+    
     public static Properties initConfig() {
         Properties props = new Properties();
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         return props;
     }
-
+    
     public static void main(String[] args) {
         Properties props = initConfig();
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Arrays.asList(topic));
-
-        final int minBatchSize = 200;
-        List<ConsumerRecord> buffer = new ArrayList<>();
-        while (running.get()) {
-            ConsumerRecords<String, String> records = consumer.poll(1000);
+        consumer.poll(Duration.ofMillis(2000));// 必须要执行一次poll方法
+        
+        //获取topic的对应的分区集合
+        Set<TopicPartition> assignment = consumer.assignment();
+        System.out.println(assignment);
+        for (TopicPartition tp : assignment) {
+            consumer.seek(tp, 10); // 定位到指定的offset，重置消费位置
+        }
+//        consumer.seek(new TopicPartition(topic,0),10);
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            //consume the record.
             for (ConsumerRecord<String, String> record : records) {
-                buffer.add(record);
-            }
-            if (buffer.size() >= minBatchSize) {
-                //do some logical processing with buffer.
-                consumer.commitSync();
-                buffer.clear();
+                System.out.println(record.offset() + ":" + record.value());
             }
         }
     }
+    
 }

@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class KafkaConsumerAnalysis {
     
-    public static final String brokerList = "xxg.kafka.cn:9095";
+    public static final String brokerList = "xxg.kafka.cn:9092";
     public static final String topic1 = "topic1";
     public static final String topic2 = "topic2";
     public static final String topic3 = "topic3";
