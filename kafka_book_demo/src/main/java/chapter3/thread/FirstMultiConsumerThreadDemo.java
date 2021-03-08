@@ -1,4 +1,4 @@
-package chapter3;
+package chapter3.thread;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -32,17 +32,22 @@ public class FirstMultiConsumerThreadDemo {
     
     public static void main(String[] args) {
         Properties props = initConfig();
-        int consumerThreadNum = 1;
+        int consumerThreadNum = 4; //一般设置为topic的分区个数，一般一个主题的分区数事先可以知晓，不能设置成大于分区数的值
+        // 如果不知道topic的分区个数，可以设置
+        //kafkaConsumer.partitionsFor(topic); 这个方法可以获取topic分区个数
         for (int i = 0; i < consumerThreadNum; i++) {
             new KafkaConsumerThread(props, topic).start();
         }
     }
     
     public static class KafkaConsumerThread extends Thread {
+        // Kafka的Producer是线程安全的
+        // KafkaConsumer 不是线程安全的
         private KafkaConsumer<String, String> kafkaConsumer;
         
         public KafkaConsumerThread(Properties props, String topic) {
             this.kafkaConsumer = new KafkaConsumer<>(props);
+            
             this.kafkaConsumer.subscribe(Arrays.asList(topic));
         }
         

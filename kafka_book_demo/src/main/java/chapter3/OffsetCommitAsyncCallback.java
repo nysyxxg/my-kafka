@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Slf4j
 public class OffsetCommitAsyncCallback {
-    public static final String brokerList = "localhost:9092";
+    public static final String brokerList = "xxg.kafka.cn:9092";
     public static final String topic = "topic-demo";
     public static final String groupId = "group.demo";
     private static AtomicBoolean running = new AtomicBoolean(true);

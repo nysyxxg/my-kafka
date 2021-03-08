@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class manages the coordination process with the consumer coordinator.
+ * 消费协调器
  */
 public final class ConsumerCoordinator extends AbstractCoordinator {
 
@@ -269,29 +270,39 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
      * Poll for coordinator events. This ensures that the coordinator is known and that the consumer
      * has joined the group (if it is using group management). This also handles periodic offset commits
      * if they are enabled.
-     *
+     *  从我的中文注释可以看到，首先完成已提交offset的回调，如果是自动分配partition的模式
+     *  （注意，只有auto mode才需要接下来的coordinator服务以及needRejoin过程）要首先找到对应的coordinator，
+     *  并建立连接。然后判断当前consumer是否有需要rejoin group，
+     *  如果需要，确保 group 是 active，然后重新加入 group，分配得到订阅的partitions。
+     *  然后consumer poll心跳一次，用来记录两次poll之间的间隔（为什么需要这个间隔，接下来再看，先记作mark1），
+     *  最后由于在ensureActiveGroup中成功结束时定了auto commit offset的时间，到点完成commit offset。
      * @param now current time in milliseconds
      */
     public void poll(long now) {
+        // 先完成已提交offset的回调
         invokeCompletedOffsetCommitCallbacks();
 
         if (subscriptions.partitionsAutoAssigned() && coordinatorUnknown()) {
+             // 自动分配partition模式要首先找到对应的coordinator，并建立连接
             ensureCoordinatorReady();
             now = time.milliseconds();
         }
-
+         // 首先判断是否有需要rejoin group的情况发生，如果订阅的 partition 变化或则分配的 partition 变化时,需要 rejoin
         if (needRejoin()) {
             // due to a race condition between the initial metadata fetch and the initial rebalance,
             // we need to ensure that the metadata is fresh before joining initially. This ensures
             // that we have matched the pattern against the cluster's topics at least once before joining.
+            // rejoin group 之前先刷新一下 metadata（对于 AUTO_PATTERN 而言）
             if (subscriptions.hasPatternSubscription())
                 client.ensureFreshMetadata();
-
+    
+            // 确保 group 是 active; 加入 group; 分配订阅的 partition
             ensureActiveGroup();
             now = time.milliseconds();
         }
-
+         // consumer poll心跳一次，用来记录两次poll之间的间隔
         pollHeartbeat(now);
+        // ensureActiveGroup中成功结束时定了auto commit offset的时间，接下来完成commit offset
         maybeAutoCommitOffsetsAsync(now);
     }
 
@@ -483,6 +494,13 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
     }
 
     // visible for testing
+    
+    /**
+     * 进入invokeCompletedOffsetCommitCallbacks可以看到，
+     * 是从一个线程安全的队列completedOffsetCommits中不断出队完成成功commit offset的回调，
+     * 回调具体干了什么事，接下来看
+     *
+     */
     void invokeCompletedOffsetCommitCallbacks() {
         while (true) {
             OffsetCommitCompletion completion = completedOffsetCommits.poll();
@@ -605,7 +623,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
                 this.nextAutoCommitDeadline = now + retryBackoffMs;
             } else if (now >= nextAutoCommitDeadline) {
                 this.nextAutoCommitDeadline = now + autoCommitIntervalMs;
-                doAutoCommitOffsetsAsync();
+                doAutoCommitOffsetsAsync(); // 做自动提交-异步
             }
         }
     }

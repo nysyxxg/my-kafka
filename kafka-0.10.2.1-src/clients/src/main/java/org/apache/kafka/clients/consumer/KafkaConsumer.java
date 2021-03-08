@@ -1617,15 +1617,17 @@ public class KafkaConsumer<K, V> implements Consumer<K, V> {
      * @throws IllegalStateException if the consumer has been closed
      * @throws ConcurrentModificationException if another thread already has the lock
      */
-    private void acquire() {
+    // 可以看做一个轻量级锁：获取锁
+    private void acquire() {  // Kafka的消费端，大部分公共方法，都会调用，检查是否是多线程
         ensureNotClosed();
         long threadId = Thread.currentThread().getId();
         if (threadId != currentThread.get() && !currentThread.compareAndSet(NO_CURRENT_THREAD, threadId))
             throw new ConcurrentModificationException("KafkaConsumer is not safe for multi-threaded access");
-        refcount.incrementAndGet();
+        refcount.incrementAndGet();  // 递增1
     }
 
     /**
+     * 释放这个轻量级锁，保护这个消费者从多线程中进行访问
      * Release the light lock protecting the consumer from multi-threaded access.
      */
     private void release() {
