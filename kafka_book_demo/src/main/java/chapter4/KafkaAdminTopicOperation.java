@@ -10,18 +10,16 @@ import java.util.concurrent.ExecutionException;
  * Created by 朱小厮 on 2018/7/21.
  */
 public class KafkaAdminTopicOperation {
-    public static final String brokerList = "localhost:9092";
+    public static final String brokerList = "xxg.kafka.cn:9092";
     public static final String topic = "topic-admin";
 
     public static void describeTopic(){
-        String brokerList =  "localhost:9092";
-        String topic = "topic-admin";
-
+//        String brokerList =  "localhost:9092";
+//        String topic = "topic-admin";
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);
         AdminClient client = AdminClient.create(props);
-
         DescribeTopicsResult result = client.describeTopics(Collections.singleton(topic));
         try {
             Map<String, TopicDescription> descriptionMap =  result.all().get();
@@ -33,8 +31,8 @@ public class KafkaAdminTopicOperation {
     }
 
     public static void createTopic() {
-        String brokerList =  "localhost:9092";
-        String topic = "topic-admin";
+//        String brokerList =  "localhost:9092";
+//        String topic = "topic-admin";
 
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
@@ -42,22 +40,21 @@ public class KafkaAdminTopicOperation {
         AdminClient client = AdminClient.create(props);
 
 //        NewTopic newTopic = new NewTopic(topic, 4, (short) 1);
-
 //        Map<String, String> configs = new HashMap<>();
 //        configs.put("cleanup.policy", "compact");
 //        newTopic.configs(configs);
 
         Map<Integer, List<Integer>> replicasAssignments = new HashMap<>();
-        replicasAssignments.put(0, Arrays.asList(0));
-        replicasAssignments.put(1, Arrays.asList(0));
-        replicasAssignments.put(2, Arrays.asList(0));
-        replicasAssignments.put(3, Arrays.asList(0));
+        //创建四个分区，一个副本
+        replicasAssignments.put(0, Arrays.asList(0,1,2));
+        replicasAssignments.put(1, Arrays.asList(0,1,2));
+        replicasAssignments.put(2, Arrays.asList(0,1,2));
+        replicasAssignments.put(3, Arrays.asList(0,1,2));
 
         NewTopic newTopic = new NewTopic(topic, replicasAssignments);
 
         //代码清单4-4 可以从这里跟进去
-        CreateTopicsResult result = client.
-                createTopics(Collections.singleton(newTopic));
+        CreateTopicsResult result = client.createTopics(Collections.singleton(newTopic));
         try {
             result.all().get();
         } catch (InterruptedException | ExecutionException e) {
@@ -67,8 +64,8 @@ public class KafkaAdminTopicOperation {
     }
 
     public static void deleteTopic(){
-        String brokerList =  "localhost:9092";
-        String topic = "topic-admin";
+//        String brokerList =  "localhost:9092";
+//        String topic = "topic-admin";
 
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
@@ -84,7 +81,7 @@ public class KafkaAdminTopicOperation {
     }
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-//        createTopic();
+        createTopic();
         describeTopic();
 //        deleteTopic();
 

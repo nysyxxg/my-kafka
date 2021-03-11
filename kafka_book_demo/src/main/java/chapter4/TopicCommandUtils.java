@@ -17,11 +17,11 @@ public class TopicCommandUtils {
      */
     public static void createTopic(){
         String[] options = new String[]{
-                "--zookeeper", "localhost:2181/kafka",
+                "--zookeeper", "xxg.kafka.cn:2181",
                 "--create",
-                "--replication-factor", "1",
-                "--partitions", "1",
-                "--topic", "topic-create-api"
+                "--replication-factor", "1",  // 指定副本
+                "--partitions", "1",  // 指定分区
+                "--topic", "topic-create-api" // 指定topic名称
         };
         kafka.admin.TopicCommand.main(options);
     }
@@ -31,17 +31,16 @@ public class TopicCommandUtils {
      */
     public static void describeTopic(){
         String[] options = new String[]{
-                "--zookeeper", "localhost:2181/kafka",
+                "--zookeeper", "xxg.kafka.cn:2181",
                 "--describe",
-                "--topic", "topic-create"
+                "--topic", "topic-create-api"
         };
         kafka.admin.TopicCommand.main(options);
     }
 
     public static void listTopic(){
         String[] options = new String[]{
-                "--zookeeper", "localhost:2181/kafka",
-                "--list"
+                "--zookeeper", "xxg.kafka.cn:2181", "--list"
         };
         kafka.admin.TopicCommand.main(options);
     }

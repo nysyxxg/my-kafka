@@ -16,8 +16,8 @@ import java.util.concurrent.ExecutionException;
 public class KafkaAdminConfigOperation {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
-//        describeTopicConfig();
-//        alterTopicConfig();
+        describeTopicConfig();
+        alterTopicConfig();
         addTopicPartitions();
     }
 
@@ -32,10 +32,8 @@ public class KafkaAdminConfigOperation {
         props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);
         AdminClient client = AdminClient.create(props);
 
-        ConfigResource resource =
-                new ConfigResource(ConfigResource.Type.TOPIC, topic);
-        DescribeConfigsResult result =
-                client.describeConfigs(Collections.singleton(resource));
+        ConfigResource resource = new ConfigResource(ConfigResource.Type.TOPIC, topic);
+        DescribeConfigsResult result = client.describeConfigs(Collections.singleton(resource));
         Config config = result.all().get().get(resource);
         System.out.println(config);
         client.close();
