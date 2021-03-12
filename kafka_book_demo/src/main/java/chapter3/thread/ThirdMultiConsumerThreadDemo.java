@@ -94,7 +94,7 @@ public class ThirdMultiConsumerThreadDemo {
 //                System.out.println(record.value());
 //            }
             Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap();
-            // 下面手动提交offset。防止并发问题
+            // 下面手动提交 offset。防止并发问题
             for (TopicPartition tp : records.partitions()) {
                 List<ConsumerRecord<String, String>> tpRecords = records.records(tp);
                 // 处理 tpRecords

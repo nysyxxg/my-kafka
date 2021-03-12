@@ -27,12 +27,11 @@ public class BroadcastAssignor extends AbstractPartitionAssignor {
     public Map<String, List<TopicPartition>> assign(
             Map<String, Integer> partitionsPerTopic,
             Map<String, Subscription> subscriptions) {
-        Map<String, List<String>> consumersPerTopic =
-                consumersPerTopic(subscriptions);
+        
+        Map<String, List<String>> consumersPerTopic = consumersPerTopic(subscriptions);
         Map<String, List<TopicPartition>> assignment = new HashMap<>();
         //Java8
-        subscriptions.keySet().forEach(memberId ->
-                assignment.put(memberId, new ArrayList<>()));
+        subscriptions.keySet().forEach(memberId -> assignment.put(memberId, new ArrayList<>()));
 
         //针对每一个主题，为每一个订阅的消费者分配所有的分区
         consumersPerTopic.entrySet().forEach(topicEntry->{
@@ -42,11 +41,9 @@ public class BroadcastAssignor extends AbstractPartitionAssignor {
             Integer numPartitionsForTopic = partitionsPerTopic.get(topic);
             if (numPartitionsForTopic == null || members.isEmpty())
                 return;
-            List<TopicPartition> partitions = AbstractPartitionAssignor
-                .partitions(topic, numPartitionsForTopic);
+            List<TopicPartition> partitions = AbstractPartitionAssignor.partitions(topic, numPartitionsForTopic);
             if (!partitions.isEmpty()) {
-                members.forEach(memberId ->
-                        assignment.get(memberId).addAll(partitions));
+                members.forEach(memberId -> assignment.get(memberId).addAll(partitions));
             }
         });
         return assignment;

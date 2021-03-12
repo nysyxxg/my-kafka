@@ -58,17 +58,17 @@ public class KafkaProducerAnalysis {
             // 第二种方式 ： 异步发送
             for (int i = 0; i < 100; i++) {
                 producer.send(record, new Callback() { // 发送消息之后，进行回调-返回记录的元数据信息
-                    @Override
-                    public void onCompletion(RecordMetadata metadata, Exception exception) {
-                        if (exception == null) {
-                            System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":" + "发送成功！");
-                        } else if (exception != null) {
-                            // 说明存在异常
-                            exception.printStackTrace();
-                            System.out.println("---发送失败！");
+                        @Override
+                        public void onCompletion(RecordMetadata metadata, Exception exception) {
+                            if (exception == null) {
+                                System.out.println(metadata.topic() + ":" + metadata.partition() + ":" + metadata.offset() + ":" + "发送成功！");
+                            } else if (exception != null) {
+                                // 说明存在异常
+                                exception.printStackTrace();
+                                System.out.println("---发送失败！");
+                            }
                         }
-                    }
-                });
+                    });
             }
         } catch (Exception e) {
             e.printStackTrace();

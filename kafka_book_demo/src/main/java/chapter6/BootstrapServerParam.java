@@ -38,6 +38,7 @@ public class BootstrapServerParam {
 
         List<TopicMetadata> tMetaList = new ArrayList<>();
         tMetaList.add(tMeta1);
+        
         return new MetadataResponse(throttleTimeMs, brokers, clusterId, controllerId, tMetaList);
 
     }

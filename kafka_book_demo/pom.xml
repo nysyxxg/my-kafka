@@ -35,12 +35,13 @@
     </properties>
 
     <dependencies>
+        <!--client -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
         </dependency>
-
+        <!-- server -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.version}</artifactId>

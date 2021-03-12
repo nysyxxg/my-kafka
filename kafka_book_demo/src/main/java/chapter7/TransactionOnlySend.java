@@ -19,10 +19,8 @@ public class TransactionOnlySend {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         properties.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionId);
 
@@ -30,7 +28,7 @@ public class TransactionOnlySend {
 
         producer.initTransactions();
         producer.beginTransaction();
-
+        // 开启事务，保证下面的数据，要么发送成功，要么失败
         try {
             //处理业务逻辑并创建ProducerRecord
             ProducerRecord<String, String> record1 = new ProducerRecord<>(topic, "msg1");
