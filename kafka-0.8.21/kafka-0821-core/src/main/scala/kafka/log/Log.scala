@@ -352,6 +352,7 @@ class Log(val dir: File,
    * <li> Whether any compression codec is used (if many are used, then the last one is given)
    * </ol>
    */
+  //验证消息集合
   private def analyzeAndValidateMessageSet(messages: ByteBufferMessageSet): LogAppendInfo = {
     var shallowMessageCount = 0
     var validBytesCount = 0
@@ -370,14 +371,17 @@ class Log(val dir: File,
 
       val m = messageAndOffset.message
 
-      // Check if the message sizes are valid.
-      val messageSize = MessageSet.entrySize(m)
-      if(messageSize > config.maxMessageSize) {
+      // Check if the message sizes are valid.  对压缩后消息重新验证MessageSize是否超过了允许的最大值
+      val messageSize = MessageSet.entrySize(m)  //
+      if(messageSize > config.maxMessageSize) { // 如果这个消息集合的消息总大小大于设置的最大值，就会抛出异常
         BrokerTopicStats.getBrokerTopicStats(topicAndPartition.topic).bytesRejectedRate.mark(messages.sizeInBytes)
         BrokerTopicStats.getBrokerAllTopicsStats.bytesRejectedRate.mark(messages.sizeInBytes)
+        // 超出设置的大小
         throw new MessageSizeTooLargeException("Message size is %d bytes which exceeds the maximum configured message size of %d."
           .format(messageSize, config.maxMessageSize))
       }
+      // 源码可以看出 message.max.bytes 并不是限制消息体大小的，而是限制一个批次的消息大小，
+      // 所以我们需要注意生产端对于 batch.size 的参数设置需要小于 message.max.bytes。
 
       // check the validity of the message by checking CRC
       m.ensureValid()

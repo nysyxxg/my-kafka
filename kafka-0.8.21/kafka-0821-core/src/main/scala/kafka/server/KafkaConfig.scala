@@ -32,24 +32,42 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
     props.verify()
   }
 
-  private def getLogRetentionTimeMillis(): Long = {
+  private def getLogRetentionTimeMillis(): Long = { // 获取日志保留时间
     val millisInMinute = 60L * 1000L
     val millisInHour = 60L * millisInMinute
     
-    if(props.containsKey("log.retention.ms")){
+    if(props.containsKey("log.retention.ms")){ // 优先级最高
        props.getIntInRange("log.retention.ms", (1, Int.MaxValue))
-    }
-    else if(props.containsKey("log.retention.minutes")){
+    } else if(props.containsKey("log.retention.minutes")){
+      // 在删除日志文件之前保留日志文件的分钟数（以分钟为单位），
+      // 优先级弱于 log.retention.ms。 如果未设置，则使用log.retention.hours中的值
        millisInMinute * props.getIntInRange("log.retention.minutes", (1, Int.MaxValue))
-    } 
-    else {
+    } else {
        millisInHour * props.getIntInRange("log.retention.hours", 24*7, (1, Int.MaxValue))
     }
   }
 
+  /**
+    * 切分文件
+    * 从上文中可知，日志文件和索引文件都会存在多个文件，组成多个 SegmentLog，
+    * 那么其切分的规则是怎样的呢？
+    * 当满足如下几个条件中的其中之一，就会触发文件的切分：
+    *
+    * 1: 当前日志分段文件的大小超过了 broker 端参数 log.segment.bytes 配置的值。log.segment.bytes 参数的默认值为 1073741824，即 1GB。
+    *
+    * 2: 当前日志分段中消息的最大时间戳与当前系统的时间戳的差值大于 log.roll.ms 或 log.roll.hours 参数配置的值。
+    *    如果同时配置了 log.roll.ms 和 log.roll.hours 参数，那么 log.roll.ms 的优先级高。
+    *    默认情况下，只配置了 log.roll.hours 参数，其值为168，即 7 天。
+    *
+    * 3: 偏移量索引文件或时间戳索引文件的大小达到 broker 端参数 log.index.size.max.bytes 配置的值。
+    *    log.index.size.max.bytes 的默认值为 10485760，即 10MB。
+    *
+    * 4: 追加的消息的偏移量与当前日志分段的偏移量之间的差值大于 Integer.MAX_VALUE，
+    *    即要追加的消息的偏移量不能转变为相对偏移量。
+    * @return
+    */
   private def getLogRollTimeMillis(): Long = {
     val millisInHour = 60L * 60L * 1000L
-    
     if(props.containsKey("log.roll.ms")){
        props.getIntInRange("log.roll.ms", (1, Int.MaxValue))
     }
@@ -58,6 +76,16 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
     }
   }
 
+  /**
+    * 大面积日志段同时间切分，导致瞬时打满磁盘I/O带宽。最后在LogSegment的shouldRoll方法找到解决方案：
+    * 设置Broker端参数log.roll.jitter.ms值大于0，即通过给日志段切分执行时间加一个扰动值的方式，
+    * 来避免大量日志段在同一时刻执行切分动作，从而显著降低磁盘I/O。
+    *
+    *  那配置了这个参数之后如果有很多很多分区，然后因为这个参数是全局的，因此同一时刻需要做很多文件的切分，
+    *  这磁盘IO就顶不住了啊，因此需要设置个rollJitterMs，来岔开它们。
+    *  主要目的就是防止同一个时刻，大量的文件做文件分隔，导致IO激增。
+    * @return
+    */
   private def getLogRollTimeJitterMillis(): Long = {
     val millisInHour = 60L * 60L * 1000L
 
@@ -75,18 +103,24 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
   val brokerId: Int = props.getIntInRange("broker.id", (0, Int.MaxValue))
 
   /* the maximum size of message that the server can receive */
+  // 源码可以看出 message.max.bytes 并不是限制消息体大小的，而是限制一个批次的消息大小，
+  // 所以我们需要注意生产端对于 batch.size 的参数设置需要小于 message.max.bytes。
   val messageMaxBytes = props.getIntInRange("message.max.bytes", 1000000 + MessageSet.LogOverhead, (0, Int.MaxValue))
 
   /* the number of network threads that the server uses for handling network requests */
+  // server用来处理网络请求的网络线程数目；一般你不需要更改这个属性。
   val numNetworkThreads = props.getIntInRange("num.network.threads", 3, (1, Int.MaxValue))
 
   /* the number of io threads that the server uses for carrying out network requests */
+  // server用来处理请求的I/O线程的数目；这个线程数目至少要等于硬盘的个数。
   val numIoThreads = props.getIntInRange("num.io.threads", 8, (1, Int.MaxValue))
 
   /* the number of threads to use for various background processing tasks */
+  // 一些后台任务处理的线程数，例如过期消息文件的删除等，一般情况下不需要去做修改
   val backgroundThreads = props.getIntInRange("background.threads", 10, (1, Int.MaxValue))
 
   /* the number of queued requests allowed before blocking the network threads */
+  // 在网络线程停止读取新请求之前，可以排队等待I/O线程处理的最大请求个数。 等待IO线程处理的请求队列最大数
   val queuedMaxRequests = props.getIntInRange("queued.max.requests", 500, (1, Int.MaxValue))
 
   /*********** Socket Server Configuration ***********/
@@ -109,13 +143,14 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
    * it will publish the same port that the broker binds to. */
   val advertisedPort: Int = props.getInt("advertised.port", port)
 
-  /* the SO_SNDBUFF buffer of the socket sever sockets */
+  /* the SO_SNDBUFF buffer of the socket sever sockets */  // socket的发送缓冲区
   val socketSendBufferBytes: Int = props.getInt("socket.send.buffer.bytes", 100*1024)
 
-  /* the SO_RCVBUFF buffer of the socket sever sockets */
+  /* the SO_RCVBUFF buffer of the socket sever sockets */ // socket的接收缓冲区
   val socketReceiveBufferBytes: Int = props.getInt("socket.receive.buffer.bytes", 100*1024)
 
   /* the maximum number of bytes in a socket request */
+  // socket请求的最大字节数。为了防止内存溢出，message.max.bytes必然要小于
   val socketRequestMaxBytes: Int = props.getIntInRange("socket.request.max.bytes", 100*1024*1024, (1, Int.MaxValue))
   
   /* the maximum number of connections we allow from each ip address */
@@ -138,6 +173,9 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
   require(logDirs.size > 0)
 
   /* the maximum size of a single log file */
+  // 按照文件大小的维度进行切分文件
+  // log.segment.bytes,这个参数控制着日志段文件的大小，默认是1G，即当文件存储超过1G之后就新起一个文件写入。
+  // 这是以大小为维度的，还有一个参数是log.segment.ms,以时间为维度切分。
   val logSegmentBytes = props.getIntInRange("log.segment.bytes", 1*1024*1024*1024, (Message.MinHeaderSize, Int.MaxValue))
 
   /* the maximum time before a new log segment is rolled out */
@@ -231,6 +269,14 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
   val defaultReplicationFactor = props.getInt("default.replication.factor", 1)
 
   /* If a follower hasn't sent any fetch requests during this time, the leader will remove the follower from isr */
+  /**
+    * ISR 列表是动态变化的，并不是所有的分区副本都在 ISR 列表中，
+    * 哪些副本会被包含在 ISR 列表中呢？副本被包含在 ISR 列表中的条件是由参数 replica.lag.time.max.ms 控制的，
+    * 参数含义是副本同步落后于 leader 的最大时间间隔，默认10s，
+    * 意思就是说如果某一 follower 副本中的消息比 leader 延时超过10s，就会被从 ISR 中排除。
+    * Kafka 之所以这样设计，主要是为了减少消息丢失，只有与 leader 副本进行实时同步的 follower 副本才有资格参与 leader 选举，
+    * 这里指相对实时。
+    */
   val replicaLagTimeMaxMs = props.getLong("replica.lag.time.max.ms", 10000)
 
   /* If the lag in messages between a leader and a follower exceeds this number, the leader will remove the follower from isr */
@@ -282,6 +328,24 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
 
   /* indicates whether to enable replicas not in the ISR set to be elected as leader as a last resort, even though
    * doing so may result in data loss */
+  /**
+    * ISR 列表是持久化在 Zookeeper 中的，任何在 ISR 列表中的副本都有资格参与 leader 选举。
+    *
+    * Kafka 把不在 ISR 列表中的存活副本称为“非同步副本”，这些副本中的消息远远落后于 leader，
+    * 如果选举这种副本作为 leader 的话就可能造成数据丢失。\
+    * Kafka broker 端提供了一个参数 unclean.leader.election.enable，
+    * 用于控制是否允许非同步副本参与 leader 选举；
+    * 如果开启，则当 ISR 为空时就会从这些副本中选举新的 leader，这个过程称为 Unclean leader 选举。
+    *
+    * 前面也提及了，如果开启 Unclean leader 选举，可能会造成数据丢失，但保证了始终有一个 leader 副本对外提供服务；
+    * 如果禁用 Unclean leader 选举，就会避免数据丢失，但这时分区就会不可用。
+    * 这就是典型的 CAP 理论，即一个系统不可能同时满足一致性（Consistency）、可用性（Availability）
+    * 和分区容错性（Partition Tolerance）中的两个。所以在这个问题上，Kafka 赋予了我们选择 C 或 A 的权利。
+    *
+    * 我们可以根据实际的业务场景选择是否开启 Unclean leader选举，这里建议关闭 Unclean leader 选举，
+    * 因为通常数据的一致性要比可用性重要的多。
+    *
+    */
   val uncleanLeaderElectionEnable = props.getBoolean("unclean.leader.election.enable", true)
 
   /*********** Controlled shutdown configuration ***********/
@@ -325,7 +389,9 @@ class KafkaConfig private (val props: VerifiableProperties) extends ZKConfig(pro
   val offsetsTopicCompressionCodec = props.getCompressionCodec("offsets.topic.compression.codec",
     OffsetManagerConfig.DefaultOffsetsTopicCompressionCodec)
 
-  /** Offsets older than this retention period will be discarded. */
+  /** Offsets older than this retention period will be discarded.
+    * log.retention.minutes设定的是消息日志的保留时长，而offsets.retention.minutes则是记录topic的偏移量日志的保留时长。
+    * */
   val offsetsRetentionMinutes: Int = props.getIntInRange("offsets.retention.minutes", 24*60, (1, Integer.MAX_VALUE))
 
   /** Frequency at which to check for stale offsets. */
