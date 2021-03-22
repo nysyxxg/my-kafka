@@ -5,7 +5,7 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
+ * 
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -16,14 +16,17 @@
  */
 package kafka.examples;
 
-public class KafkaConsumerProducerDemo {
-    public static void main(String[] args) {
-        boolean isAsync = args.length == 0 || !args[0].trim().equalsIgnoreCase("sync");
-        ProducerThread producerThread = new ProducerThread(KafkaProperties.TOPIC, isAsync);
-        producerThread.start();
+import java.nio.ByteBuffer;
 
-        ConsumerThread consumerThread = new ConsumerThread(KafkaProperties.TOPIC);
-        consumerThread.start();
+import kafka.message.Message;
 
-    }
+public class ExampleUtils
+{
+  public static String getMessage(Message message)
+  {
+    ByteBuffer buffer = message.payload();
+    byte [] bytes = new byte[buffer.remaining()];
+    buffer.get(bytes);
+    return new String(bytes);
+  }
 }

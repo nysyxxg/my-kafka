@@ -10,15 +10,15 @@ import java.util.concurrent.ExecutionException;
  * Created by 朱小厮 on 2018/7/21.
  */
 public class KafkaAdminTopicOperation {
-    public static final String brokerList = "xxg.kafka.cn:9092";
-    public static final String topic = "topic-admin";
+    public static final String brokerList = "xxg.kafka.cn:9192";
+    public static final String topic = "topic-admin2";
 
     public static void describeTopic(){
 //        String brokerList =  "localhost:9092";
 //        String topic = "topic-admin";
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
-        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);
+        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);// 如果客户端连接，超出这个时间，就会抛出异常
         AdminClient client = AdminClient.create(props);
         DescribeTopicsResult result = client.describeTopics(Collections.singleton(topic));
         try {
@@ -36,7 +36,7 @@ public class KafkaAdminTopicOperation {
 
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
-        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 30000);
+        props.put(AdminClientConfig.REQUEST_TIMEOUT_MS_CONFIG, 6*1000);
         AdminClient client = AdminClient.create(props);
 
 //        NewTopic newTopic = new NewTopic(topic, 4, (short) 1);
@@ -82,7 +82,7 @@ public class KafkaAdminTopicOperation {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         createTopic();
-        describeTopic();
+//        describeTopic();
 //        deleteTopic();
 
 //        Properties props = new Properties();

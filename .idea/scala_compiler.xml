@@ -15,6 +15,6 @@
         <parameter value="-Xlog-reflective-calls" />
       </parameters>
     </profile>
-    <profile name="Maven 1" modules="kafka-0821,kafka-0821-clients,kafka-0821-common,kafka-0821-core,kafka-0821-examples" />
+    <profile name="Maven 1" modules="kafka-0.7.0-core,kafka-0821,kafka-0821-clients,kafka-0821-common,kafka-0821-core,kafka-0821-examples" />
   </component>
 </project>

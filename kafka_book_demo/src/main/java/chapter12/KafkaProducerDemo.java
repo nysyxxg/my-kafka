@@ -28,14 +28,13 @@ public class KafkaProducerDemo {
         Producer<String,String> producer = new KafkaProducer<>(properties);
 
         Random random = new Random();
+        
         while (true) {
             int value = random.nextInt(10);
-            ProducerRecord<String, String> message =
-                    new ProducerRecord<>(topic, value+"");
+            ProducerRecord<String, String> message = new ProducerRecord<>(topic, value+"");
             producer.send(message, (recordMetadata, e) -> {
                 if (recordMetadata != null) {
-                    System.out.println(recordMetadata.topic() + "-" + recordMetadata.partition() + ":" +
-                            recordMetadata.offset());
+                    System.out.println(recordMetadata.topic() + "-" + recordMetadata.partition() + ":" + recordMetadata.offset());
                 }
             });
             TimeUnit.SECONDS.sleep(1);

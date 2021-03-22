@@ -27,6 +27,13 @@
       <module name="hadoop-producer" target="1.8" />
       <module name="hadoop-test" target="1.8" />
       <module name="HeiMa-Kafka-Study" target="1.5" />
+      <module name="kafka-0.7.0" target="1.5" />
+      <module name="kafka-0.7.0-contrib" target="1.5" />
+      <module name="kafka-0.7.0-contrib-hadoop-consumer" target="6" />
+      <module name="kafka-0.7.0-contrib-hadoop-producer" target="1.5" />
+      <module name="kafka-0.7.0-core" target="1.8" />
+      <module name="kafka-0.7.0-example" target="1.5" />
+      <module name="kafka-0.8.21" target="1.8.0_152-release" />
       <module name="kafka-0821" target="1.8.0_152-release" />
       <module name="kafka-0821-assembly" target="1.8.0_152-release" />
       <module name="kafka-0821-clients" target="8" />
@@ -62,6 +69,7 @@
       <module name="org.apache.kafka.transforms.main" target="1.7" />
       <module name="org.apache.kafka.transforms.test" target="1.7" />
       <module name="ShangGuigu-Kafka-Study" target="8" />
+      <module name="test" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>

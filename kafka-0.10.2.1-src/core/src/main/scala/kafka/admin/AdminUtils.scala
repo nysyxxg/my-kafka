@@ -134,13 +134,15 @@ object AdminUtils extends Logging with AdminUtilities {
         startPartitionId)
     }
   }
-
-  private def assignReplicasToBrokersRackUnaware(nPartitions: Int,
-                                                 replicationFactor: Int,
-                                                 brokerList: Seq[Int],
-                                                 fixedStartIndex: Int,
+   // 未指定机架信息的分配策略比较容易理解。
+  private def assignReplicasToBrokersRackUnaware(nPartitions: Int,  // 分区数，
+                                                 replicationFactor: Int,// 副本因子
+                                                 brokerList: Seq[Int], //集群中broker的列表
+                                                 fixedStartIndex: Int, // 起始索引，即第一个副本分配的位置，默认值为-1
+                                                // 起始分区编号，默认值为-1
                                                  startPartitionId: Int): Map[Int, Seq[Int]] = {
     val ret = mutable.Map[Int, Seq[Int]]()
+
     val brokerArray = brokerList.toArray
     val startIndex = if (fixedStartIndex >= 0) fixedStartIndex else rand.nextInt(brokerArray.length)
     var currentPartitionId = math.max(0, startPartitionId)
@@ -295,7 +297,8 @@ object AdminUtils extends Logging with AdminUtilities {
     AdminUtils.createOrUpdateTopicPartitionAssignmentPathInZK(zkUtils, topic, partitionReplicaList, update = true)
   }
 
-  def getManualReplicaAssignment(replicaAssignmentList: String, availableBrokerList: Set[Int], startPartitionId: Int, checkBrokerAvailable: Boolean = true): Map[Int, List[Int]] = {
+  def getManualReplicaAssignment(replicaAssignmentList: String, availableBrokerList: Set[Int],
+                                 startPartitionId: Int, checkBrokerAvailable: Boolean = true): Map[Int, List[Int]] = {
     var partitionList = replicaAssignmentList.split(",")
     val ret = new mutable.HashMap[Int, List[Int]]()
     var partitionId = startPartitionId

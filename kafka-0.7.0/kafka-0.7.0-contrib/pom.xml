@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>kafka-0.7.0</artifactId>
+        <groupId>kafka-0.7.0</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>kafka-0.7.0-contrib</artifactId>
+    <packaging>pom</packaging>
+
+
+    <modules>
+        <module>test</module>
+        <module>kafka-0.7.0-contrib-hadoop-producer</module>
+        <module>kafka-0.7.0-contrib-hadoop-consumer</module>
+    </modules>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>kafka-0.7.0</groupId>
+            <artifactId>kafka-0.7.0-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-mapreduce-client-core</artifactId>
+            <version>0.23.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>0.23.1</version>
+        </dependency>
+
+    </dependencies>
+
+</project>

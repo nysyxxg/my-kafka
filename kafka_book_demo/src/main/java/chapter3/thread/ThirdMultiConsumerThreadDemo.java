@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
  * Created by 朱小厮 on 2018/8/25.
  */
 public class ThirdMultiConsumerThreadDemo {
-    public static final String brokerList = "localhost:9092";
-    public static final String topic = "topic-demo";
+    public static final String brokerList = "1.kafka.adh:9092,2.kafka.adh:9092,3.kafka.adh:9092,4.kafka.adh:9092,5.kafka.adh:9092,6.kafka.adh:9092,7.kafka.adh:9092";
+    public static final String topic = "nb-EIP-DD-wechat";
     public static final String groupId = "group.demo";
     
     public static Properties initConfig() {
@@ -37,7 +37,9 @@ public class ThirdMultiConsumerThreadDemo {
     
     public static void main(String[] args) {
         Properties props = initConfig();
-        KafkaConsumerThread consumerThread = new KafkaConsumerThread(props, topic, Runtime.getRuntime().availableProcessors());
+        int core = Runtime.getRuntime().availableProcessors();
+        System.out.println("可利用的Core：" + core);
+        KafkaConsumerThread consumerThread = new KafkaConsumerThread(props, topic, core);
         consumerThread.start();
     }
     
@@ -99,7 +101,7 @@ public class ThirdMultiConsumerThreadDemo {
                 List<ConsumerRecord<String, String>> tpRecords = records.records(tp);
                 // 处理 tpRecords
                 for(ConsumerRecord<String, String>  record:tpRecords){
-                    System.out.println(record.value()); // 处理数据
+//                    System.out.println(record.value()); // 处理数据
                 }
                 
                 long lastConsumedOffset = tpRecords.get(tpRecords.size() - 1).offset();

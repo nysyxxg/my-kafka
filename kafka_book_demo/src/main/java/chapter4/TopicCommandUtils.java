@@ -40,7 +40,7 @@ public class TopicCommandUtils {
 
     public static void listTopic(){
         String[] options = new String[]{
-                "--zookeeper", "xxg.kafka.cn:2181", "--list"
+                "--zookeeper", "xxg.kafka.cn:2182", "--list"
         };
         kafka.admin.TopicCommand.main(options);
     }

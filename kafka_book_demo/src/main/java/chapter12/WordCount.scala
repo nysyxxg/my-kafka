@@ -12,8 +12,7 @@ object WordCount {
     val sc = new SparkContext(conf)
     val rdd = sc.textFile("/opt/spark/bin/spark-shell")
     val wordcount = rdd.flatMap(_.split(" ")).map(x=>(x,1)).reduceByKey(_+_)
-    val wordsort = wordcount.map(x=>(x._2,x._1))
-      .sortByKey(false).map(x=>(x._2,x._1))
+    val wordsort = wordcount.map(x=>(x._2,x._1)).sortByKey(false).map(x=>(x._2,x._1))
     wordsort.saveAsTextFile("/tmp/spark")
     sc.stop()
   }

@@ -19,25 +19,24 @@ object StreamingWithKafka {
   private val checkpointDir = "/opt/kafka/checkpoint"
 
   def main(args: Array[String]): Unit = {
-    val sparkConf = new SparkConf().setMaster("local[2]")
-      .setAppName("StreamingWithKafka")
+
+    val sparkConf = new SparkConf().setMaster("local[2]").setAppName("StreamingWithKafka")
+
     val ssc = new StreamingContext(sparkConf, Seconds(2))
+
     ssc.checkpoint(checkpointDir)
 
     val kafkaParams = Map[String, Object](
       ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> brokers,
-      ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG ->
-        classOf[StringDeserializer],
-      ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG ->
-        classOf[StringDeserializer],
+      ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
+      ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG -> classOf[StringDeserializer],
       ConsumerConfig.GROUP_ID_CONFIG -> group,
       ConsumerConfig.AUTO_OFFSET_RESET_CONFIG -> "latest",
       ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG -> (false:java.lang.Boolean)
     )
 
     val stream = KafkaUtils.createDirectStream[String, String](
-      ssc, PreferConsistent,
-      Subscribe[String, String](List(topic), kafkaParams))
+      ssc, PreferConsistent, Subscribe[String, String](List(topic), kafkaParams))
 
     // start from assigned offsets.
 //    val partitions = List(new TopicPartition(topic,0),

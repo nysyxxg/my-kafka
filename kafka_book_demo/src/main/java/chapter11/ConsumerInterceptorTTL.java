@@ -17,15 +17,13 @@ import java.util.Map;
  * 代码清单11-2
  * Created by 朱小厮 on 2018/8/1.
  */
-public class ConsumerInterceptorTTL implements
-        ConsumerInterceptor<String, String> {
+public class ConsumerInterceptorTTL implements ConsumerInterceptor<String, String> {
 
     @Override
     public ConsumerRecords<String, String> onConsume(
             ConsumerRecords<String, String> records) {
         long now = System.currentTimeMillis();
-        Map<TopicPartition, List<ConsumerRecord<String, String>>> newRecords
-                = new HashMap<>();
+        Map<TopicPartition, List<ConsumerRecord<String, String>>> newRecords = new HashMap<>();
         for (TopicPartition tp : records.partitions()) {
             List<ConsumerRecord<String, String>> tpRecords = records.records(tp);
             List<ConsumerRecord<String, String>> newTpRecords = new ArrayList<>();

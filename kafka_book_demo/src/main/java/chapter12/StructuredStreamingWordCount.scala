@@ -7,6 +7,7 @@ import org.apache.spark.sql.SparkSession
   * Created by 朱小厮 on 2019-03-04.
   */
 object StructuredStreamingWordCount {
+
   def main(args: Array[String]): Unit = {
     val spark = SparkSession
       .builder()
