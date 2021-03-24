@@ -13,7 +13,7 @@
         <option value="$PROJECT_DIR$/kafka-0821/pom.xml" />
         <option value="$PROJECT_DIR$/kafka-0.7.0/kafka-0.7.0-contrib/hadoop-producer/pom.xml" />
         <option value="$PROJECT_DIR$/kafka-0.7.0/kafka-0.7.0-contrib/hadoop-consumer/pom.xml" />
-        <option value="$PROJECT_DIR$/kafka-0.8.21/pom.xml" />
+        <option value="$PROJECT_DIR$/kafka-0.7.0/pom.xml" />
       </list>
     </option>
   </component>
