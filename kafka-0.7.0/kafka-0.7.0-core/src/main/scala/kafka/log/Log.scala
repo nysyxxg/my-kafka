@@ -17,11 +17,9 @@
 
 package kafka.log
 
-import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic._
 import java.text.NumberFormat
 import java.io._
-import java.nio.channels.FileChannel
 import org.apache.log4j._
 import kafka.message._
 import kafka.utils._

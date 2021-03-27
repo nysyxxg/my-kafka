@@ -23,8 +23,6 @@ import java.nio.channels._
 import java.util.concurrent.atomic._
 import org.apache.log4j.Logger
 
-import kafka._
-import kafka.message._
 import kafka.utils._
 
 /**

@@ -17,7 +17,6 @@
 
 package kafka.message
 
-import scala.collection.mutable
 import org.apache.log4j.Logger
 import kafka.common.{InvalidMessageSizeException, ErrorMapping}
 import java.nio.ByteBuffer
@@ -79,6 +78,7 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
 
   private def deepIterator(): Iterator[MessageAndOffset] = {
     ErrorMapping.maybeThrowException(errorCode)
+
     new IteratorTemplate[MessageAndOffset] {
       var topIter = buffer.slice()
       var currValidBytes = initialOffset

@@ -167,7 +167,7 @@ public class Utils {
             throw new IllegalArgumentException("Missing required property '" + name + "'");
     }
     
-    String getString(Properties props, String name, String defaultStr) {
+    static String getString(Properties props, String name, String defaultStr) {
         if (props.containsKey(name))
             return props.getProperty(name);
         else
@@ -372,7 +372,7 @@ public class Utils {
     }
     
     
-    Long getUnsignedInt(ByteBuffer buffer, int index) {
+    public static Long getUnsignedInt(ByteBuffer buffer, int index) {
         return buffer.getInt(index) & 0xffffffffL;
     }
     
@@ -393,13 +393,13 @@ public class Utils {
     }
     
     
-    Long crc32(byte bytes[], int offset, int size) {
+    public  static Long crc32(byte bytes[], int offset, int size) {
         CRC32 crc = new CRC32();
         crc.update(bytes, offset, size);
         return crc.getValue();
     }
     
-    int hashcode(Object... as) {
+    public static int hashcode(Object... as) {
         if (as == null) {
             return 0;
         }

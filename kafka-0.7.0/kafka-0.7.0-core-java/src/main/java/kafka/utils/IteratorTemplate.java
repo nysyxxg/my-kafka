@@ -1,5 +1,6 @@
 package kafka.utils;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -9,7 +10,7 @@ enum State {
 }
 
 
-abstract class IteratorTemplate<T> implements Iterator<T> {
+public abstract class IteratorTemplate<T> implements Iterator<T> {
     
     private State state = State.NOT_READY;
     private T nextItem = null;
@@ -41,7 +42,7 @@ abstract class IteratorTemplate<T> implements Iterator<T> {
         return false;
     }
     
-    protected abstract T makeNext();
+    protected abstract T makeNext() throws Throwable;
     
     Boolean maybeComputeNext() {
         state = State.FAILED;

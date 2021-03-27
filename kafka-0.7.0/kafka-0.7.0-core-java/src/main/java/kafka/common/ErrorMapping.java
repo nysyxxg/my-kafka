@@ -9,7 +9,7 @@ public class ErrorMapping {
     private ByteBuffer EmptyByteBuffer = ByteBuffer.allocate(0);
     
     static int UnknownCode = -1;
-    static int NoError = 0;
+    public static int NoError = 0;
     static int OffsetOutOfRangeCode = 1;
     static int InvalidMessageCode = 2;
     static int WrongPartitionCode = 3;
@@ -37,7 +37,7 @@ public class ErrorMapping {
         return exceptionToCode.get(exception);
     }
     
-    void maybeThrowException(int code) throws Throwable {
+    public static  void maybeThrowException(int code) throws Throwable {
         if (code != 0)
             throw codeToException.get(code);
     }

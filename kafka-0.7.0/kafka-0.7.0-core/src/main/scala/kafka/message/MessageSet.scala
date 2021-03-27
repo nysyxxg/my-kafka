@@ -20,6 +20,8 @@ package kafka.message
 import java.nio._
 import java.nio.channels._
 
+import kafka.common.InvalidMessageException
+
 /**
  * Message set helper functions
  */

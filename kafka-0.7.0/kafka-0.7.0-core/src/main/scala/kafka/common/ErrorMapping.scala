@@ -17,7 +17,6 @@
 
 package kafka.common
 
-import kafka.message.InvalidMessageException
 import java.nio.ByteBuffer
 
 /**

@@ -41,7 +41,7 @@ public class Message {
     }
     
     int MinHeaderSize = headerSize((byte) 0);
-    ByteBuffer buffer;
+    public ByteBuffer buffer;
     
     public Message(ByteBuffer buffer) {
         this.buffer = buffer;
@@ -52,7 +52,7 @@ public class Message {
         buffer.put(CurrentMagicValue);
         byte attributes = 0;
         if (compressionCodec.codec > 0) {
-            attributes = (byte)(attributes | (Message.CompressionCodeMask & compressionCodec.codec));
+            attributes = (byte) (attributes | (Message.CompressionCodeMask & compressionCodec.codec));
         }
         buffer.put(attributes);
         Utils.putUnsignedInt(buffer, checksum);
@@ -60,6 +60,9 @@ public class Message {
         buffer.rewind();
     }
     
+    public Message(Long checksum, byte bytes[]) {
+        this(checksum, bytes, new NoCompressionCodec());
+    }
     
     public Message(byte bytes[], CompressionCodec compressionCodec) {
         //Note: we're not crc-ing the attributes header, so we're susceptible to bit-flipping there
@@ -80,6 +83,19 @@ public class Message {
     
     byte attributes = buffer.get(AttributeOffset);
     
+    CompressionCodec compressionCodec() {
+        if (magic == 0) {
+            return new NoCompressionCodec();
+        } else if (magic == 1) {
+            return CompressionCodec.getCompressionCodec(buffer.get(AttributeOffset) & CompressionCodeMask);
+        } else {
+            throw new RuntimeException("Invalid magic byte " + magic);
+        }
+    }
+    
+    Long checksum = Utils.getUnsignedInt(buffer, crcOffset(magic));
+    
+    
     public ByteBuffer payload() {
         ByteBuffer payload = buffer.duplicate();
         payload.position(headerSize(magic));
@@ -89,4 +105,35 @@ public class Message {
         return payload;
     }
     
+    
+    Boolean isValid() {
+        return checksum == Utils.crc32(buffer.array(), buffer.position() + buffer.arrayOffset() + payloadOffset(magic), payloadSize);
+    }
+    
+    int serializedSize = 4 /* int size*/ + buffer.limit();
+    
+    
+    void serializeTo(ByteBuffer serBuffer) {
+        serBuffer.putInt(buffer.limit());
+        serBuffer.put(buffer.duplicate());
+    }
+    
+    @Override
+    public String toString() {
+        ByteBuffer payload = payload();
+        return "message(magic = %d, attributes = %d, crc = %d, payload = %s)".format(String.valueOf(magic), attributes, checksum, payload);
+    }
+    
+    public boolean equals(Object any) {
+        if (any instanceof Message) {
+            Message that = (Message) any;
+            return size == that.size && attributes == that.attributes && checksum == that.checksum && payload() == that.payload() && magic == that.magic;
+        } else {
+            return false;
+        }
+    }
+    
+    public int hashCode() {
+        return buffer.hashCode();
+    }
 }
