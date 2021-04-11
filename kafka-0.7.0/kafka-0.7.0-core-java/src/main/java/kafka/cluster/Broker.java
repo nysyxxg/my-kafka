@@ -6,17 +6,17 @@ public class Broker {
     
     private int id;
     private String creatorId;
-    private String host;
-    private int port;
+    public String host;
+    public int port;
     
-    private Broker(int id, String creatorId, String host, int port) {
+    public Broker(int id, String creatorId, String host, int port) {
         this.id = id;
         this.creatorId = creatorId;
         this.host = host;
         this.port = port;
     }
     
-    public Broker createBroker(int id, String brokerInfoString) {
+    public static Broker createBroker(int id, String brokerInfoString) {
         String brokerInfo[] = brokerInfoString.split(":");
         return new Broker(id, brokerInfo[0], brokerInfo[1], Integer.parseInt(brokerInfo[2]));
     }

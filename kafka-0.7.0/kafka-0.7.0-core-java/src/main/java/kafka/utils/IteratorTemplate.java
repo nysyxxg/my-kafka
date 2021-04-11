@@ -46,7 +46,11 @@ public abstract class IteratorTemplate<T> implements Iterator<T> {
     
     Boolean maybeComputeNext() {
         state = State.FAILED;
-        nextItem = makeNext();
+        try {
+            nextItem = makeNext();
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
         if (state == State.DONE) {
             return false;
         } else {

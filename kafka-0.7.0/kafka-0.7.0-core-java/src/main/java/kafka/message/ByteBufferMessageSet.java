@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.Iterator;
 
-public class ByteBufferMessageSet extends AbstractMessageSet {
+public class ByteBufferMessageSet extends MessageSet {
     
     private Logger logger = Logger.getLogger(ByteBufferMessageSet.class);
     private Long validByteCount = -1L;
@@ -47,7 +47,7 @@ public class ByteBufferMessageSet extends AbstractMessageSet {
     }
     
     
-    Long validBytes = shallowValidBytes();
+    public  Long validBytes = shallowValidBytes();
     
     private Long shallowValidBytes() throws Throwable {
         if (shallowValidByteCount < 0) {

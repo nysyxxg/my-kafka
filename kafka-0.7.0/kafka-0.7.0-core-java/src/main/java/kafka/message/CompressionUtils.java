@@ -84,7 +84,7 @@ public class CompressionUtils {
         }
     }
     
-    public static ByteBufferMessageSet decompress(Message message) throws IOException {
+    public static ByteBufferMessageSet decompress(Message message) throws Throwable {
         CompressionCodec compressionCodec = message.compressionCodec();
         
         if (compressionCodec instanceof DefaultCompressionCodec) {

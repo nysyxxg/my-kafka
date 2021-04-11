@@ -61,12 +61,13 @@ public class Utils {
     public static Boolean getBoolean(Properties props, String name, Boolean bl) {
         if (!props.containsKey(name)) {
             return bl;
-        } else if ("true" == props.getProperty(name))
+        } else if ("true".equalsIgnoreCase(props.getProperty(name))) {
             return true;
-        else if ("false" == props.getProperty(name))
+        } else if ("false".equalsIgnoreCase(props.getProperty(name))) {
             return false;
-        else
+        } else {
             throw new IllegalArgumentException("Unacceptable value for property '" + name + "', boolean values must be either 'true' or 'false");
+        }
     }
     
     public static int getInt(Properties props, String name, int def) {
@@ -97,7 +98,7 @@ public class Utils {
     }
     
     
-    public Thread newThread(String name, Runnable runnable, Boolean daemon) {
+    public static Thread newThread(String name, Runnable runnable, Boolean daemon) {
         Thread thread = new Thread(runnable, name);
         thread.setDaemon(daemon);
         return thread;
@@ -115,7 +116,7 @@ public class Utils {
     }
     
     
-    public String readShortString(ByteBuffer buffer, String encoding) {
+    public static String readShortString(ByteBuffer buffer, String encoding) {
         int size = buffer.getShort();
         if (size < 0) {
             return null;
@@ -131,7 +132,7 @@ public class Utils {
     }
     
     
-    void writeShortString(ByteBuffer buffer, String string, String encoding) {
+    public static void writeShortString(ByteBuffer buffer, String string, String encoding) {
         if (string == null) {
             buffer.putShort((short) -1);
         } else if (string.length() > Short.MAX_VALUE) {
@@ -147,7 +148,7 @@ public class Utils {
     }
     
     
-    Properties loadProps(String filename) {
+    public static Properties loadProps(String filename) {
         FileInputStream propStream;
         Properties props = new Properties();
         try {
@@ -160,21 +161,21 @@ public class Utils {
         return props;
     }
     
-    int getInt(Properties props, String name) {
+    public static int getInt(Properties props, String name) {
         if (props.containsKey(name))
             return getInt(props, name, -1);
         else
             throw new IllegalArgumentException("Missing required property '" + name + "'");
     }
     
-    static String getString(Properties props, String name, String defaultStr) {
+    public static String getString(Properties props, String name, String defaultStr) {
         if (props.containsKey(name))
             return props.getProperty(name);
         else
             return defaultStr;
     }
     
-    String getString(Properties props, String name) {
+    public static String getString(Properties props, String name) {
         if (props.containsKey(name))
             return props.getProperty(name);
         else
@@ -199,7 +200,7 @@ public class Utils {
     }
     
     
-    Properties getProps(Properties props, String name, Properties defaultP) {
+    public static Properties getProps(Properties props, String name, Properties defaultP) {
         if (props.containsKey(name)) {
             String propString = props.getProperty(name);
             String propValues[] = propString.split(",");
@@ -217,7 +218,7 @@ public class Utils {
             return defaultP;
     }
     
-    FileChannel openChannel(File file, Boolean mutable) {
+    public static FileChannel openChannel(File file, Boolean mutable) {
         FileChannel fileChannel = null;
         if (mutable) {
             try {
@@ -317,7 +318,7 @@ public class Utils {
         }
     }
     
-    void registerMBean(Object mbean, String name) {
+    public static void registerMBean(Object mbean, String name) {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         synchronized (mbs) {
             ObjectName objName = null;
@@ -346,7 +347,7 @@ public class Utils {
         }
     }
     
-    void unregisterMBean(String name) {
+    public static void unregisterMBean(String name) {
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
         synchronized (mbs) {
             ObjectName objName = null;
@@ -393,7 +394,7 @@ public class Utils {
     }
     
     
-    public  static Long crc32(byte bytes[], int offset, int size) {
+    public static Long crc32(byte bytes[], int offset, int size) {
         CRC32 crc = new CRC32();
         crc.update(bytes, offset, size);
         return crc.getValue();
@@ -434,7 +435,7 @@ public class Utils {
         return m;
     }
     
-    int read(ReadableByteChannel channel, ByteBuffer buffer) {
+    public static int read(ReadableByteChannel channel, ByteBuffer buffer) {
         int index = 0;
         try {
             index = channel.read(buffer);
@@ -461,13 +462,13 @@ public class Utils {
         return new Tuple2<>(splits[0], Integer.valueOf(splits[1]));
     }
     
-    Tuple2<String, Integer> getTopicPartition(String topicPartition) {
+    public static Tuple2<String, Integer> getTopicPartition(String topicPartition) {
         int index = topicPartition.lastIndexOf('-');
         return new Tuple2<>(topicPartition.substring(0, index), Integer.valueOf(topicPartition.substring(index + 1)));
     }
     
     
-    private Map getCSVMap(String allCSVals, String exceptionMsg, String successMsg) {
+    private static Map getCSVMap(String allCSVals, String exceptionMsg, String successMsg) {
         HashMap map = new HashMap();
         if ("".equals(allCSVals)) {
             return map;
@@ -501,25 +502,25 @@ public class Utils {
         return list;
     }
     
-    Map getTopicRentionHours(String retentionHours) {
+    public static Map getTopicRentionHours(String retentionHours) {
         String exceptionMsg = "Malformed token for topic.log.retention.hours in server.properties: ";
         String successMsg = "The retention hour for ";
         return getCSVMap(retentionHours, exceptionMsg, successMsg);
     }
     
-    Map getTopicFlushIntervals(String allIntervals) {
+    public static Map getTopicFlushIntervals(String allIntervals) {
         String exceptionMsg = "Malformed token for topic.flush.Intervals.ms in server.properties: ";
         String successMsg = "The flush interval for ";
         return getCSVMap(allIntervals, exceptionMsg, successMsg);
     }
     
-    Map getTopicPartitions(String allPartitions) {
+    public static Map getTopicPartitions(String allPartitions) {
         String exceptionMsg = "Malformed token for topic.partition.counts in server.properties: ";
         String successMsg = "The number of partitions for topic  ";
         return getCSVMap(allPartitions, exceptionMsg, successMsg);
     }
     
-    Map<String, Integer> getConsumerTopicMap(String consumerTopicString) {
+    public static Map<String, Integer> getConsumerTopicMap(String consumerTopicString) {
         String exceptionMsg = "Malformed token for embeddedconsumer.topics in consumer.properties: ";
         String successMsg = "The number of consumer thread for topic  ";
         return getCSVMap(consumerTopicString, exceptionMsg, successMsg);
@@ -562,122 +563,6 @@ public class Utils {
     }
 }
 
-class SnapshotStats {
-    private Long monitorDurationNs = 600L * 1000L * 1000L * 1000L;
-    
-    public SnapshotStats(Long monitorDurationNs) {
-        this.monitorDurationNs = monitorDurationNs;
-    }
-    
-    private Time time = new SystemTime();
-    
-    private AtomicReference complete = new AtomicReference(new Stats());
-    private AtomicReference current = new AtomicReference(new Stats());
-    private AtomicLong total = new AtomicLong(0);
-    private AtomicLong numCumulatedRequests = new AtomicLong(0);
-    
-    void recordRequestMetric(Long requestNs) {
-        Stats stats = (Stats) current.get();
-        stats.add(requestNs);
-        total.getAndAdd(requestNs);
-        numCumulatedRequests.getAndAdd(1);
-        Long ageNs = time.nanoseconds() - stats.start;
-        // if the current stats are too old it is time to swap
-        if (ageNs >= monitorDurationNs) {
-            boolean swapped = current.compareAndSet(stats, new Stats());
-            if (swapped) {
-                complete.set(stats);
-                stats.end.set(time.nanoseconds());
-            }
-        }
-    }
-    
-    void recordThroughputMetric(Long data) {
-        Stats stats = (Stats) current.get();
-        stats.addData(data);
-        Long ageNs = time.nanoseconds() - stats.start;
-        // if the current stats are too old it is time to swap
-        if (ageNs >= monitorDurationNs) {
-            boolean swapped = current.compareAndSet(stats, new Stats());
-            if (swapped) {
-                complete.set(stats);
-                stats.end.set(time.nanoseconds());
-            }
-        }
-    }
-    
-    Long getNumRequests() {
-        return numCumulatedRequests.get();
-    }
-    
-    Double getRequestsPerSecond() {
-        Stats stats = (Stats) complete.get();
-        return stats.numRequests / stats.durationSeconds();
-    }
-    
-    Double getThroughput() {
-        Stats stats = (Stats) complete.get();
-        return stats.totalData / stats.durationSeconds();
-    }
-    
-    Double getAvgMetric() {
-        Stats stats = (Stats) complete.get();
-        if (stats.numRequests == 0) {
-            return Double.valueOf(0);
-        } else {
-            return Double.valueOf(stats.totalRequestMetric / stats.numRequests);
-        }
-    }
-    
-    Long getTotalMetric() {
-        return total.get();
-    }
-    
-    Double getMaxMetric() {
-        Stats stats = (Stats) complete.get();
-        return Double.valueOf(stats.maxRequestMetric);
-    }
-    
-    class Stats {
-        Long start = time.nanoseconds();
-        AtomicLong end = new AtomicLong(-1);
-        int numRequests = 0;
-        Long totalRequestMetric = 0L;
-        Long maxRequestMetric = 0L;
-        Long totalData = 0L;
-        private Object lock = new Object();
-        
-        void addData(Long data) {
-            synchronized (lock) {
-                totalData += data;
-            }
-        }
-        
-        void add(Long requestNs) {
-            synchronized (lock) {
-                numRequests += 1;
-                totalRequestMetric += requestNs;
-                maxRequestMetric = Math.max(maxRequestMetric, requestNs);
-            }
-        }
-        
-        Double durationSeconds() {
-            return (end.get() - start) / (1000.0 * 1000.0 * 1000.0);
-        }
-        
-        Double durationMs() {
-            return (end.get() - start) / (1000.0 * 1000.0);
-        }
-        
-        public Long getMaxRequestMetric() {
-            return maxRequestMetric;
-        }
-        
-        public void setMaxRequestMetric(Long maxRequestMetric) {
-            this.maxRequestMetric = maxRequestMetric;
-        }
-    }
-}
 
 
 

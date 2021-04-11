@@ -2,16 +2,16 @@ package kafka.cluster;
 
 public class Partition {
     private int brokerId;
-    private int partId;
+    public int partId;
     
-    private String name = brokerId + "-" + partId;
+    public String name = brokerId + "-" + partId;
     
     public Partition(int brokerId, int partId) {
         this.brokerId = brokerId;
         this.partId = partId;
     }
     
-    public Partition parse(String s) {
+    public static Partition parse(String s) {
         String pieces[] = s.split("-");
         if (pieces.length != 2) {
             throw new IllegalArgumentException("Expected name in the form x-y.");
@@ -53,5 +53,27 @@ public class Partition {
         return 31 * (17 + brokerId) + partId;
     }
     
+    public int getBrokerId() {
+        return brokerId;
+    }
     
+    public void setBrokerId(int brokerId) {
+        this.brokerId = brokerId;
+    }
+    
+    public int getPartId() {
+        return partId;
+    }
+    
+    public void setPartId(int partId) {
+        this.partId = partId;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
 }

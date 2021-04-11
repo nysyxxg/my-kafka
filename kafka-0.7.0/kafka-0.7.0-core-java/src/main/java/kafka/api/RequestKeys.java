@@ -2,10 +2,10 @@ package kafka.api;
 
 public class RequestKeys {
     
-    public Short Produce = 0;
-    public Short Fetch = 1;
-    public Short MultiFetch = 2;
-    public Short MultiProduce = 3;
-    public Short Offsets = 4;
+    public static Short Produce = 0;
+    public static Short Fetch = 1;
+    public static Short MultiFetch = 2;
+    public static Short MultiProduce = 3;
+    public static Short Offsets = 4;
     
 }

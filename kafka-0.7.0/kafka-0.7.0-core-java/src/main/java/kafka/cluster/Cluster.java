@@ -16,19 +16,19 @@ public class Cluster {
     public Cluster() {
     }
     
-    Broker getBroker(int id) {
+    public Broker getBroker(int id) {
         return brokers.get(id);
     }
     
-    void add(Broker broker) {
+    public void add(Broker broker) {
         brokers.put(broker.getId(), broker);
     }
     
-    void remove(int id) {
+    public void remove(int id) {
         brokers.remove(id);
     }
     
-    int size = brokers.size();
+    public int size = brokers.size();
     
     
     public String toString() {

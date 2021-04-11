@@ -10,10 +10,6 @@ public abstract class AbstractMessageSet implements Iterable<MessageAndOffset> {
     
     abstract public Iterator<MessageAndOffset> iterator();
     
-    //    @Override
-//    public Iterator<MessageAndOffset> iterator() {
-//        return null;
-//    }
     abstract public Long sizeInBytes();
     
     

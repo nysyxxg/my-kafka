@@ -3,11 +3,13 @@ package kafka.utils;
 
 public class SystemTime implements Time {
     
-    public Long milliseconds() {
+    public  Long  milliseconds() {
         return System.currentTimeMillis();
     }
-    
-    public Long nanoseconds() {
+    public  static Long  getMilliseconds() {
+        return System.currentTimeMillis();
+    }
+    public  Long nanoseconds() {
         return  System.nanoTime();
     }
     

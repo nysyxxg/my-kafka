@@ -40,7 +40,8 @@ public class Message {
         return payloadOffset(magic);
     }
     
-    int MinHeaderSize = headerSize((byte) 0);
+    public static int MinHeaderSize = headerSize((byte) 0);
+    
     public ByteBuffer buffer;
     
     public Message(ByteBuffer buffer) {
@@ -106,7 +107,7 @@ public class Message {
     }
     
     
-    Boolean isValid() {
+    public Boolean isValid() {
         return checksum == Utils.crc32(buffer.array(), buffer.position() + buffer.arrayOffset() + payloadOffset(magic), payloadSize);
     }
     

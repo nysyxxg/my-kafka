@@ -8,9 +8,9 @@ import java.lang.reflect.InvocationTargetException;
 
 public class Mx4jLoader {
     
-    private Logger logger = Logger.getLogger(Mx4jLoader.class);
+    private static Logger logger = Logger.getLogger(Mx4jLoader.class);
     
-    public Boolean maybeLoad() {
+    public static Boolean maybeLoad() {
         if (!Utils.getBoolean(System.getProperties(), "kafka_mx4jenable", false)) {
             return false;
         }

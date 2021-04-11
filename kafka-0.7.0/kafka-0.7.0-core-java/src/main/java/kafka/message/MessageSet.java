@@ -2,13 +2,27 @@ package kafka.message;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.WritableByteChannel;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
-public class MessageSet {
+public abstract class MessageSet implements Iterable<MessageAndOffset> {
     
     static int LogOverhead = 4;
-    AbstractMessageSet Empty = new ByteBufferMessageSet(ByteBuffer.allocate(0));
+    public static MessageSet Empty;
+    
+    static {
+        try {
+            Empty = new ByteBufferMessageSet(ByteBuffer.allocate(0));
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
+    
+    public MessageSet() throws Throwable {
+    }
     
     static int entrySize(Message message) {
         return LogOverhead + message.size;
@@ -19,7 +33,7 @@ public class MessageSet {
         Iterator<Message> it = messages.iterator();
         while (it.hasNext()) {
             Message message = it.next();
-            int msgSize =   entrySize(message);
+            int msgSize = entrySize(message);
             size = size + msgSize;
         }
         return size;
@@ -68,5 +82,32 @@ public class MessageSet {
         }
     }
     
+    
+    @Override
+    public Iterator<MessageAndOffset> iterator() {
+        return null;
+    }
+    
+    @Override
+    public void forEach(Consumer<? super MessageAndOffset> action) {
+    
+    }
+    
+    @Override
+    public Spliterator<MessageAndOffset> spliterator() {
+        return null;
+    }
+    
+    
+    public abstract Long sizeInBytes();
+    
+    public void validate() {
+        for (MessageAndOffset messageAndOffset : this)
+            if (!messageAndOffset.message.isValid()) {
+                throw new InvalidMessageException();
+            }
+    }
+    
+    public abstract Long writeTo(WritableByteChannel channel, Long offset, Long maxSize) throws IOException;
     
 }

@@ -5,10 +5,10 @@ import java.util.Properties;
 public class ZKConfig {
     
     private Properties props;
-    private String zkConnect;
-    private int zkSessionTimeoutMs;
-    private int zkConnectionTimeoutMs;
-    private int zkSyncTimeMs;
+    public static String zkConnect;
+    public static int zkSessionTimeoutMs;
+    public static int zkConnectionTimeoutMs;
+    public static  int zkSyncTimeMs;
     
     public ZKConfig(Properties props) {
         this.props = props;

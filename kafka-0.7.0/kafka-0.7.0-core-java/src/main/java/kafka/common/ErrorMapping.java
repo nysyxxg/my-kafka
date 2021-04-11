@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class ErrorMapping {
     
-    private ByteBuffer EmptyByteBuffer = ByteBuffer.allocate(0);
+    public static ByteBuffer EmptyByteBuffer = ByteBuffer.allocate(0);
     
     static int UnknownCode = -1;
     public static int NoError = 0;
@@ -33,7 +33,7 @@ public class ErrorMapping {
     }
     
     
-    static int codeFor(Throwable exception) {
+    public static int codeFor(Throwable exception) {
         return exceptionToCode.get(exception);
     }
     

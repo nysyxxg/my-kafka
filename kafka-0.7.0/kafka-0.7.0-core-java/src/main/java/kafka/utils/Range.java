@@ -1,25 +1,24 @@
 package kafka.utils;
 
-public abstract class Range {
+public abstract class Range<T> {
     
-    abstract Long start();
+    public   Long start ;
     
-    abstract Long size();
+    public    Long size  ;
     
-    Boolean isEmpty() {
-        return size() == 0;
+    public Boolean isEmpty() {
+        return size   == 0;
     }
     
-    Boolean contains(Long value) {
-        if ((start() == 0 && value == start()) ||
-                (size() > 0 && value >= start() && value <= start() + size() - 1))
+    public  Boolean contains(Long value) {
+        if (start  == 0 && value == start    || (size  > 0 && value >= start  && value <= start  + size  - 1))
             return true;
         else
             return false;
     }
     
     public String toString() {
-        return "(start=" + start() + ", size=" + size() + ")";
+        return "(start=" + start  + ", size=" + size  + ")";
     }
     
 }
