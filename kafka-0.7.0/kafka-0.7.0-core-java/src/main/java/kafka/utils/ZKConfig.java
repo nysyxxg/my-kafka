@@ -1,8 +1,10 @@
 package kafka.utils;
 
+import kafka.producer.async.AsyncProducerConfigShared;
+
 import java.util.Properties;
 
-public class ZKConfig {
+public class ZKConfig  extends AsyncProducerConfigShared {
     
     private Properties props;
     public static String zkConnect;
@@ -11,6 +13,7 @@ public class ZKConfig {
     public static  int zkSyncTimeMs;
     
     public ZKConfig(Properties props) {
+        super();
         this.props = props;
         
         /** ZK host string */

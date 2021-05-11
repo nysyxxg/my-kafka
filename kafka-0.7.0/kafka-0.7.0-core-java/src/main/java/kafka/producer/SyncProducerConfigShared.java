@@ -1,22 +1,10 @@
-package kafka.producer.async;
+package kafka.producer;
 
 import kafka.utils.Utils;
 
 import java.util.Properties;
 
-public class SyncProducerConfig extends SyncProducerConfigShared {
-    Properties props;
-    String host;
-    int port;
-    
-    SyncProducerConfig(Properties props) {
-        super(props);
-        this.props = props;
-        host = Utils.getString(props, "host");
-        port = Utils.getInt(props, "port");
-    }
-}
-abstract class SyncProducerConfigShared {
+public abstract class SyncProducerConfigShared {
     Properties props;
     int bufferSize;
     int connectTimeoutMs;
@@ -24,7 +12,9 @@ abstract class SyncProducerConfigShared {
     int reconnectInterval;
     int maxMessageSize;
     
-    SyncProducerConfigShared(Properties props) {
+    public SyncProducerConfigShared() {
+    }
+    public SyncProducerConfigShared(Properties props) {
         this.props = props;
         
         bufferSize = Utils.getInt(props, "buffer.size", 100 * 1024);
@@ -37,5 +27,7 @@ abstract class SyncProducerConfigShared {
         
         maxMessageSize = Utils.getInt(props, "max.message.size", 1000000);
     }
+    
+    
+    
 }
-

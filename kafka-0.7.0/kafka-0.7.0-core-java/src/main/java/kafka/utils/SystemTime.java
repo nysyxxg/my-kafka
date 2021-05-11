@@ -13,13 +13,19 @@ public class SystemTime implements Time {
         return  System.nanoTime();
     }
     
-    public void sleep(Long ms) {
+    public static void sleepByTime(Long ms) {
         try {
             Thread.sleep(ms);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-    
+    public   void sleep(Long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     
 }

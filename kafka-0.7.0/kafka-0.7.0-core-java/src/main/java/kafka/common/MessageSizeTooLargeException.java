@@ -6,4 +6,7 @@ public class MessageSizeTooLargeException extends RuntimeException   {
         super(message);
     }
     
+    public MessageSizeTooLargeException() {
+    
+    }
 }

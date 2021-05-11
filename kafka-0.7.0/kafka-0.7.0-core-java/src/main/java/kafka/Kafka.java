@@ -68,7 +68,6 @@ public class Kafka {
                     finalKafkaServerStartble.awaitShutdown();
                 }
             });
-            
             kafkaServerStartble.startup();
             kafkaServerStartble.awaitShutdown();
         } catch (Exception e) {

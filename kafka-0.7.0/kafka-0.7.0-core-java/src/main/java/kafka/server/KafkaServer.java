@@ -41,7 +41,7 @@ public class KafkaServer {
     
     public void startup() {
         try {
-            logger.info("Starting Kafka server...");
+            logger.info("启动kafka的服务器: Starting Kafka server...");
             boolean needRecovery = true;
             File cleanShutDownFile = new File(new File(config.logDir), CLEAN_SHUTDOWN_FILE);
             if (cleanShutDownFile.exists()) {

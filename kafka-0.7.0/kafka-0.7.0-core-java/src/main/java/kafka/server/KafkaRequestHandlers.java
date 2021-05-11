@@ -5,7 +5,6 @@ import kafka.common.ErrorMapping;
 import kafka.log.Log;
 import kafka.log.LogManager;
 import kafka.message.MessageSet;
-import kafka.network.Handler;
 import kafka.network.Receive;
 import kafka.network.Send;
 import kafka.utils.SystemTime;
@@ -42,14 +41,14 @@ public class KafkaRequestHandlers {
     }
     
     
-    Send handleOffsetRequest(Receive request  )  {
+    Send handleOffsetRequest(Receive request) {
         OffsetRequest offsetRequest = OffsetRequest.readFrom(request.buffer());
-        if(requestLogger.isTraceEnabled())
+        if (requestLogger.isTraceEnabled())
             requestLogger.trace("Offset request " + offsetRequest.toString());
         Log log = logManager.getOrCreateLog(offsetRequest.topic, offsetRequest.partition);
         Long[] offsets = log.getOffsetsBefore(offsetRequest);
         OffsetArraySend response = new OffsetArraySend(offsets);
-        return  response;
+        return response;
     }
     
     

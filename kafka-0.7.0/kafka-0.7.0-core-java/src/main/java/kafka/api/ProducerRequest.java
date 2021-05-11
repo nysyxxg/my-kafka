@@ -1,13 +1,14 @@
 package kafka.api;
 
 import kafka.message.ByteBufferMessageSet;
+import kafka.network.Request;
 import kafka.utils.Utils;
 
 import java.nio.ByteBuffer;
 import java.util.function.Function;
 
-public class ProducerRequest {
-    static int RandomPartition = -1;
+public class ProducerRequest extends Request {
+    public static int RandomPartition = -1;
     
     public String topic;
     public int partition;

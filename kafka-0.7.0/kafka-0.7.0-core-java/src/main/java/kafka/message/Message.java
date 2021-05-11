@@ -79,7 +79,7 @@ public class Message {
     
     byte magic = buffer.get(MagicOffset);
     
-    int payloadSize = size - headerSize(magic);
+    public int payloadSize = size - headerSize(magic);
     
     
     byte attributes = buffer.get(AttributeOffset);

@@ -21,7 +21,7 @@ public class KafkaZooKeeper {
     
     private Logger logger = Logger.getLogger(KafkaZooKeeper.class);
     
-    String brokerIdPath = ZkUtils.BrokerIdsPath + "/" + config.brokerId;
+    String brokerIdPath = null;
     ZkClient zkClient = null;
     List<String> topics = null;
     Object lock = new Object();
@@ -30,11 +30,12 @@ public class KafkaZooKeeper {
     public KafkaZooKeeper(KafkaConfig config, LogManager logManager) {
         this.config = config;
         this.logManager = logManager;
+        this.brokerIdPath = ZkUtils.BrokerIdsPath + "/" + config.brokerId;
     }
     
     public void startup() {
-        logger.info("connecting to ZK: " + config.zkConnect);
-        zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs, config.zkConnectionTimeoutMs,new ZKStringSerializer());
+        logger.info("开始连接Zk服务器端: connecting to ZK: " + config.zkConnect);
+        zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs, config.zkConnectionTimeoutMs, new ZKStringSerializer());
         zkClient.subscribeStateChanges(new SessionExpireListener());
     }
     
@@ -61,29 +62,31 @@ public class KafkaZooKeeper {
     }
     
     public void registerBrokerInZk() {
-        logger.info("Registering broker " + brokerIdPath);
+        logger.info("开始注册Broker.... Registering broker " + brokerIdPath);
         String hostName = "";
-        if (config.hostName == null){
+        if (config.hostName == null) {
             try {
-                hostName =   InetAddress.getLocalHost().getHostAddress();
+                hostName = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
         } else {
             hostName = config.hostName;
         }
-    
-        String creatorId = hostName + "-" + System.currentTimeMillis();;
+        
+        String creatorId = hostName + "-" + System.currentTimeMillis();
+        ;
         Broker broker = new Broker(config.brokerId, creatorId, hostName, config.port);
         try {
+            logger.info("开始创建临时节点...... " + brokerIdPath);
             ZkUtils.createEphemeralPathExpectConflict(zkClient, brokerIdPath, broker.getZKString());
-        } catch (ZkNodeExistsException e){
-                throw new RuntimeException("A broker is already registered on the path " + brokerIdPath + ". This probably " +
-                        "indicates that you either have configured a brokerid that is already in use, or " +
-                        "else you have shutdown this broker and restarted it faster than the zookeeper " +
-                        "timeout so it appears to be re-registering.");
+        } catch (ZkNodeExistsException e) {
+            throw new RuntimeException("A broker is already registered on the path " + brokerIdPath + ". This probably " +
+                    "indicates that you either have configured a brokerid that is already in use, or " +
+                    "else you have shutdown this broker and restarted it faster than the zookeeper " +
+                    "timeout so it appears to be re-registering.");
         }
-        logger.info("Registering broker " + brokerIdPath + " succeeded with " + broker);
+        logger.info("注册Broker成功......Registering broker " + brokerIdPath + " succeeded with " + broker);
     }
     
     public void close() {
@@ -95,6 +98,7 @@ public class KafkaZooKeeper {
     
     class SessionExpireListener implements IZkStateListener {
         public SessionExpireListener() {
+            logger.info("初始化 SessionExpireListener........" );
         }
         
         public void handleStateChanged(Watcher.Event.KeeperState state) {

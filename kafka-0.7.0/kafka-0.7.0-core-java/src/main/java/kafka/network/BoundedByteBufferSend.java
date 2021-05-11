@@ -1,5 +1,7 @@
 package kafka.network;
 
+import kafka.api.ProducerRequest;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
@@ -7,7 +9,7 @@ import java.nio.channels.WritableByteChannel;
 public class BoundedByteBufferSend extends Send {
     private Boolean complete = false;
     private ByteBuffer sizeBuffer;
-    private ByteBuffer buffer;
+    public ByteBuffer buffer;
     
     BoundedByteBufferSend(int size) {
         this(ByteBuffer.allocate(size));
@@ -42,5 +44,29 @@ public class BoundedByteBufferSend extends Send {
         if (!buffer.hasRemaining())
             complete = true;
         return written;
+    }
+    
+    public Boolean getComplete() {
+        return complete;
+    }
+    
+    public void setComplete(Boolean complete) {
+        this.complete = complete;
+    }
+    
+    public ByteBuffer getSizeBuffer() {
+        return sizeBuffer;
+    }
+    
+    public void setSizeBuffer(ByteBuffer sizeBuffer) {
+        this.sizeBuffer = sizeBuffer;
+    }
+    
+    public ByteBuffer getBuffer() {
+        return buffer;
+    }
+    
+    public void setBuffer(ByteBuffer buffer) {
+        this.buffer = buffer;
     }
 }

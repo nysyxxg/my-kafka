@@ -1,11 +1,12 @@
 package kafka.producer.async;
 
+import kafka.producer.SyncProducerConfig;
 import kafka.utils.Utils;
 
 import java.util.Properties;
 
 
-public class AsyncProducerConfig extends SyncProducerConfig   {
+public class AsyncProducerConfig extends SyncProducerConfig {
     Properties props = new Properties();
     int queueTime;
     int queueSize;

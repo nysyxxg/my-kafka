@@ -36,6 +36,7 @@ public class ZkUtils {
     // Create an ephemeral node with the given path and data. Create parents if necessary.
     private static void createEphemeralPath(ZkClient client, String path, String data) {
         try {
+            logger.info("createEphemeralPath使用给定的路径和数据创建临时节点....................path=" + path );
             client.createEphemeral(path, data);
         } catch (ZkNoNodeException e) {
             createParentPath(client, path);
@@ -45,11 +46,12 @@ public class ZkUtils {
     
     
     /**
-     * Create an ephemeral node with the given path and data.
+     * Create an ephemeral node with the given path and data. 使用给定的路径和数据创建临时节点
      * Throw NodeExistException if node already exists.
      */
     public static void createEphemeralPathExpectConflict(ZkClient client, String path, String data) {
         try {
+            logger.info("使用给定的路径和数据创建临时节点.....................");
             createEphemeralPath(client, path, data);
         } catch (ZkNodeExistsException e) {
             // this can happen when there is connection loss; make sure the data is what we intend to write

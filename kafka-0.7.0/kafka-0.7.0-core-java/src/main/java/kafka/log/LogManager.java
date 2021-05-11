@@ -102,10 +102,11 @@ public class LogManager {
         
         /* Schedule the cleanup task to delete old logs */
         if (scheduler != null) {
-            logger.info("starting log cleaner every " + logCleanupIntervalMs + " ms");
+            logger.info("定时清除任务以删除旧日志 starting log cleaner every " + logCleanupIntervalMs + " ms");
             UnitFunction function = new UnitFunction() {
                 @Override
                 public void call() {
+                    logger.info("定时清理日志线程：" + Thread.currentThread().getName());
                     cleanupLogs();
                 }
                 

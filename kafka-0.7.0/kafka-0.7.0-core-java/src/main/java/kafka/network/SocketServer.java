@@ -261,7 +261,7 @@ class Processor extends AbstractServerThread {
         }
     }
     
-    private Optional<Send> handle(SelectionKey key, Receive request) {
+    private  Send  handle(SelectionKey key, Receive request) {
         Short requestTypeId = request.buffer().getShort();
         if (requestLogger.isTraceEnabled()) {
             
@@ -279,39 +279,15 @@ class Processor extends AbstractServerThread {
                 throw new InvalidRequestException("No mapping found for handler id " + requestTypeId);
             }
         }
-        Handler handler = handlerMapping(requestTypeId, request);
-        if (handler == null)
+        Send send =  handlers.handlerFor(requestTypeId,request);
+        if (send  == null)
             throw new InvalidRequestException("No handler found for request");
         Long start = time.nanoseconds();
-        Optional<Send>  maybeSend = handler(request);
         stats.recordRequest(requestTypeId, time.nanoseconds() - start);
-        return maybeSend;
+        return send;
     }
     
-    private Optional<Send> handler(Receive request) {
-        Send  send = new Send() {
-            @Override
-            public int writeTo(WritableByteChannel channel) throws IOException {
-                return 0;
-            }
-        };
-        Optional<Send> optionalSend = Optional.of(send);
-        return  optionalSend;
-    }
-    
-    private Handler handlerMapping(Short requestTypeId, Receive request) {
-        return new Handler(requestTypeId, request) {
-            @Override
-            public Send Handler(Receive request) {
-                return null;
-            }
-    
-            @Override
-            public Handler HandlerMapping(Short requestTypeId, Receive request) {
-                return null;
-            }
-        };
-    }
+ 
     
     
     private void write(SelectionKey key) {
@@ -329,12 +305,12 @@ class Processor extends AbstractServerThread {
             close(key);
             return;
         } else if(request.complete) {
-            Optional<Send> maybeResponse = handle(key, request);
+           Send  maybeResponse = handle(key, request);
             key.attach(null);
             // if there is a response, send it, otherwise do nothing
-            if(maybeResponse.isPresent()) {  // Optional.isPresent - 判断值是否存在
+            if(maybeResponse != null) {  // Optional.isPresent - 判断值是否存在
                 // Optional.orElse - 如果值存在，返回它，否则返回默认值
-                key.attach(maybeResponse.orElse(null));
+                key.attach(maybeResponse);
                 key.interestOps(SelectionKey.OP_WRITE);
             }
         } else {

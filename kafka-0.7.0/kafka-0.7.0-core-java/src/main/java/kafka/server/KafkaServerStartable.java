@@ -23,14 +23,12 @@ public class KafkaServerStartable {
     
     private static EmbeddedConsumer embeddedConsumer = null;
     
-    static {
-        init();
-    }
-    
     public KafkaServerStartable(KafkaConfig serverConfig, ConsumerConfig consumerConfig, ProducerConfig producerConfig) {
         this.serverConfig = serverConfig;
         this.consumerConfig = consumerConfig;
         this.producerConfig = producerConfig;
+    
+        init();
     }
     
     public KafkaServerStartable(KafkaConfig serverConfig) {
@@ -94,9 +92,27 @@ class EmbeddedConsumer implements TopicEventHandler {
     }
     
     public void startup() {
+        topicEventWatcher = new ZookeeperTopicEventWatcher(consumerConfig, this);
     }
     
     public void shutdown() {
+    
+        // first shutdown the topic watcher to prevent creating new consumer streams
+        if (topicEventWatcher != null)
+            topicEventWatcher.shutdown();
+        logger.info("Stopped the ZK watcher for new topics, now stopping the Kafka consumers");
+        // stop pulling more data for mirroring
+        if (consumerConnector != null)
+            consumerConnector.shutdown();
+        logger.info("Stopped the kafka consumer threads for existing topics, now stopping the existing mirroring threads");
+        // wait for all mirroring threads to stop
+        for(MirroringThread  mirroringThread: threadList){
+            mirroringThread.shutdown();
+        }
+        logger.info("Stopped all existing mirroring threads, now stopping the producer");
+        // only then, shutdown the producer
+        producer.close();
+        logger.info("Successfully shutdown this Kafka mirror");
     }
     
     private boolean isTopicAllowed(String topic) {

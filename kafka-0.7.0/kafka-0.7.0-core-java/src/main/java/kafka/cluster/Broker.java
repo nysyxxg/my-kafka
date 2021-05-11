@@ -4,7 +4,7 @@ import kafka.utils.Utils;
 
 public class Broker {
     
-    private int id;
+    public int id;
     private String creatorId;
     public String host;
     public int port;

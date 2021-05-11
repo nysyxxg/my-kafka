@@ -487,7 +487,7 @@ public class Utils {
     }
     
     
-    List<String> getCSVList(String csvList) {
+    public static List<String> getCSVList(String csvList) {
         List<String> list = new ArrayList<>();
         if (csvList == null) {
             new ArrayList<>();
@@ -526,20 +526,33 @@ public class Utils {
         return getCSVMap(consumerTopicString, exceptionMsg, successMsg);
     }
     
-    public Object getObject(String className)
-            throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static Object getObject(String className) {
         if (className == null) {
             return null;
         } else {
-            Class clazz = Class.forName(className);
+            Class clazz = null;
+            try {
+                clazz = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             Class clazzT = clazz;
             Constructor<?>[] constructors = clazzT.getConstructors();
             require(constructors.length == 1);
-            return constructors[0].newInstance();
+            try {
+                return constructors[0].newInstance();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
         }
+        return null;
     }
     
-    private void require(boolean requirement) {
+    private static void require(boolean requirement) {
         if (!requirement)
             throw new IllegalArgumentException("requirement failed");
     }
@@ -554,7 +567,7 @@ public class Utils {
         }
     }
     
-    CompressionCodec getCompressionCodec(Properties props, String codec) {
+    public static CompressionCodec getCompressionCodec(Properties props, String codec) {
         String codecValueString = props.getProperty(codec);
         if (codecValueString == null)
             return new NoCompressionCodec();
