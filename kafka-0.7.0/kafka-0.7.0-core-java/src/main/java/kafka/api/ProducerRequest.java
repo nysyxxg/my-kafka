@@ -5,7 +5,6 @@ import kafka.network.Request;
 import kafka.utils.Utils;
 
 import java.nio.ByteBuffer;
-import java.util.function.Function;
 
 public class ProducerRequest extends Request {
     public static int RandomPartition = -1;

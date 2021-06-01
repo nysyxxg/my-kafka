@@ -18,14 +18,17 @@ public class ZookeeperTopicEventWatcher {
     
     private Object lock = new Object();
     
-    private ZkClient zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs,
-            config.zkConnectionTimeoutMs, new ZKStringSerializer());
+    private ZkClient zkClient = null;
     
     
     public ZookeeperTopicEventWatcher(ConsumerConfig config,
                                       TopicEventHandler<String> eventHandler) {
         this.config = config;
         this.eventHandler = eventHandler;
+        this.zkClient = new ZkClient(config.getZkConnect(),
+                config.getZkSessionTimeoutMs(),
+                config.getZkConnectionTimeoutMs(), new ZKStringSerializer());
+        
         startWatchingTopicEvents();
     }
     
@@ -34,29 +37,29 @@ public class ZookeeperTopicEventWatcher {
         ZkUtils.makeSurePersistentPathExists(zkClient, ZkUtils.BrokerTopicsPath);
         
         zkClient.subscribeStateChanges(new ZkSessionExpireListener(topicEventListener));
-    
+        
         List<String> topics = zkClient.subscribeChildChanges(ZkUtils.BrokerTopicsPath, topicEventListener);
         
         // call to bootstrap topic list
         topicEventListener.handleChildChange(ZkUtils.BrokerTopicsPath, topics);
     }
     
-    private void stopWatchingTopicEvents() { zkClient.unsubscribeAll(); }
+    private void stopWatchingTopicEvents() {
+        zkClient.unsubscribeAll();
+    }
     
     public void shutdown() {
-         synchronized(lock) {
+        synchronized (lock) {
             try {
                 if (zkClient != null) {
                     stopWatchingTopicEvents();
                     zkClient.close();
                     zkClient = null;
-                }
-                else
+                } else
                     logger.warn("Cannot shutdown already shutdown topic event watcher.");
-            }
-            catch (Exception e){
-                    logger.fatal(e);
-                    logger.fatal(Utils.stackTrace(e));
+            } catch (Exception e) {
+                logger.fatal(e);
+                logger.fatal(Utils.stackTrace(e));
             }
         }
     }
@@ -81,20 +84,21 @@ public class ZookeeperTopicEventWatcher {
         
     }
     
-    class ZkSessionExpireListener  implements IZkStateListener {
+    class ZkSessionExpireListener implements IZkStateListener {
         ZkTopicEventListener topicEventListener;
+        
         public ZkSessionExpireListener(ZkTopicEventListener topicEventListener) {
             this.topicEventListener = topicEventListener;
         }
-    
+        
         @Override
         public void handleStateChanged(Watcher.Event.KeeperState state) throws Exception {
         
         }
-    
+        
         @Override
         public void handleNewSession() throws Exception {
-            synchronized(lock) {
+            synchronized (lock) {
                 if (zkClient != null) {
                     logger.info("ZK expired: resubscribing topic event listener to topic registry");
                     zkClient.subscribeChildChanges(ZkUtils.BrokerTopicsPath, topicEventListener);

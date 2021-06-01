@@ -41,7 +41,7 @@ public class Utils {
             public void run() {
                 try {
                     func.call();
-                    System.out.println("-----");
+                    System.out.println("------当前线程名称：--->"+ Thread.currentThread().getName());
                 } catch (Exception t) {
                     logger.error(t, t);
                     logger.error(stackTrace(t), t);

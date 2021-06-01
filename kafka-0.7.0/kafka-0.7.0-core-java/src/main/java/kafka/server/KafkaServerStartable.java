@@ -27,7 +27,7 @@ public class KafkaServerStartable {
         this.serverConfig = serverConfig;
         this.consumerConfig = consumerConfig;
         this.producerConfig = producerConfig;
-    
+        
         init();
     }
     
@@ -84,7 +84,9 @@ class EmbeddedConsumer implements TopicEventHandler {
     
     
     public EmbeddedConsumer(ConsumerConfig consumerConfig, ProducerConfig producerConfig, KafkaServer server) {
-        
+        this.consumerConfig = consumerConfig;
+        this.producerConfig = producerConfig;
+        this.server = server;
         this.whiteListTopics = Arrays.asList(consumerConfig.mirrorTopicsWhitelist.split(","));
         this.blackListTopics = Arrays.asList(consumerConfig.mirrorTopicsBlackList.split(","));
         
@@ -96,7 +98,7 @@ class EmbeddedConsumer implements TopicEventHandler {
     }
     
     public void shutdown() {
-    
+        
         // first shutdown the topic watcher to prevent creating new consumer streams
         if (topicEventWatcher != null)
             topicEventWatcher.shutdown();
@@ -106,7 +108,7 @@ class EmbeddedConsumer implements TopicEventHandler {
             consumerConnector.shutdown();
         logger.info("Stopped the kafka consumer threads for existing topics, now stopping the existing mirroring threads");
         // wait for all mirroring threads to stop
-        for(MirroringThread  mirroringThread: threadList){
+        for (MirroringThread mirroringThread : threadList) {
             mirroringThread.shutdown();
         }
         logger.info("Stopped all existing mirroring threads, now stopping the producer");
@@ -143,7 +145,8 @@ class EmbeddedConsumer implements TopicEventHandler {
         }
         
         if (!addedTopics.isEmpty()) {
-            String arry[] = (String[]) addedTopics.toArray();
+            String arry[] = addedTopics.toArray(new String[0]);
+//            String arry[] = (String[]) addedTopics.toArray();
             logger.info("topic event: added topics = %s".format(String.join(",", arry)));
         }
         
@@ -174,8 +177,11 @@ class EmbeddedConsumer implements TopicEventHandler {
         if (!mirrorTopics.isEmpty()) {
             String s1 = ":%d,".format(consumerConfig.mirrorConsumerNumThreads + "");
             String s2 = ":%d".format(consumerConfig.mirrorConsumerNumThreads + "");
+
+//            String arry[] = (String[]) mirrorTopics.toArray();
             
-            String arry[] = (String[]) mirrorTopics.toArray();
+            String arry[] = mirrorTopics.toArray(new String[0]);
+            
             String dataS = String.join("", arry) + "" + s1 + "" + s2;
             return Utils.getConsumerTopicMap(dataS);
         } else {
@@ -201,7 +207,7 @@ class EmbeddedConsumer implements TopicEventHandler {
             }
             
             consumerConnector = Consumer.create(consumerConfig);
-            Map<String, List<KafkaMessageStream<?>>> topicMessageStreams = consumerConnector.createMessageStreams(topicMap,new DefaultDecoder());
+            Map<String, List<KafkaMessageStream<?>>> topicMessageStreams = consumerConnector.createMessageStreams(topicMap, new DefaultDecoder());
             
             for (String topic : topicMessageStreams.keySet()) {
                 List<KafkaMessageStream<?>> streamList = topicMessageStreams.get(topic);

@@ -21,7 +21,7 @@ public class Kafka {
         args = new String[]{
                 "D:\\my-kafka\\kafka-0.7.0\\config\\server.properties",
                 "D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties",
-                "D:\\my-kafka\\kafka-0.7.0\\config\\server.properties"};
+                "D:\\my-kafka\\kafka-0.7.0\\config\\producer.properties"};
         
         String kafkaLog4jMBeanName = "kafka:type=kafka.KafkaLog4j";
         try {

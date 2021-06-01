@@ -12,6 +12,15 @@
     <artifactId>kafka-0.7.0-core-java</artifactId>
 
 
+    <dependencies>
+        <dependency>
+            <groupId>com.cenqua.clover</groupId>
+            <artifactId>clover</artifactId>
+            <version>3.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -24,14 +33,4 @@
             </plugin>
         </plugins>
     </build>
-    <dependencies>
-        <dependency>
-            <groupId>com.cenqua.clover</groupId>
-            <artifactId>clover</artifactId>
-            <version>3.0.2</version>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-
-
 </project>

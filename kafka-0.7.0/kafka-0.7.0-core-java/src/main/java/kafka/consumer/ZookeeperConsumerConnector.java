@@ -45,7 +45,6 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
                 public void call() {
                     autoCommit();
                 }
-                
                 @Override
                 public Object call(Object v) {
                     return null;

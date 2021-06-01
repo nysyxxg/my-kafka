@@ -39,7 +39,6 @@ public class KafkaScheduler {
     
     public void scheduleWithRate(UnitFunction fun, Long delayMs, Long periodMs) {
         executor.scheduleAtFixedRate(Utils.loggedRunnable(fun), delayMs, periodMs, TimeUnit.MILLISECONDS);
-        
     }
     
     public void shutdownNow() {

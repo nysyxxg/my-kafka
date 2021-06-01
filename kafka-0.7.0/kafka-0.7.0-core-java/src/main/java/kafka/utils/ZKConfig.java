@@ -4,13 +4,13 @@ import kafka.producer.async.AsyncProducerConfigShared;
 
 import java.util.Properties;
 
-public class ZKConfig  extends AsyncProducerConfigShared {
+public class ZKConfig extends AsyncProducerConfigShared {
     
     private Properties props;
-    public static String zkConnect;
-    public static int zkSessionTimeoutMs;
-    public static int zkConnectionTimeoutMs;
-    public static  int zkSyncTimeMs;
+    public String zkConnect;
+    public int zkSessionTimeoutMs;
+    public int zkConnectionTimeoutMs;
+    public int zkSyncTimeMs;
     
     public ZKConfig(Properties props) {
         super();
@@ -29,4 +29,43 @@ public class ZKConfig  extends AsyncProducerConfigShared {
         this.zkSyncTimeMs = Utils.getInt(props, "zk.synctime.ms", 2000);
     }
     
+    public Properties getProps() {
+        return props;
+    }
+    
+    public void setProps(Properties props) {
+        this.props = props;
+    }
+    
+    public String getZkConnect() {
+        return zkConnect;
+    }
+    
+    public void setZkConnect(String zkConnect) {
+        this.zkConnect = zkConnect;
+    }
+    
+    public int getZkSessionTimeoutMs() {
+        return zkSessionTimeoutMs;
+    }
+    
+    public void setZkSessionTimeoutMs(int zkSessionTimeoutMs) {
+        this.zkSessionTimeoutMs = zkSessionTimeoutMs;
+    }
+    
+    public int getZkConnectionTimeoutMs() {
+        return zkConnectionTimeoutMs;
+    }
+    
+    public void setZkConnectionTimeoutMs(int zkConnectionTimeoutMs) {
+        this.zkConnectionTimeoutMs = zkConnectionTimeoutMs;
+    }
+    
+    public int getZkSyncTimeMs() {
+        return zkSyncTimeMs;
+    }
+    
+    public void setZkSyncTimeMs(int zkSyncTimeMs) {
+        this.zkSyncTimeMs = zkSyncTimeMs;
+    }
 }

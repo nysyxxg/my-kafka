@@ -12,6 +12,7 @@ import org.apache.zookeeper.Watcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class KafkaZooKeeper {
     
     String brokerIdPath = null;
     ZkClient zkClient = null;
-    List<String> topics = null;
+    List<String> topics = new ArrayList<String>();
     Object lock = new Object();
     
     
@@ -34,8 +35,9 @@ public class KafkaZooKeeper {
     }
     
     public void startup() {
-        logger.info("开始连接Zk服务器端: connecting to ZK: " + config.zkConnect);
-        zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs, config.zkConnectionTimeoutMs, new ZKStringSerializer());
+        logger.info("开始连接Zk服务器端: connecting to ZK: " + config.getZkConnect());
+        zkClient = new ZkClient(config.getZkConnect(), config.getZkSessionTimeoutMs(), config.getZkConnectionTimeoutMs(),
+                new ZKStringSerializer());
         zkClient.subscribeStateChanges(new SessionExpireListener());
     }
     
@@ -98,7 +100,7 @@ public class KafkaZooKeeper {
     
     class SessionExpireListener implements IZkStateListener {
         public SessionExpireListener() {
-            logger.info("初始化 SessionExpireListener........" );
+            logger.info("初始化 SessionExpireListener........");
         }
         
         public void handleStateChanged(Watcher.Event.KeeperState state) {

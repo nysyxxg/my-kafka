@@ -138,7 +138,7 @@ public class ZKRebalancerListener implements IZkChildListener {
                 releasePartitionOwnership();
                 resetState();
                 try {
-                    Thread.sleep(ConsumerConfig.zkSyncTimeMs);
+                    Thread.sleep(config.zkSyncTimeMs);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
