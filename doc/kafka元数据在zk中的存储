@@ -10,7 +10,8 @@ get /brokers/topics/topic-wechat-dataacess-test/partitions/0/state
 
 
 get /brokers/topics/topic-wechat-wechatdata/partitions/0/state
-{"controller_epoch":7,"leader":3,"version":1,"leader_epoch":0,"isr":[3,2,1]}  
+{"controller_epoch":7,"leader":3,"version":1,"leader_epoch":0,"isr":[3,2,1]}
+
 上面数据说明：0分区的leader副本在brokerid为3上的机器上，
 ISR集合：[3,2,1]，ISR集合中存储broker的ID，只有在ISR集合中发副本，才有可能等下次选举leader的时候，成为leader。
 

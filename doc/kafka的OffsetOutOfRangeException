@@ -1,7 +1,7 @@
 Job aborted due to stage failure: Task 0 in stage 0.0 failed 4
  times, most recent failure: Lost task 0.3 in stage 0.0 (TID 3, 112.slave.adh, executor 1):
  org.apache.kafka.clients.consumer.OffsetOutOfRangeException:
- Offsets out of range with no configured reset policy for partitions: {nb-EIP-DD-wechat-7=1392488}
+ Offsets out of range with no configured reset policy for partitions: {topic-wechat-7=1392488}
 	at org.apache.kafka.clients.consumer.internals.Fetcher.parseFetchedData(Fetcher.java:589)
 	at org.apache.kafka.clients.consumer.internals.Fetcher.fetchedRecords(Fetcher.java:355)
 	at org.apache.kafka.clients.consumer.KafkaConsumer.pollOnce(KafkaConsumer.java:1000)
