@@ -5,11 +5,11 @@
              如果控制器被关闭或者与zk断开连接，这个节点会消失
 
 4. brokers, 
-get /brokers/topics/eip-dd-qiaohu-wechat-dataacess-test/partitions/0/state
+get /brokers/topics/topic-wechat-dataacess-test/partitions/0/state
 {"controller_epoch":7,"leader":2,"version":1,"leader_epoch":4,"isr":[2,3,1]}
 
 
-get /brokers/topics/eip-dd-qiaohu-wechat-wechatdata/partitions/0/state
+get /brokers/topics/topic-wechat-wechatdata/partitions/0/state
 {"controller_epoch":7,"leader":3,"version":1,"leader_epoch":0,"isr":[3,2,1]}  
 上面数据说明：0分区的leader副本在brokerid为3上的机器上，
 ISR集合：[3,2,1]，ISR集合中存储broker的ID，只有在ISR集合中发副本，才有可能等下次选举leader的时候，成为leader。
@@ -17,11 +17,11 @@ ISR集合：[3,2,1]，ISR集合中存储broker的ID，只有在ISR集合中发�
 ISR集合中的副本都是与 Leader 同步的副本，相反，不在 ISR 中的追随者副本就被认为是与 Leader 不同步的。
 就是说副本2和副本1都是与Leader副本3同步的副本。
 
-get /brokers/topics/eip-dd-qiaohu-wechat-wechatdata/partitions/1/state
+get /brokers/topics/topic-wechat-wechatdata/partitions/1/state
 {"controller_epoch":7,"leader":1,"version":1,"leader_epoch":0,"isr":[1,3,2]}
 
 
-get /brokers/topics/eip-dd-qiaohu-wechat-wechatdata/partitions/2/state
+get /brokers/topics/topic-wechat-wechatdata/partitions/2/state
 {"controller_epoch":7,"leader":2,"version":1,"leader_epoch":0,"isr":[2,1,3]}
 ​其中
 controller_epoch： 表示的是当前的kafka控制器epoch.
