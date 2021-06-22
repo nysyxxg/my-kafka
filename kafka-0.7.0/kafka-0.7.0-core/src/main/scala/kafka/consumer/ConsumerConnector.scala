@@ -24,6 +24,7 @@ import kafka.serializer.{DefaultDecoder, Decoder}
 
 /**
  *  Main interface for consumer
+  *
  */
 trait ConsumerConnector {
   /**

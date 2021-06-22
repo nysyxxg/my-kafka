@@ -35,6 +35,7 @@ public interface ConsumerConnector {
      */
     public <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(
             Map<String, Integer> topicCountMap, Decoder<T> decoder);
+    
     public Map<String, List<KafkaMessageStream<Message>>> createMessageStreams(
             Map<String, Integer> topicCountMap);
 

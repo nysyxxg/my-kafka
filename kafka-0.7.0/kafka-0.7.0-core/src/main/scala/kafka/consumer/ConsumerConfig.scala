@@ -88,18 +88,15 @@ class ConsumerConfig(props: Properties) extends ZKConfig(props) {
 
   /** Whitelist of topics for this mirror's embedded consumer to consume. At
    *  most one of whitelist/blacklist may be specified. */
-  val mirrorTopicsWhitelist = Utils.getString(
-    props, MirrorTopicsWhitelistProp, MirrorTopicsWhitelist)
+  val mirrorTopicsWhitelist = Utils.getString(props, MirrorTopicsWhitelistProp, MirrorTopicsWhitelist)
  
   /** Topics to skip mirroring. At most one of whitelist/blacklist may be
    *  specified */
-  val mirrorTopicsBlackList = Utils.getString(
-    props, MirrorTopicsBlacklistProp, MirrorTopicsBlacklist)
+  val mirrorTopicsBlackList = Utils.getString(props, MirrorTopicsBlacklistProp, MirrorTopicsBlacklist)
 
   if (mirrorTopicsWhitelist.nonEmpty && mirrorTopicsBlackList.nonEmpty)
       throw new InvalidConfigException("The embedded consumer's mirror topics configuration can only contain one of blacklist or whitelist")
 
-  val mirrorConsumerNumThreads = Utils.getInt(
-    props, MirrorConsumerNumThreadsProp, MirrorConsumerNumThreads)
+  val mirrorConsumerNumThreads = Utils.getInt(props, MirrorConsumerNumThreadsProp, MirrorConsumerNumThreads)
 }
 

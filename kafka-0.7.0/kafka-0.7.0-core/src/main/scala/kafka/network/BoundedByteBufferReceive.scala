@@ -19,6 +19,8 @@ package kafka.network
 
 import java.nio._
 import java.nio.channels._
+
+import kafka.common.InvalidRequestException
 import kafka.utils._
 
 /**

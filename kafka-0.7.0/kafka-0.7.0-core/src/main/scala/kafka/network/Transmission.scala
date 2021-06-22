@@ -92,10 +92,10 @@ abstract class MultiSend[S <: Send](val sends: List[S]) extends Send {
 
   def writeTo(channel: WritableByteChannel): Int = {
     expectIncomplete
-    val written = current.head.writeTo(channel)
+    val written = current.head.writeTo(channel)  //head 获取第一个元素
     totalWritten += written
     if(current.head.complete)
-      current = current.tail
+      current = current.tail  // tail 返回一个列表，包含除了第一元素之外的其他元素
     written
   }
   

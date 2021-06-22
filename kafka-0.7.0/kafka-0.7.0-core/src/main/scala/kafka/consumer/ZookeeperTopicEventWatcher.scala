@@ -23,8 +23,7 @@ import kafka.utils.{Utils, ZkUtils, ZKStringSerializer}
 import org.I0Itec.zkclient.{IZkStateListener, IZkChildListener, ZkClient}
 import org.apache.zookeeper.Watcher.Event.KeeperState
 
-class ZookeeperTopicEventWatcher(val config:ConsumerConfig,
-    val eventHandler: TopicEventHandler[String]) {
+class ZookeeperTopicEventWatcher(val config:ConsumerConfig, val eventHandler: TopicEventHandler[String]) {
 
   private val logger = Logger.getLogger(getClass)
 

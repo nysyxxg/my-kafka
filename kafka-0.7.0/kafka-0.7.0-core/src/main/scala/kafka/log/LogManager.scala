@@ -120,7 +120,8 @@ private[kafka] class LogManager(val config: KafkaConfig,
    *  Register this broker in ZK for the first time.
    */
   def startup() {
-    if(config.enableZookeeper) {
+    if(config.enableZookeeper) {// 是否使用外部的zk
+      logger.info("------------------使用外部的zk服务-------------------")
       kafkaZookeeper.registerBrokerInZk()
       for (topic <- getAllTopics)
         kafkaZookeeper.registerTopicInZk(topic)
@@ -169,7 +170,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
       throw new InvalidPartitionException("wrong partition " + partition)
     }
     var hasNewTopic = false
-    var parts = logs.get(topic)
+    var parts: Pool[Int, Log] = logs.get(topic)
     if (parts == null) {
       val found = logs.putIfNotExists(topic, new Pool[Int, Log])
       if (found == null)

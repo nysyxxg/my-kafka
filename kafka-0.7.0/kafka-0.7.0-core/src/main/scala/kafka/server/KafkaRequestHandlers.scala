@@ -17,14 +17,10 @@
 
 package kafka.server
 
-import java.nio.channels._
 import org.apache.log4j.Logger
-import kafka.producer._
-import kafka.consumer._
 import kafka.log._
 import kafka.network._
 import kafka.message._
-import kafka.server._
 import kafka.api._
 import kafka.common.ErrorMapping
 import kafka.utils.{Utils, SystemTime}

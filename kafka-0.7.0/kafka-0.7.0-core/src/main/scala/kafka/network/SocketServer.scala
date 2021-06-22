@@ -24,9 +24,9 @@ import java.io._
 import java.nio.channels._
 
 import kafka.utils._
-
 import org.apache.log4j.Logger
 import kafka.api.RequestKeys
+import kafka.common.InvalidRequestException
 
 /**
  * An NIO socket server. The thread model is

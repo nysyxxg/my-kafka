@@ -29,7 +29,9 @@ import scala.collection.Map
 class KafkaServerStartable(val serverConfig: KafkaConfig,
                            val consumerConfig: ConsumerConfig,
                            val producerConfig: ProducerConfig) {
-  private var server: KafkaServer = null
+
+  private var server: KafkaServer = null;
+
   private var embeddedConsumer: EmbeddedConsumer = null
 
   init
@@ -39,8 +41,7 @@ class KafkaServerStartable(val serverConfig: KafkaConfig,
   private def init() {
     server = new KafkaServer(serverConfig)
     if (consumerConfig != null)
-      embeddedConsumer =
-        new EmbeddedConsumer(consumerConfig, producerConfig, server)
+      embeddedConsumer = new EmbeddedConsumer(consumerConfig, producerConfig, server)
   }
 
   def startup() {
@@ -66,11 +67,9 @@ class EmbeddedConsumer(private val consumerConfig: ConsumerConfig,
 
   private val logger = Logger.getLogger(getClass)
 
-  private val whiteListTopics =
-    consumerConfig.mirrorTopicsWhitelist.split(",").toList.map(_.trim)
+  private val whiteListTopics = consumerConfig.mirrorTopicsWhitelist.split(",").toList.map(_.trim)
 
-  private val blackListTopics =
-    consumerConfig.mirrorTopicsBlackList.split(",").toList.map(_.trim)
+  private val blackListTopics = consumerConfig.mirrorTopicsBlackList.split(",").toList.map(_.trim)
 
   // mirrorTopics should be accessed by handleTopicEvent only
   private var mirrorTopics: Seq[String] = List()
@@ -112,9 +111,8 @@ class EmbeddedConsumer(private val consumerConfig: ConsumerConfig,
 
   private def makeTopicMap(mirrorTopics: Seq[String]) = {
     if (mirrorTopics.nonEmpty)
-      Utils.getConsumerTopicMap(mirrorTopics.mkString(
-        "", ":%d,".format(consumerConfig.mirrorConsumerNumThreads),
-        ":%d".format(consumerConfig.mirrorConsumerNumThreads)))
+      Utils.getConsumerTopicMap(mirrorTopics.mkString("",
+         ":%d,".format(consumerConfig.mirrorConsumerNumThreads), ":%d".format(consumerConfig.mirrorConsumerNumThreads)))
     else
       Utils.getConsumerTopicMap("")
   }

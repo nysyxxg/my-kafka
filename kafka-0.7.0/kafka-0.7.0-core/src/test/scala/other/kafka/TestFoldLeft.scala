@@ -6,7 +6,7 @@ object TestFoldLeft {
     val lst = List(20,30,60,90)
     //0为初始值，b表示返回结果对象（迭代值），a表示lst集合中的每个值
     val rs = lst.foldLeft(0)((b,a)=>{
-      b+a
+      b + a
     })
 
 //    运行过程为：b=0+a，即0+20=20

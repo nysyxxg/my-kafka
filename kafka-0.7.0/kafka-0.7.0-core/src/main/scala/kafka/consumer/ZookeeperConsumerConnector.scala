@@ -247,10 +247,8 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       for (info <- infos.values) {
         val newOffset = info.getConsumeOffset
         try {
-          ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + info.partition.name,
-            newOffset.toString)
-        }
-        catch {
+          ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + info.partition.name, newOffset.toString)
+        } catch {
           case t: Throwable =>
             // log it and let it go
             logger.warn("exception during commitOffsets", t)
@@ -380,8 +378,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
   }
 
 
-  class ZKRebalancerListener(val group: String, val consumerIdString: String)
-    extends IZkChildListener {
+  class ZKRebalancerListener(val group: String, val consumerIdString: String) extends IZkChildListener {
     private val dirs = new ZKGroupDirs(group)
     private var oldPartitionsPerTopicMap: mutable.Map[String, List[String]] = new mutable.HashMap[String, List[String]]()
     private var oldConsumersPerTopicMap: mutable.Map[String, List[String]] = new mutable.HashMap[String, List[String]]()
@@ -434,7 +431,8 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
     }
 
     private def getTopicCount(consumerId: String): TopicCount = {
-      val topicCountJson = ZkUtils.readData(zkClient, dirs.consumerRegistryDir + "/" + consumerId)
+      val path = dirs.consumerRegistryDir + "/" + consumerId
+      val topicCountJson = ZkUtils.readData(zkClient, path)
       TopicCount.constructTopicCount(consumerId, topicCountJson)
     }
 
@@ -444,7 +442,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       oldPartitionsPerTopicMap.clear
     }
 
-    def syncedRebalance() {
+    def syncedRebalance() {  // 同步平衡
       rebalanceLock synchronized {
         for (i <- 0 until ZookeeperConsumerConnector.MAX_N_RETRIES) {
           logger.info("begin rebalancing consumer " + consumerIdString + " try #" + i)
@@ -468,7 +466,6 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
           Thread.sleep(config.zkSyncTimeMs)
         }
       }
-
       throw new RuntimeException(consumerIdString + " can't rebalance after " + ZookeeperConsumerConnector.MAX_N_RETRIES + " retires")
     }
 

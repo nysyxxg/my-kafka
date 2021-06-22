@@ -22,9 +22,11 @@ private[kafka] object Handler {
   /**
    * A request handler is a function that turns an incoming 
    * transmission into an outgoing transmission
+    * type相当于声明一个类型别名
    */
   type Handler = Receive => Option[Send]
-  
+
+
   /**
    * A handler mapping finds the right Handler function for a given request
    */

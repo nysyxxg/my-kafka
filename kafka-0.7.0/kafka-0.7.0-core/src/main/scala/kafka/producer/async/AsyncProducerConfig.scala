@@ -20,8 +20,7 @@ import java.util.Properties
 import kafka.utils.Utils
 import kafka.producer.SyncProducerConfig
 
-class AsyncProducerConfig(override val props: Properties) extends SyncProducerConfig(props)
-        with AsyncProducerConfigShared {
+class AsyncProducerConfig(override val props: Properties) extends SyncProducerConfig(props) with AsyncProducerConfigShared {
 }
 
 trait AsyncProducerConfigShared {

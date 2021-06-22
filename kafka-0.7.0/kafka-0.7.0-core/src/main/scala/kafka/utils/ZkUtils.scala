@@ -1,19 +1,19 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package kafka.utils
 
@@ -29,19 +29,19 @@ object ZkUtils {
   val ConsumersPath = "/consumers"
   val BrokerIdsPath = "/brokers/ids"
   val BrokerTopicsPath = "/brokers/topics"
-  private val logger = Logger.getLogger(getClass())  
+  private val logger = Logger.getLogger(getClass())
 
   /**
-   *  make sure a persistent path exists in ZK. Create the path if not exist.
-   */
+    * make sure a persistent path exists in ZK. Create the path if not exist.
+    */
   def makeSurePersistentPathExists(client: ZkClient, path: String) {
     if (!client.exists(path))
       client.createPersistent(path, true) // won't throw NoNodeException or NodeExistsException
   }
 
   /**
-   *  create the parent path
-   */
+    * create the parent path
+    */
   private def createParentPath(client: ZkClient, path: String): Unit = {
     val parentDir = path.substring(0, path.lastIndexOf('/'))
     if (parentDir.length != 0)
@@ -49,8 +49,8 @@ object ZkUtils {
   }
 
   /**
-   * Create an ephemeral node with the given path and data. Create parents if necessary.
-   */
+    * Create an ephemeral node with the given path and data. Create parents if necessary.
+    */
   private def createEphemeralPath(client: ZkClient, path: String, data: String): Unit = {
     try {
       client.createEphemeral(path, data)
@@ -64,9 +64,9 @@ object ZkUtils {
   }
 
   /**
-   * Create an ephemeral node with the given path and data.
-   * Throw NodeExistException if node already exists.
-   */
+    * Create an ephemeral node with the given path and data.
+    * Throw NodeExistException if node already exists.
+    */
   def createEphemeralPathExpectConflict(client: ZkClient, path: String, data: String): Unit = {
     try {
       createEphemeralPath(client, path, data)
@@ -85,8 +85,7 @@ object ZkUtils {
         if (storedData == null || storedData != data) {
           logger.info("conflict in " + path + " data: " + data + " stored data: " + storedData)
           throw e
-        }
-        else {
+        } else {
           // otherwise, the creation succeeded, return normally
           logger.info(path + " exists with value " + data + " during connection loss; this is ok")
         }
@@ -96,9 +95,9 @@ object ZkUtils {
   }
 
   /**
-   * Update the value of a persistent node with the given path and data.
-   * create parrent directory if necessary. Never throw NodeExistException.
-   */
+    * Update the value of a persistent node with the given path and data.
+    * create parrent directory if necessary. Never throw NodeExistException.
+    */
   def updatePersistentPath(client: ZkClient, path: String, data: String): Unit = {
     try {
       client.writeData(path, data)
@@ -119,9 +118,9 @@ object ZkUtils {
   }
 
   /**
-   * Update the value of a persistent node with the given path and data.
-   * create parrent directory if necessary. Never throw NodeExistException.
-   */
+    * Update the value of a persistent node with the given path and data.
+    * create parrent directory if necessary. Never throw NodeExistException.
+    */
   def updateEphemeralPath(client: ZkClient, path: String, data: String): Unit = {
     try {
       client.writeData(path, data)
@@ -179,7 +178,7 @@ object ZkUtils {
 
     var ret: java.util.List[String] = null
     try {
-      ret = client.getChildren(path)
+      ret = client.getChildren(path)  //获取孩子节点
     }
     catch {
       case e: ZkNoNodeException =>
@@ -190,15 +189,15 @@ object ZkUtils {
   }
 
   /**
-   * Check if the given path exists
-   */
+    * Check if the given path exists
+    */
   def pathExists(client: ZkClient, path: String): Boolean = {
     client.exists(path)
   }
 
-  def getLastPart(path : String) : String = path.substring(path.lastIndexOf('/') + 1)
+  def getLastPart(path: String): String = path.substring(path.lastIndexOf('/') + 1)
 
-  def getCluster(zkClient: ZkClient) : Cluster = {
+  def getCluster(zkClient: ZkClient): Cluster = {
     val cluster = new Cluster
     val nodes = getChildrenParentMayNotExist(zkClient, BrokerIdsPath)
     for (node <- nodes) {
@@ -212,27 +211,31 @@ object ZkUtils {
     val ret = new mutable.HashMap[String, List[String]]()
     for (topic <- topics) {
       var partList: List[String] = Nil
-      val brokers = getChildrenParentMayNotExist(zkClient, BrokerTopicsPath + "/" + topic)
+      //val brokers = getChildrenParentMayNotExist(zkClient, BrokerTopicsPath + "/" + topic)
+      val brokers = getChildrenParentMayNotExist(zkClient, BrokerIdsPath)
       for (broker <- brokers) {
-        val nParts = readData(zkClient, BrokerTopicsPath + "/" + topic + "/" + broker).toInt
-        for (part <- 0 until nParts)
+        val dataPath = BrokerTopicsPath + "/" + topic + "/" + broker
+        val data = readData(zkClient, dataPath)
+        val nParts = data.toInt
+        for (part <- 0 until nParts) {
           partList ::= broker + "-" + part
+        }
       }
-      partList = partList.sortWith((s,t) => s < t)
+      partList = partList.sortWith((s, t) => s < t)
       ret += (topic -> partList)
     }
     ret
   }
 
-  def setupPartition(zkClient : ZkClient, brokerId: Int, host: String, port: Int, topic: String, nParts: Int) {
+  def setupPartition(zkClient: ZkClient, brokerId: Int, host: String, port: Int, topic: String, nParts: Int) {
     val brokerIdPath = BrokerIdsPath + "/" + brokerId
     val broker = new Broker(brokerId, brokerId.toString, host, port)
     createEphemeralPathExpectConflict(zkClient, brokerIdPath, broker.getZKString)
     val brokerPartTopicPath = BrokerTopicsPath + "/" + topic + "/" + brokerId
-    createEphemeralPathExpectConflict(zkClient, brokerPartTopicPath, nParts.toString)    
+    createEphemeralPathExpectConflict(zkClient, brokerPartTopicPath, nParts.toString)
   }
 
-  def deletePartition(zkClient : ZkClient, brokerId: Int, topic: String) {
+  def deletePartition(zkClient: ZkClient, brokerId: Int, topic: String) {
     val brokerIdPath = BrokerIdsPath + "/" + brokerId
     zkClient.delete(brokerIdPath)
     val brokerPartTopicPath = BrokerTopicsPath + "/" + topic + "/" + brokerId
@@ -243,10 +246,10 @@ object ZkUtils {
 object ZKStringSerializer extends ZkSerializer {
 
   @throws(classOf[ZkMarshallingError])
-  def serialize(data : Object) : Array[Byte] = data.asInstanceOf[String].getBytes("UTF-8")
+  def serialize(data: Object): Array[Byte] = data.asInstanceOf[String].getBytes("UTF-8")
 
   @throws(classOf[ZkMarshallingError])
-  def deserialize(bytes : Array[Byte]) : Object = {
+  def deserialize(bytes: Array[Byte]): Object = {
     if (bytes == null)
       null
     else
@@ -256,12 +259,15 @@ object ZKStringSerializer extends ZkSerializer {
 
 class ZKGroupDirs(val group: String) {
   def consumerDir = ZkUtils.ConsumersPath
+
   def consumerGroupDir = consumerDir + "/" + group
+
   def consumerRegistryDir = consumerGroupDir + "/ids"
 }
 
 class ZKGroupTopicDirs(group: String, topic: String) extends ZKGroupDirs(group) {
   def consumerOffsetDir = consumerGroupDir + "/offsets/" + topic
+
   def consumerOwnerDir = consumerGroupDir + "/owners/" + topic
 }
 
@@ -274,7 +280,7 @@ class ZKConfig(props: Properties) {
   val zkSessionTimeoutMs = Utils.getInt(props, "zk.sessiontimeout.ms", 6000)
 
   /** the max time that the client waits to establish a connection to zookeeper */
-  val zkConnectionTimeoutMs = Utils.getInt(props, "zk.connectiontimeout.ms",zkSessionTimeoutMs)
+  val zkConnectionTimeoutMs = Utils.getInt(props, "zk.connectiontimeout.ms", zkSessionTimeoutMs)
 
   /** how far a ZK follower can be behind a ZK leader */
   val zkSyncTimeMs = Utils.getInt(props, "zk.synctime.ms", 2000)

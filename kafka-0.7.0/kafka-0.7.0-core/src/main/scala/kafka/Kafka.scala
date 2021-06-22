@@ -28,9 +28,10 @@ object Kafka {
   private val logger = Logger.getLogger(Kafka.getClass)
 
   def main(args: Array[String]): Unit = {
-    var args = Array("D:\\my-kafka\\kafka-0.7.0\\config\\server.properties",
-      "D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties",
+    var args = Array(
       "D:\\my-kafka\\kafka-0.7.0\\config\\server.properties")
+//    "D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties",
+//    "D:\\my-kafka\\kafka-0.7.0\\config\\producer.properties"
     val kafkaLog4jMBeanName = "kafka:type=kafka.KafkaLog4j"
     Utils.swallow(logger.warn, Utils.registerMBean(new LoggerDynamicMBean(Logger.getRootLogger()), kafkaLog4jMBeanName))
 

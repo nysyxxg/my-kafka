@@ -33,6 +33,7 @@ private[consumer] class PartitionTopicInfo(val topic: String,
                                            private val fetchedOffset: AtomicLong,
                                            private val fetchSize: AtomicInteger) {
   private val logger = Logger.getLogger(getClass())
+
   if (logger.isDebugEnabled) {
     logger.debug("initial consumer offset of " + this + " is " + consumedOffset.get)
     logger.debug("initial fetch offset of " + this + " is " + fetchedOffset.get)

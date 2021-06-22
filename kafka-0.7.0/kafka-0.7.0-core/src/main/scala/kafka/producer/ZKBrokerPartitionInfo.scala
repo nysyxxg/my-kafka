@@ -92,7 +92,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
    */
   def getBrokerPartitionInfo(topic: String): SortedSet[Partition] = {
     zkWatcherLock synchronized {
-      val brokerPartitions = topicBrokerPartitions.get(topic)
+      val brokerPartitions = topicBrokerPartitions.get(topic) // 根据你的topic，获取服务器中topic的信息
       var numBrokerPartitions = SortedSet.empty[Partition]
       brokerPartitions match {
         case Some(bp) =>
@@ -163,7 +163,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
   private def getZKTopicPartitionInfo(): collection.mutable.Map[String, SortedSet[Partition]] = {
     val brokerPartitionsPerTopic = new HashMap[String, SortedSet[Partition]]()
     ZkUtils.makeSurePersistentPathExists(zkClient, ZkUtils.BrokerTopicsPath)
-    val topics = ZkUtils.getChildrenParentMayNotExist(zkClient, ZkUtils.BrokerTopicsPath)
+    val topics = ZkUtils.getChildrenParentMayNotExist(zkClient, ZkUtils.BrokerTopicsPath) // 获取zk中已经存在的topic
     topics.foreach { topic =>
     // find the number of broker partitions registered for this topic
       val brokerTopicPath = ZkUtils.BrokerTopicsPath + "/" + topic
@@ -369,16 +369,14 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
     extends IZkStateListener {
 
     @throws(classOf[Exception])
-    def handleStateChanged(state: KeeperState) {
+   def handleStateChanged(state: KeeperState) ={
       // do nothing, since zkclient will do reconnect for us.
+      println(123)
     }
 
     /**
      * Called after the zookeeper session has expired and a new session has been created. You would have to re-create
      * any ephemeral nodes here.
-     *
-     * @throws Exception
-     *             On any error.
      */
     @throws(classOf[Exception])
     def handleNewSession() {

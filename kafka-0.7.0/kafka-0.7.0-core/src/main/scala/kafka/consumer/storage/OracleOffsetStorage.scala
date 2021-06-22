@@ -91,9 +91,7 @@ class OracleOffsetStorage(val connection: Connection) extends OffsetStorage {
    */
   private def selectExistingOffset(connection: Connection, node: Int, topic: String): Option[Long] = {
     val stmt = connection.prepareStatement(
-        """select offset from kafka_offsets
-           where node = ? and topic = ?
-           for update""")
+        """select offset from kafka_offsets  where node = ? and topic = ?  for update""")
     var results: ResultSet = null
     try {
       stmt.setInt(1, node)

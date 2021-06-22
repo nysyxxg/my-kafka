@@ -26,6 +26,7 @@ import kafka.api.OffsetRequest
  *  A utility that updates the offset of every broker partition to the offset of latest log segment file, in ZK.
  */
 object UpdateOffsetsInZK {
+
   val Earliest = "earliest"
   val Latest = "latest"
 

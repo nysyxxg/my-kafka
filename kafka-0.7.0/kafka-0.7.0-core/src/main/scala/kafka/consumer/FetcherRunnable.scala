@@ -33,6 +33,7 @@ class FetcherRunnable(val name: String,
                       val broker: Broker,
                       val partitionTopicInfos: List[PartitionTopicInfo])
   extends Thread(name) {
+
   private val logger = Logger.getLogger(getClass())
   private val shutdownLatch = new CountDownLatch(1)
   private val simpleConsumer = new SimpleConsumer(broker.host, broker.port, config.socketTimeoutMs, config.socketBufferSize)
