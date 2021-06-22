@@ -37,10 +37,11 @@ public class Producer extends Thread {
     
     public void run() {
         int messageNo = 1;
-        while (true) {
+        while (true && messageNo <= 10) {
             String messageStr = new String("Message_" + messageNo);
             producer.send(new ProducerData<Integer, String>(topic, messageStr));
             messageNo++;
+            System.out.println("Msg： " + messageStr);
         }
     }
     

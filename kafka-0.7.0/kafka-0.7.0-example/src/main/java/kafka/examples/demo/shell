@@ -1,0 +1,10 @@
+mvn clean package
+
+在target目录下，会得到一个jar包。
+
+运行也很简单：
+
+ java -cp $your_jar_file com.x.KafkaSimpleWriter -zookeeper localhost:2181 -topic test -data D:\my-kafka\kafka-0.7.0\data\data.txt
+
+ java -cp $your_jar_file com.x.KafkaSimpleReader -zookeeper localhost:2181 -topic test
+
