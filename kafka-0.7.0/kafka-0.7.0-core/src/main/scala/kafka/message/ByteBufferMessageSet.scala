@@ -36,6 +36,7 @@ import kafka.utils.IteratorTemplate
 class ByteBufferMessageSet(private val buffer: ByteBuffer,
                            private val initialOffset: Long = 0L,
                            private val errorCode: Int = ErrorMapping.NoError) extends MessageSet {
+  println("-------------ByteBufferMessageSet---------init--初始化--将需要写入的消息，进行封装--------------------buffer----"+ buffer)
   private val logger = Logger.getLogger(getClass())  
   private var validByteCount = -1L
   private var shallowValidByteCount = -1L
@@ -73,8 +74,7 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
   
   /** Write the messages in this set to the given channel */
   def writeTo(channel: WritableByteChannel, offset: Long, size: Long): Long ={
-    println("-------------ByteBufferMessageSet----writeTo---------------offset-----------" + offset +   " size= " + size +
-      "---buffer-compact: "+ buffer.compact())
+    println("-------------ByteBufferMessageSet----writeTo---------------offset-=" + offset +   " size= " + size + "---buffer : "+ buffer)
     /**
       * 根据源码，调用duplicate方法返回的Buffer对象就是复制了一份原始缓冲区，复制了position、limit、capacity这些属性，
       * 但是，复制后的缓冲区get和put所操作的数组还是与原始缓冲区一样的，

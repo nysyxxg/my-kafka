@@ -33,14 +33,14 @@ private[log] object SegmentList {
   */
 private[log] class SegmentList[T](seq: Seq[T])(implicit m: ClassManifest[T]) {
 
-  val contents: AtomicReference[Array[T]] = new AtomicReference(seq.toArray)
+  val contents: AtomicReference[Array[T]] = new AtomicReference(seq.toArray)  // 保存所有的日志片段
 
   /**
     * Append the given items to the end of the list
     */
   def append(ts: T*)(implicit m: ClassManifest[T]) {
     while (true) {
-      println("-------------SegmentList----append--------------------------")
+      println("-------------SegmentList--------------append-------------------------contents= " + contents.get().length)
       val curr = contents.get()
       val updated = new Array[T](curr.length + ts.length)
       Array.copy(curr, 0, updated, 0, curr.length)
@@ -79,7 +79,7 @@ private[log] class SegmentList[T](seq: Seq[T])(implicit m: ClassManifest[T]) {
   /**
     * Get a consistent view of the sequence
     */
-  def view: Array[T] = contents.get()
+  def view: Array[T] = contents.get() // 存储所有的日志片段
 
   /**
     * Nicer toString method

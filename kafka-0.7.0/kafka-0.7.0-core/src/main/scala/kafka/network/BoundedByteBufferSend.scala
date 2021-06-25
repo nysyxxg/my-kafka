@@ -30,12 +30,12 @@ private[kafka] class BoundedByteBufferSend(val buffer: ByteBuffer) extends Send 
   
   var complete: Boolean = false
 
-  def this(size: Int) = this(ByteBuffer.allocate(size))
+  def this(size: Int) = this(ByteBuffer.allocate(size))  // 申请缓存区
   
-  def this(request: Request) = {
-    this(request.sizeInBytes + 2)
-    buffer.putShort(request.id)
-    request.writeTo(buffer)
+  def this(request: Request) = { // 实例化对象
+    this(request.sizeInBytes + 2) // 调用构造器，申请缓冲区，缓冲区大小为：封装发送消息的大小 + 2  =  2 + topic.length + 4 + 4 + messages.sizeInBytes.asInstanceOf[Int] + 2
+    buffer.putShort(request.id) // 请求的id，放入buffer
+    request.writeTo(buffer)  // 调用 request 请求的writeTo，将 相关信息放入 buffer 写入到服务器
     buffer.rewind()
   }
   // 复写了父类的writeTo方法

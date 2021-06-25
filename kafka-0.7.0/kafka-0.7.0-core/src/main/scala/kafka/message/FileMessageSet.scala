@@ -46,22 +46,24 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
     if (limit < Long.MaxValue || offset > 0)
       throw new IllegalArgumentException("Attempt to open a mutable message set with a view or offset, which is not allowed.")
 
-    if (needRecover.get) {
+    if (needRecover.get) { // 如果需要恢复
       // set the file position to the end of the file for appending messages
       val startMs = System.currentTimeMillis
       val truncated = recover()
       logger.info("Recovery succeeded in " + (System.currentTimeMillis - startMs) / 1000 + " seconds. " + truncated + " bytes truncated.")
-    }
-    else {
+    } else {
       setSize.set(channel.size())
       setHighWaterMark.set(sizeInBytes)
       channel.position(channel.size)
     }
   } else {
-    setSize.set(scala.math.min(channel.size(), limit) - offset)
+    println("----------------FileMessageSet----------------init----------------")
+    val minSize = scala.math.min(channel.size(), limit)
+    setSize.set(minSize - offset)
     setHighWaterMark.set(sizeInBytes)
-    if (logger.isDebugEnabled)
+    if (logger.isDebugEnabled){
       logger.debug("initializing high water mark in immutable mode: " + highWaterMark)
+    }
   }
 
   /**
@@ -102,7 +104,7 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
     * Write some of this set to the given channel, return the ammount written
     */
   def writeTo(destChannel: WritableByteChannel, writeOffset: Long, size: Long): Long = {
-    println("-------------FileMessageSet-------------------writeTo------------------")
+    println("-------------FileMessageSet-------------------writeTo--------------transferTo------")
     channel.transferTo(offset + writeOffset, scala.math.min(size, sizeInBytes), destChannel)
   }
 
@@ -110,6 +112,7 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
     * Get an iterator over the messages in the set
     */
   override def iterator: Iterator[MessageAndOffset] = {
+    println("--------------------------FileMessageSet-------------------iterator---------")
     new IteratorTemplate[MessageAndOffset] {
       var location = offset
 
@@ -158,7 +161,7 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
     * Append this message to the message set
     */
   def append(messages: MessageSet): Unit = {
-    println("-------------FileMessageSet-------------------append--------------start----")
+    println("-------------FileMessageSet-------------------append--------------start------messages： "+ messages)
     checkMutable()
     var written = 0L
     while (written < messages.sizeInBytes) {
@@ -169,19 +172,28 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
   }
 
   /**
-    * Commit all written data to the physical disk
+    * Commit all written data to the physical disk 将所有写入的数据提交到物理磁盘
     */
   def flush() = {
-    checkMutable()
+    checkMutable()  // 检查是否可变
     val startTime = SystemTime.milliseconds
+
+    /**
+      * FileChannel.force()方法将通道里尚未写入磁盘的数据强制写到磁盘上。
+      * 出于性能方面的考虑，操作系统会将数据缓存在内存中，所以无法保证写入到FileChannel里的数据一定会即时写到磁盘上。
+      * 要保证这一点，需要调用force()方法。
+      * force()方法有一个boolean类型的参数，指明是否同时将文件元数据（权限信息等）写到磁盘上。
+      */
     channel.force(true)
     val elapsedTime = SystemTime.milliseconds - startTime
     LogFlushStats.recordFlushRequest(elapsedTime)
-    if (logger.isDebugEnabled)
+    if (logger.isDebugEnabled){
       logger.debug("flush time " + elapsedTime)
-    setHighWaterMark.set(sizeInBytes)
-    if (logger.isDebugEnabled)
+    }
+    setHighWaterMark.set(sizeInBytes) // 设置高水位
+    if (logger.isDebugEnabled) {
       logger.debug("flush high water mark:" + highWaterMark)
+    }
   }
 
   /**

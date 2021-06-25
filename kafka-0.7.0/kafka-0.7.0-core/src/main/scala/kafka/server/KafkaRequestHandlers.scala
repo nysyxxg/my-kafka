@@ -47,15 +47,18 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
   }
   
   def handleProducerRequest(receive: Receive): Option[Send] = {
-    println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------处理发送请求-----1--------------")
+    println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------处理发送请求-----start--------------")
     val sTime = SystemTime.milliseconds
-    val request = ProducerRequest.readFrom(receive.buffer)
+    val request = ProducerRequest.readFrom(receive.buffer)// 从收到的buffer 中读取数据
 
-    if(requestLogger.isTraceEnabled)
+    if(requestLogger.isTraceEnabled){
       requestLogger.trace("Producer request " + request.toString)
+    }
     handleProducerRequest(request, "ProduceRequest")
-    if (logger.isDebugEnabled)
+    if (logger.isDebugEnabled){
       logger.debug("kafka produce time " + (SystemTime.milliseconds - sTime) + " ms")
+    }
+    println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------处理发送请求-----end--------------")
     None
   }
 
@@ -70,9 +73,9 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
 
   private def handleProducerRequest(request: ProducerRequest, requestHandlerName: String) = {
     println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------ProduceRequest--------2-----------")
-    val partition = request.getTranslatedPartition(logManager.chooseRandomPartition)
+    val partition = request.getTranslatedPartition(logManager.chooseRandomPartition) //选择需要数据写入的分区
     try {
-      logManager.getOrCreateLog(request.topic, partition).append(request.messages)
+      logManager.getOrCreateLog(request.topic, partition).append(request.messages) // 需要根据topic 和 partition，创建日志文件写入数据，如果存在，或者追加消息
       if(logger.isTraceEnabled)
         logger.trace(request.messages.sizeInBytes + " bytes written to logs.")
     }

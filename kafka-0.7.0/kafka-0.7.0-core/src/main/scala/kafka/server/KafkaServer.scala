@@ -63,7 +63,7 @@ class KafkaServer(val config: KafkaConfig) {
                                   1000L * 60 * 60 * config.logRetentionHours,
                                   needRecovery)
                                                     
-      val handlers = new KafkaRequestHandlers(logManager)
+      val handlers = new KafkaRequestHandlers(logManager)  // 实例化处理请求的handlers
       socketServer = new SocketServer(config.port,
                                       config.numThreads,
                                       config.monitoringPeriodSecs,

@@ -119,7 +119,7 @@ class Message(val buffer: ByteBuffer) {
     }
     buffer.put(attributes)  //  1个字节
     Utils.putUnsignedInt(buffer, checksum)   //  4个字节
-    buffer.put(bytes)   //  12 个字节
+    buffer.put(bytes)   //  数据字节
     buffer.rewind()
   }
 

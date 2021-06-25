@@ -1,19 +1,19 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package kafka.network
 
@@ -29,16 +29,16 @@ import kafka.api.RequestKeys
 import kafka.common.InvalidRequestException
 
 /**
- * An NIO socket server. The thread model is
- *   1 Acceptor thread that handles new connections
- *   N Processor threads that each have their own selectors and handle all requests from their connections synchronously
- */
+  * An NIO socket server. The thread model is
+  * 1 Acceptor thread that handles new connections
+  * N Processor threads that each have their own selectors and handle all requests from their connections synchronously
+  */
 class SocketServer(val port: Int,
                    val numProcessorThreads: Int,
                    monitoringPeriodSecs: Int,
                    private val handlerFactory: Handler.HandlerMapping,
                    val maxRequestSize: Int = Int.MaxValue) {
-
+  println("-------------SocketServer----------init----------------------------------")
   private val logger = Logger.getLogger(classOf[SocketServer])
   private val time = SystemTime
   private val processors = new Array[Processor](numProcessorThreads)
@@ -46,11 +46,11 @@ class SocketServer(val port: Int,
   val stats: SocketServerStats = new SocketServerStats(1000L * 1000L * 1000L * monitoringPeriodSecs)
 
   /**
-   * Start the socket server
-   */
+    * Start the socket server
+    */
   def startup() {
-    for(i <- 0 until numProcessorThreads) {
-      processors(i) = new Processor(handlerFactory, time, stats, maxRequestSize)
+    for (i <- 0 until numProcessorThreads) {
+      processors(i) = new Processor(handlerFactory, time, stats, maxRequestSize) // 初始化最大请求大小maxRequestSize
       Utils.newThread("kafka-processor-" + i, processors(i), false).start()
     }
     Utils.newThread("kafka-acceptor", acceptor, false).start()
@@ -58,19 +58,19 @@ class SocketServer(val port: Int,
   }
 
   /**
-   * Shutdown the socket server
-   */
+    * Shutdown the socket server
+    */
   def shutdown() = {
     acceptor.shutdown
-    for(processor <- processors)
+    for (processor <- processors)
       processor.shutdown
   }
 
 }
 
 /**
- * A base class with some helper variables and methods
- */
+  * A base class with some helper variables and methods
+  */
 private[kafka] abstract class AbstractServerThread extends Runnable {
 
   protected val selector = Selector.open();
@@ -80,8 +80,8 @@ private[kafka] abstract class AbstractServerThread extends Runnable {
   private val alive = new AtomicBoolean(false)
 
   /**
-   * Initiates a graceful shutdown by signeling to stop and waiting for the shutdown to complete
-   */
+    * Initiates a graceful shutdown by signeling to stop and waiting for the shutdown to complete
+    */
   def shutdown(): Unit = {
     alive.set(false)
     selector.wakeup
@@ -89,65 +89,65 @@ private[kafka] abstract class AbstractServerThread extends Runnable {
   }
 
   /**
-   * Wait for the thread to completely start up
-   */
+    * Wait for the thread to completely start up
+    */
   def awaitStartup(): Unit = startupLatch.await
 
   /**
-   * Record that the thread startup is complete
-   */
+    * Record that the thread startup is complete
+    */
   protected def startupComplete() = {
     alive.set(true)
     startupLatch.countDown
   }
 
   /**
-   * Record that the thread shutdown is complete
-   */
+    * Record that the thread shutdown is complete
+    */
   protected def shutdownComplete() = shutdownLatch.countDown
 
   /**
-   * Is the server still running?
-   */
+    * Is the server still running?
+    */
   protected def isRunning = alive.get
 
 }
 
 /**
- * Thread that accepts and configures new connections. There is only need for one of these
- */
+  * Thread that accepts and configures new connections. There is only need for one of these
+  */
 private[kafka] class Acceptor(val port: Int, private val processors: Array[Processor]) extends AbstractServerThread {
 
   /**
-   * Accept loop that checks for new connection attempts
-   */
-  def run() {
+    * Accept loop that checks for new connection attempts
+    */
+  override def run() {
     val serverChannel = ServerSocketChannel.open()
-    serverChannel.configureBlocking(false)
+    serverChannel.configureBlocking(false)  //设置为非阻塞
     serverChannel.socket.bind(new InetSocketAddress(port))
     serverChannel.register(selector, SelectionKey.OP_ACCEPT);
     logger.info("Awaiting connections on port " + port)
     startupComplete()
 
     var currentProcessor = 0
-    while(isRunning) {
+    while (isRunning) {
       val ready = selector.select(500)
-      if(ready > 0) {
+      if (ready > 0) {
         val keys = selector.selectedKeys()
         val iter = keys.iterator()
-        while(iter.hasNext && isRunning) {
+        while (iter.hasNext && isRunning) {
           var key: SelectionKey = null
           try {
             key = iter.next
             iter.remove()
 
-            if(key.isAcceptable)
-                accept(key, processors(currentProcessor))
-              else
-                throw new IllegalStateException("Unrecognized key state for acceptor thread.")
-
-              // round robin to the next processor thread
-              currentProcessor = (currentProcessor + 1) % processors.length
+            if (key.isAcceptable){
+              accept(key, processors(currentProcessor))
+            }else{
+              throw new IllegalStateException("Unrecognized key state for acceptor thread.")
+            }
+            // round robin to the next processor thread
+            currentProcessor = (currentProcessor + 1) % processors.length
           } catch {
             case e: Throwable => logger.error("Error in acceptor", e)
           }
@@ -165,7 +165,7 @@ private[kafka] class Acceptor(val port: Int, private val processors: Array[Proce
    */
   def accept(key: SelectionKey, processor: Processor) {
     val socketChannel = key.channel().asInstanceOf[ServerSocketChannel].accept()
-    if(logger.isDebugEnabled)
+    if (logger.isDebugEnabled)
       logger.info("Accepted connection from " + socketChannel.socket.getInetAddress() + " on " + socketChannel.socket.getLocalSocketAddress)
     socketChannel.configureBlocking(false)
     socketChannel.socket().setTcpNoDelay(true)
@@ -175,38 +175,38 @@ private[kafka] class Acceptor(val port: Int, private val processors: Array[Proce
 }
 
 /**
- * Thread that processes all requests from a single connection. There are N of these running in parallel
- * each of which has its own selectors
- */
+  * Thread that processes all requests from a single connection. There are N of these running in parallel
+  * each of which has its own selectors
+  */
 private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
                                val time: Time,
                                val stats: SocketServerStats,
                                val maxRequestSize: Int) extends AbstractServerThread {
-
+  println("-------------Processor----------init--------------------------" + Thread.currentThread().getName)
   private val newConnections = new ConcurrentLinkedQueue[SocketChannel]();
   private val requestLogger = Logger.getLogger("kafka.request.logger")
 
   override def run() {
     startupComplete()
-    while(isRunning) {
+    while (isRunning) {
       // setup any new connections that have been queued up
       configureNewConnections()
 
       val ready = selector.select(500)
-      if(ready > 0) {
+      if (ready > 0) {
         val keys = selector.selectedKeys()
         val iter = keys.iterator()
-        while(iter.hasNext && isRunning) {
+        while (iter.hasNext && isRunning) {
           var key: SelectionKey = null
           try {
             key = iter.next
             iter.remove()
 
-            if(key.isReadable)
-              read(key)
-            else if(key.isWritable)
+            if (key.isReadable)
+              read(key)  // 读取客户端发过来的数据
+            else if (key.isWritable)
               write(key)
-            else if(!key.isValid)
+            else if (!key.isValid)
               close(key)
             else
               throw new IllegalStateException("Unrecognized key state for processor thread.")
@@ -214,11 +214,12 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
             case e: EOFException => {
               logger.info("Closing socket connection to %s.".format(channelFor(key).socket.getInetAddress))
               close(key)
-        }
-        case e: InvalidRequestException => {
-          logger.info("Closing socket connection to %s due to invalid request: %s".format(channelFor(key).socket.getInetAddress, e.getMessage))
-          close(key)
-            } case e: Throwable => {
+            }
+            case e: InvalidRequestException => {
+              logger.info("Closing socket connection to %s due to invalid request: %s".format(channelFor(key).socket.getInetAddress, e.getMessage))
+              close(key)
+            }
+            case e: Throwable => {
               logger.error("Closing socket for " + channelFor(key).socket.getInetAddress + " because of error", e)
               close(key)
             }
@@ -233,7 +234,7 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
 
   private def close(key: SelectionKey) {
     val channel = key.channel.asInstanceOf[SocketChannel]
-    if(logger.isDebugEnabled)
+    if (logger.isDebugEnabled)
       logger.debug("Closing connection from " + channel.socket.getRemoteSocketAddress())
     Utils.swallow(logger.info, channel.socket().close())
     Utils.swallow(logger.info, channel.close())
@@ -242,34 +243,36 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
   }
 
   /**
-   * Queue up a new connection for reading
-   */
+    * Queue up a new connection for reading
+    */
   def accept(socketChannel: SocketChannel) {
     newConnections.add(socketChannel)
     selector.wakeup()
   }
 
   /**
-   * Register any new connections that have been queued up
-   */
+    * Register any new connections that have been queued up
+    */
   private def configureNewConnections() {
-    while(newConnections.size() > 0) {
+    while (newConnections.size() > 0) {
       val channel = newConnections.poll()
-      if(logger.isDebugEnabled()){
+      if (logger.isDebugEnabled()) {
         logger.debug("Listening to new connection from " + channel.socket.getRemoteSocketAddress)
       }
-      channel.register(selector, SelectionKey.OP_READ)  // 注册slector
+      channel.register(selector, SelectionKey.OP_READ) // 注册slector
     }
   }
 
   /**
-   * Handle a completed request producing an optional response
-   */
+    * Handle a completed request producing an optional response
+    */
   private def handle(key: SelectionKey, request: Receive): Option[Send] = {
-    val requestTypeId = request.buffer.getShort()
-    if(requestLogger.isTraceEnabled) {
+    println("-------------Processor----------handle-------------request-------------start-------- request.buffer="+  request.buffer)
+    val requestTypeId = request.buffer.getShort() // 获取请求的requestTypeId
+    println("-------------Processor----------handle-------------request-------------start--------requestTypeId="+ requestTypeId)
+    if (requestLogger.isTraceEnabled) {
       requestTypeId match {
-        case RequestKeys.Produce =>
+        case RequestKeys.Produce => // 如果是发送数据请求
           requestLogger.trace("Handling produce request from " + channelFor(key).socket.getRemoteSocketAddress())
         case RequestKeys.Fetch =>
           requestLogger.trace("Handling fetch request from " + channelFor(key).socket.getRemoteSocketAddress())
@@ -283,11 +286,13 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
       }
     }
     val handler = handlerMapping(requestTypeId, request)
-    if(handler == null)
+    if (handler == null){
       throw new InvalidRequestException("No handler found for request")
+    }
     val start = time.nanoseconds
-    val maybeSend = handler(request)
+    val maybeSend = handler(request) // 处理请求
     stats.recordRequest(requestTypeId, time.nanoseconds - start)
+    println("-------------Processor----------handle-------------request-------------end--------requestTypeId="+ requestTypeId)
     maybeSend
   }
 
@@ -295,24 +300,27 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
    * Process reads from ready sockets
    */
   def read(key: SelectionKey) {
-    val socketChannel = channelFor(key)
+    println("-------------Processor----------read(key: SelectionKey)----------------------start------------")
+    val socketChannel = channelFor(key)  // 根据key 获取对应的 socketChannel
     var request = key.attachment.asInstanceOf[Receive]
-    if(key.attachment == null) {
-      request = new BoundedByteBufferReceive(maxRequestSize)
+    if (key.attachment == null) {
+      println("-------------Processor----------read(key: SelectionKey)---------------key.attachment------------" + key.attachment)
+      request = new BoundedByteBufferReceive(maxRequestSize) //
       key.attach(request)
     }
-    val read = request.readFrom(socketChannel)
-    stats.recordBytesRead(read)
-    if(logger.isTraceEnabled)
+    val read = request.readFrom(socketChannel) // 从socketChannel 读取数据
+    stats.recordBytesRead(read) // 记录状态
+    if (logger.isTraceEnabled) {
       logger.trace(read + " bytes read from " + socketChannel.socket.getRemoteSocketAddress())
-    if(read < 0) {
+    }
+    if (read < 0) {
       close(key)
       return
-    } else if(request.complete) {
-      val maybeResponse = handle(key, request)
+    } else if (request.complete) {  // 判断读取数据请求是否完成
+      val maybeResponse = handle(key, request) // 如果数据读取完成，处理客户端的请求
       key.attach(null)
       // if there is a response, send it, otherwise do nothing
-      if(maybeResponse.isDefined) {
+      if (maybeResponse.isDefined) {
         key.attach(maybeResponse.getOrElse(None))
         key.interestOps(SelectionKey.OP_WRITE)
       }
@@ -321,6 +329,7 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
       key.interestOps(SelectionKey.OP_READ)
       selector.wakeup()
     }
+    println("-------------Processor----------read(key: SelectionKey)----------------------end------------")
   }
 
   /*
@@ -328,13 +337,13 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
    */
   def write(key: SelectionKey) {
     println("-------------Processor----------write---------------writeTo-------------------start-------")
-    val response = key.attachment().asInstanceOf[Send]  // 获取注册的Send发送对象
+    val response = key.attachment().asInstanceOf[Send] // 获取注册的Send发送对象
     val socketChannel = channelFor(key)
     val written = response.writeTo(socketChannel)
     stats.recordBytesWritten(written)
-    if(logger.isTraceEnabled)
+    if (logger.isTraceEnabled)
       logger.trace(written + " bytes written to " + socketChannel.socket.getRemoteSocketAddress())
-    if(response.complete) {
+    if (response.complete) {
       key.attach(null)
       key.interestOps(SelectionKey.OP_READ)
     } else {

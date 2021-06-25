@@ -39,7 +39,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
   
   val logDir: File = new File(config.logDir)
   private val numPartitions = config.numPartitions
-  private val maxSize: Long = config.logFileSize
+  private val maxSize: Long = config.logFileSize  // 日志分片的最大值，如果超过，就可能回滚
   private val flushInterval = config.flushInterval
   private val topicPartitionsMap = config.topicPartitionsMap
   private val logger = Logger.getLogger(classOf[LogManager])
@@ -55,24 +55,26 @@ private[kafka] class LogManager(val config: KafkaConfig,
 
   /* Initialize a log for each subdirectory of the main log directory */
   private val logs = new Pool[String, Pool[Int, Log]]()
-  if(!logDir.exists()) {
+  if(!logDir.exists()) { // 判断日志目录是否存在
     logger.info("No log directory found, creating '" + logDir.getAbsolutePath() + "'")
-    logDir.mkdirs()
+    logDir.mkdirs() // 不存在就创建
   }
-  if(!logDir.isDirectory() || !logDir.canRead())
+  if(!logDir.isDirectory() || !logDir.canRead()){ // 如果不是目录，或者不可读
     throw new IllegalArgumentException(logDir.getAbsolutePath() + " is not a readable log directory.")
-  val subDirs = logDir.listFiles()
+  }
+  val subDirs = logDir.listFiles() // 获取所有的子目录列表文件
   if(subDirs != null) {
-    for(dir <- subDirs) {
+    for(dir <- subDirs) { // 开始遍历
       if(!dir.isDirectory()) {
         logger.warn("Skipping unexplainable file '" + dir.getAbsolutePath() + "'--should it be there?")
-      } else {
+      } else { // 如果是文件目录
         logger.info("Loading log '" + dir.getName() + "'")
-        val log = new Log(dir, maxSize, flushInterval, needRecovery)
-        val topicPartion = Utils.getTopicPartition(dir.getName)
-        logs.putIfNotExists(topicPartion._1, new Pool[Int, Log]())
+        println("--------------------LogManager-------init-------------dir---------:"+ dir)
+        val log = new Log(dir, maxSize, flushInterval, needRecovery) // 创建Log对象
+        val topicPartion = Utils.getTopicPartition(dir.getName) // 获取topic 和 partition
+        logs.putIfNotExists(topicPartion._1, new Pool[Int, Log]())   // 放入缓冲中
         val parts = logs.get(topicPartion._1)
-        parts.put(topicPartion._2, log)
+        parts.put(topicPartion._2, log) // 分区和文件对象建立对应关系
       }
     }
   }
@@ -121,7 +123,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
    */
   def startup() {
     if(config.enableZookeeper) {// 是否使用外部的zk
-      logger.info("------------------使用外部的zk服务-------------------")
+      logger.info("----------LogManager--------startup------------使用外部的zk服务-------------------")
       kafkaZookeeper.registerBrokerInZk()
       for (topic <- getAllTopics)
         kafkaZookeeper.registerTopicInZk(topic)
@@ -145,9 +147,9 @@ private[kafka] class LogManager(val config: KafkaConfig,
    * Create a log for the given topic and the given partition
    */
   private def createLog(topic: String, partition: Int): Log = {
+    println("-------------LogManager--------------createLog-------------根据topic和分区--创建日志目录-----------")
     logCreationLock synchronized {
-      val d = new File(logDir, topic + "-" + partition)
-      println("-------------LogManager----createLog--------------------------")
+      val d = new File(logDir, topic + "-" + partition)  //  创建日志目录
       d.mkdirs()
       new Log(d, maxSize, flushInterval, false)
     }
@@ -161,7 +163,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
   /**
    * Create the log if it does not exist, if it exists just return it
    */
-  def getOrCreateLog(topic: String, partition: Int): Log = {
+  def getOrCreateLog(topic: String, partition: Int): Log = { // 需要根据topic和 partition分区，创建Log对象
     println("-------------LogManager----getOrCreateLog--------------------------")
     awaitStartup
     if (topic.length <= 0){
@@ -172,27 +174,28 @@ private[kafka] class LogManager(val config: KafkaConfig,
       throw new InvalidPartitionException("wrong partition " + partition)
     }
     var hasNewTopic = false
-    var parts: Pool[Int, Log] = logs.get(topic)
-    if (parts == null) {
+    var parts: Pool[Int, Log] = logs.get(topic) // 根据topic从缓存池中，获取是否存在对应的分区的日志分片
+    if (parts == null) { // 如果不存在，就new一个对象，存储到池子中
       val found = logs.putIfNotExists(topic, new Pool[Int, Log])
-      if (found == null)
-        hasNewTopic = true
-      parts = logs.get(topic)
+      if (found == null) {
+        hasNewTopic = true // 说明是新的topic
+      }
+      parts = logs.get(topic) // 再次获取
     }
-    var log = parts.get(partition)
-    if(log == null) {
+    var log = parts.get(partition) // 然后根据分区获取，log对象实例
+    if(log == null) {  // 如果没有日志文件目录，就创建一个
       log = createLog(topic, partition)
       val found = parts.putIfNotExists(partition, log)
       if(found != null) {
         // there was already somebody there
         log.close()
         log = found
-      }
-      else
+      } else{
         logger.info("Created log for '" + topic + "'-" + partition)
+      }
     }
 
-    if (hasNewTopic){
+    if (hasNewTopic){ // 如果是新的topic，就注册到zk
       registerNewTopicInZK(topic)
     }
     log
@@ -220,7 +223,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
     val topic = Utils.getTopicPartition(log.dir.getName)._1
     val logCleanupThresholdMS = logRetentionMSMap.get(topic).getOrElse(this.logCleanupDefaultAgeMs)
     val toBeDeleted = log.markDeletedWhile(startMs - _.file.lastModified > logCleanupThresholdMS)
-    val total = deleteSegments(log, toBeDeleted)
+    val total = deleteSegments(log, toBeDeleted) // 删除特定的日志分片
     println("-------------LogManager-------------------cleanupExpiredSegments-----------end-------")
     total
   }
@@ -301,8 +304,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
     if (logger.isDebugEnabled)
       logger.debug("flushing the high watermark of all logs")
 
-    for (log <- getLogIterator)
-    {
+    for (log <- getLogIterator) {
       try{
         val timeSinceLastFlush = System.currentTimeMillis - log.getLastFlushedTime
         var logFlushInterval = config.defaultFlushIntervalMs

@@ -26,13 +26,17 @@ object ProducerRequest {
   val RandomPartition = -1
 
   def readFrom(buffer: ByteBuffer): ProducerRequest = {
-    val topic = Utils.readShortString(buffer, "UTF-8")
-    val partition = buffer.getInt
-    val messageSetSize = buffer.getInt
-    val messageSetBuffer = buffer.slice()
-    messageSetBuffer.limit(messageSetSize)
+    println("-------------ProducerRequest-------------------readFrom-------------------------")
+    val topic = Utils.readShortString(buffer, "UTF-8") // 从buffer中获取topic
+    val partition = buffer.getInt  // 从buffer中获取分区
+    val messageSetSize = buffer.getInt  // 获取消息集合的大小
+    val messageSetBuffer = buffer.slice()// 此方法返回新的字节缓冲区
+    // 新的messageSetBuffer，还有messageSetSize 这个大小的数据需要读取出来
+    messageSetBuffer.limit(messageSetSize) // limit：指定还有多少数据需要取出(在从缓冲区写入通道时)，或者还有多少空间可以放入数据(在从通道读入缓冲区时)。
     buffer.position(buffer.position + messageSetSize)
-    new ProducerRequest(topic, partition, new ByteBufferMessageSet(messageSetBuffer))
+    println("-------------ProducerRequest-------------------readFrom-----------------------messageSetSize--"+ messageSetSize)
+    println("-------------ProducerRequest-------------------readFrom-----------------------messageSetBuffer--"+ messageSetBuffer)
+    new ProducerRequest(topic, partition, new ByteBufferMessageSet(messageSetBuffer)) // 将需要写入的消息，都封装为ByteBufferMessageSet
   }
 }
 
@@ -49,7 +53,8 @@ class ProducerRequest(val topic: String,
     buffer.put(messages.serialized)
     println("-------------ProducerRequest----------------------writeTo-------------------------messages.serialized.limit-" +  messages.serialized.limit)
     println("-------------ProducerRequest----------------------writeTo-------------------------messages.serialized-" + new String(messages.serialized.array()))
-    messages.serialized.rewind
+    messages.serialized.rewind // rewind()在读写模式下都可用，它单纯的将当前位置置0，同时取消mark标记，仅此而已；
+    // 也就是说写模式下limit仍保持与Buffer容量相同，只是重头写而已；
   }
 
   override def sizeInBytes(): Int ={

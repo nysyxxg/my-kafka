@@ -279,9 +279,9 @@ object Utils {
    */
   def openChannel(file: File, mutable: Boolean): FileChannel = {
     if(mutable)
-      new RandomAccessFile(file, "rw").getChannel()
+      new RandomAccessFile(file, "rw").getChannel()  // 读写操作
     else
-      new FileInputStream(file).getChannel()
+      new FileInputStream(file).getChannel() // 创建文件输入流，获取到FileChannel
   }
   
   /**
