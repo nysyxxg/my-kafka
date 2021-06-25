@@ -30,22 +30,22 @@ import kafka.message.{NoCompressionCodec, ByteBufferMessageSet}
 
 class ProducerPool[V](private val config: ProducerConfig,
                       private val serializer: Encoder[V],
-                      private val syncProducers: ConcurrentMap[Int, SyncProducer],
-                      private val asyncProducers: ConcurrentMap[Int, AsyncProducer[V]],
+                      private val syncProducers: ConcurrentMap[Int, SyncProducer],  // SyncProducer同步发送器
+                      private val asyncProducers: ConcurrentMap[Int, AsyncProducer[V]], // AsyncProducer异步发送器
                       private val inputEventHandler: EventHandler[V] = null,
                       private val cbkHandler: CallbackHandler[V] = null) {
 
   private val logger = Logger.getLogger(classOf[ProducerPool[V]])
   private var eventHandler = inputEventHandler
-  if (eventHandler == null)
-    eventHandler = new DefaultEventHandler(config, cbkHandler)
-
+  if (eventHandler == null){
+    eventHandler = new DefaultEventHandler(config, cbkHandler)  // 初始化默认的事件处理器
+  }
   if (serializer == null)
     throw new InvalidConfigException("serializer passed in is null!")
 
   private var sync: Boolean = true
   config.producerType match {
-    case "sync" =>
+    case "sync" => sync = true
     case "async" => sync = false
     case _ => throw new InvalidConfigException("Valid values for producer.type are sync/async")
   }
@@ -64,9 +64,8 @@ class ProducerPool[V](private val config: ProducerConfig,
     Utils.getObject(config.cbkHandler))
 
   /**
-    * add a new producer, either synchronous or asynchronous, connecting
-    * to the specified broker
-    *
+    * add a new producer, either synchronous or asynchronous, connecting  to the specified broker
+    * 添加一个新的Producer，异步或者同步，去连接一个特定的broker
     * @param bid  the id of the broker
     * @param host the hostname of the broker
     * @param port the port of the broker
@@ -76,17 +75,17 @@ class ProducerPool[V](private val config: ProducerConfig,
     props.put("host", broker.host)
     props.put("port", broker.port.toString)
     props.putAll(config.props)
-    if (sync) {
-      val producer = new SyncProducer(new SyncProducerConfig(props))
+    if (sync) { //  同步
+      val producer = new SyncProducer(new SyncProducerConfig(props)) // 创建同步 Producer
       logger.info("Creating sync producer for broker id = " + broker.id + " at " + broker.host + ":" + broker.port)
-      syncProducers.put(broker.id, producer)
+      syncProducers.put(broker.id, producer) // 将创建的producer放入缓存中
     } else {
       val producer = new AsyncProducer[V](new AsyncProducerConfig(props),
         new SyncProducer(new SyncProducerConfig(props)),
         serializer,
         eventHandler, config.eventHandlerProps,
-        cbkHandler, config.cbkHandlerProps)
-      producer.start
+        cbkHandler, config.cbkHandlerProps) //  实例化异步发送对象AsyncProducer
+      producer.start // 启动单独一个发送线程
       logger.info("Creating async producer for broker id = " + broker.id + " at " + broker.host + ":" + broker.port)
       asyncProducers.put(broker.id, producer)
     }
@@ -100,23 +99,30 @@ class ProducerPool[V](private val config: ProducerConfig,
     * @param poolData the producer pool request object
     */
   def send(poolData: ProducerPoolData[V]*) {
-    val distinctBrokers = poolData.map(pd => pd.getBidPid.brokerId).distinct
+    println("----------ProducerPool--------send-----------start------")
+    val distinctBrokers = poolData.map(pd => pd.getBidPid.brokerId).distinct  // 得到所有的broker的id
     var remainingRequests = poolData.toSeq
-    distinctBrokers.foreach { bid =>
-      val requestsForThisBid = remainingRequests partition (_.getBidPid.brokerId == bid)
-      remainingRequests = requestsForThisBid._2
+    distinctBrokers.foreach { bid =>  // 开始遍历每一个brokerid
+      // 对集合进行分组 ,将同bid一个broker的数据，分为同一个分区, 如果不同的bid，就分配到另外一个分区中
+      val requestsForThisBid: (Seq[ProducerPoolData[V]], Seq[ProducerPoolData[V]]) = remainingRequests partition (_.getBidPid.brokerId == bid)
+      remainingRequests = requestsForThisBid._2 // 剩余不相同的bid数据
 
-      if (sync) {
-        val producerRequests = requestsForThisBid._1.map(req => {
-          val byteBufferMessageSet = new ByteBufferMessageSet(compressionCodec = config.compressionCodec, messages = req.getData.map(d => serializer.toMessage(d)): _*)
-          new ProducerRequest(req.getTopic, req.getBidPid.partId, byteBufferMessageSet)
+      if (sync) { // 如果是同步发送
+        println("----------ProducerPool---------遍历要发送给 broker 为 bid 消息集合.............." )
+        val producerRequests = requestsForThisBid._1.map(req => {  // 开始遍历每一个消息集合
+          val messages = req.getData.map(d => serializer.toMessage(d)) // 对一条消息，进行序列化
+          // 实例化ByteBufferMessageSet 对象
+          val byteBufferMessageSet = new ByteBufferMessageSet(compressionCodec = config.compressionCodec, messages: _*) // 构建消息集合
+          new ProducerRequest(req.getTopic, req.getBidPid.partId, byteBufferMessageSet) // 构建发送请求对象
         })
         logger.debug("Fetching sync producer for broker id: " + bid)
-        val producer = syncProducers.get(bid)
+        val producer = syncProducers.get(bid)  // 根据bid，获取对应的发送者对象 producer
         if (producer != null) {
-          if (producerRequests.size > 1){
+          if (producerRequests.size > 1){ // 如果大于1，就进行批量发送
+            println("----------ProducerPool--------send-----------批量发送-----size=-"+ producerRequests.size)
             producer.multiSend(producerRequests.toArray)
-          }else {
+          }else { // 如果等于1，就单一发送
+            println("----------ProducerPool--------send-----------单条发送------size="+ producerRequests.size)
             producer.send(topic = producerRequests(0).topic, partition = producerRequests(0).partition, messages = producerRequests(0).messages)
           }
           config.compressionCodec match {
@@ -126,7 +132,7 @@ class ProducerPool[V](private val config: ProducerConfig,
         } else {
           throw new UnavailableProducerException("Producer pool has not been initialized correctly. " + "Sync Producer for broker " + bid + " does not exist in the pool")
         }
-      } else {
+      } else {  // 如果是异步发送
         logger.debug("Fetching async producer for broker id: " + bid)
         val producer = asyncProducers.get(bid)
         if (producer != null) {

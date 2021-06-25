@@ -1,19 +1,19 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 
 package kafka.log
 
@@ -31,18 +31,18 @@ private[log] object Log {
   val FileSuffix = ".kafka"
 
   /**
-   * Find a given range object in a list of ranges by a value in that range. Does a binary search over the ranges
-   * but instead of checking for equality looks within the range. Takes the array size as an option in case
-   * the array grows while searching happens
-   *
-   * TODO: This should move into SegmentList.scala
-   */
+    * Find a given range object in a list of ranges by a value in that range. Does a binary search over the ranges
+    * but instead of checking for equality looks within the range. Takes the array size as an option in case
+    * the array grows while searching happens
+    *
+    * TODO: This should move into SegmentList.scala
+    */
   def findRange[T <: Range](ranges: Array[T], value: Long, arraySize: Int): Option[T] = {
-    if(ranges.size < 1)
+    if (ranges.size < 1)
       return None
 
     // check out of bounds
-    if(value < ranges(0).start || value > ranges(arraySize - 1).start + ranges(arraySize - 1).size)
+    if (value < ranges(0).start || value > ranges(arraySize - 1).start + ranges(arraySize - 1).size)
       throw new OffsetOutOfRangeException("offset " + value + " is out of range")
 
     // check at the end
@@ -51,10 +51,10 @@ private[log] object Log {
 
     var low = 0
     var high = arraySize - 1
-    while(low <= high) {
+    while (low <= high) {
       val mid = (high + low) / 2
       val found = ranges(mid)
-      if(found.contains(value))
+      if (found.contains(value))
         return Some(found)
       else if (value < found.start)
         high = mid - 1
@@ -68,31 +68,35 @@ private[log] object Log {
     findRange(ranges, value, ranges.length)
 
   /**
-   * Make log segment file name from offset bytes. All this does is pad out the offset number with zeros
-   * so that ls sorts the files numerically
-   */
+    * Make log segment file name from offset bytes. All this does is pad out the offset number with zeros
+    * so that ls sorts the files numerically
+    */
   def nameFromOffset(offset: Long): String = {
     val nf = NumberFormat.getInstance()
     nf.setMinimumIntegerDigits(20)
     nf.setMaximumFractionDigits(0)
     nf.setGroupingUsed(false)
-    nf.format(offset) + Log.FileSuffix
+    val fileName = nf.format(offset) + Log.FileSuffix
+    println("-----------------nameFromOffset---------------------------fileName-" + fileName)
+    fileName
   }
 }
 
 /**
- * A segment file in the log directory. Each log semgment consists of an open message set, a start offset and a size 
- */
+  * A segment file in the log directory. Each log semgment consists of an open message set, a start offset and a size
+  */
 private[log] class LogSegment(val file: File, val messageSet: FileMessageSet, val start: Long) extends Range {
   @volatile var deleted = false
+
   def size: Long = messageSet.highWaterMark
+
   override def toString() = "(file=" + file + ", start=" + start + ", size=" + size + ")"
 }
 
 
 /**
- * An append-only log for storing messages. 
- */
+  * An append-only log for storing messages.
+  */
 @threadsafe
 private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int, val needRecovery: Boolean) {
 
@@ -104,119 +108,127 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
   /* The current number of unflushed messages appended to the write */
   private val unflushed = new AtomicInteger(0)
 
-   /* last time it was flushed */
+  /* last time it was flushed */
   private val lastflushedTime = new AtomicLong(System.currentTimeMillis)
 
   /* The actual segments of the log */
-  private[log] val segments: SegmentList[LogSegment] = loadSegments()
+  private[log] val segments: SegmentList[LogSegment] = loadSegments() // 加载已经存在的日志文件
 
   /* The name of this log */
-  val name  = dir.getName()
+  val name = dir.getName()
 
   private val logStats = new LogStats(this)
 
-  Utils.registerMBean(logStats, "kafka:type=kafka.logs." + dir.getName)  
+  Utils.registerMBean(logStats, "kafka:type=kafka.logs." + dir.getName)
 
   /* Load the log segments from the log files on disk */
   private def loadSegments(): SegmentList[LogSegment] = {
+    println("-------------Log-------------------loadSegments-----------start-------")
     // open all the segments read-only
     val accum = new ArrayList[LogSegment]
-    val ls = dir.listFiles()
-    if(ls != null) {
-      for(file <- ls if file.isFile && file.toString.endsWith(Log.FileSuffix)) {
-        if(!file.canRead)
+    val ls = dir.listFiles() // 获取这个目录的所有文件
+    if (ls != null) {
+      for (file <- ls if file.isFile && file.toString.endsWith(Log.FileSuffix)) { // 如果是文件，并且后缀是.kafka
+        if (!file.canRead) {
           throw new IOException("Could not read file " + file)
+        }
         val filename = file.getName()
         val start = filename.substring(0, filename.length - Log.FileSuffix.length).toLong
+        println("-------------Log-------------------loadSegments--------filename =" + filename  + "-----start-------" + start)
         val messageSet = new FileMessageSet(file, false)
-        accum.add(new LogSegment(file, messageSet, start))
+        accum.add(new LogSegment(file, messageSet, start)) // 一个文件创建一个 LogSegment 对象
       }
     }
 
-    if(accum.size == 0) {
+    if (accum.size == 0) { // 如果没有日志文件
       // no existing segments, create a new mutable segment
-      val newFile = new File(dir, Log.nameFromOffset(0))
+      val newFile = new File(dir, Log.nameFromOffset(0)) // 生成一个新的文件
       val set = new FileMessageSet(newFile, true)
       accum.add(new LogSegment(newFile, set, 0))
-    } else {
+    } else { // 反之，对集合进行排序
       // there is at least one existing segment, validate and recover them/it
       // sort segments into ascending order for fast searching
       Collections.sort(accum, new Comparator[LogSegment] {
         def compare(s1: LogSegment, s2: LogSegment): Int = {
-          if(s1.start == s2.start) 0
-          else if(s1.start < s2.start) -1
+          if (s1.start == s2.start) 0
+          else if (s1.start < s2.start) -1
           else 1
         }
       })
-      validateSegments(accum)
+      validateSegments(accum)  // 检验日志片段
 
       //make the final section mutable and run recovery on it if necessary
       val last = accum.remove(accum.size - 1)
+      println("-------------Log-------------------loadSegments-----------end-----移除的最后文件--" + last.file.getAbsolutePath())
       last.messageSet.close()
       logger.info("Loading the last segment " + last.file.getAbsolutePath() + " in mutable mode, recovery " + needRecovery)
       val mutable = new LogSegment(last.file, new FileMessageSet(last.file, true, new AtomicBoolean(needRecovery)), last.start)
       accum.add(mutable)
     }
+    println("-------------Log-------------------loadSegments-----------end-------")
     new SegmentList(accum.toArray(new Array[LogSegment](accum.size)))
   }
 
   /**
-   * Check that the ranges and sizes add up, otherwise we have lost some data somewhere
-   */
+    * Check that the ranges and sizes add up, otherwise we have lost some data somewhere
+    */
   private def validateSegments(segments: ArrayList[LogSegment]) {
     lock synchronized {
-      for(i <- 0 until segments.size - 1) {
+      for (i <- 0 until segments.size - 1) {
         val curr = segments.get(i)
-        val next = segments.get(i+1)
-        if(curr.start + curr.size != next.start)
+        val next = segments.get(i + 1)
+        if (curr.start + curr.size != next.start)
           throw new IllegalStateException("The following segments don't validate: " +
-                  curr.file.getAbsolutePath() + ", " + next.file.getAbsolutePath())
+            curr.file.getAbsolutePath() + ", " + next.file.getAbsolutePath())
       }
     }
   }
 
   /**
-   * The number of segments in the log
-   */
+    * The number of segments in the log
+    */
   def numberOfSegments: Int = segments.view.length
 
   /**
-   * Close this log
-   */
+    * Close this log
+    */
   def close() {
     lock synchronized {
-      for(seg <- segments.view)
+      for (seg <- segments.view)
         seg.messageSet.close()
     }
   }
 
   /**
-   * Append this message set to the active segment of the log, rolling over to a fresh segment if necessary.
-   * Returns the offset at which the messages are written.
-   */
+    * Append this message set to the active segment of the log, rolling over to a fresh segment if necessary.
+    * Returns the offset at which the messages are written.
+    */
   def append(messages: MessageSet): Unit = {
+    println("-------------Log-------------------append-----------start-------")
     // validate the messages
     var numberOfMessages = 0
-    for(messageAndOffset <- messages) {
-      if(!messageAndOffset.message.isValid)
+    for (messageAndOffset <- messages) {
+      if (!messageAndOffset.message.isValid) { //检查消息是否有效
         throw new InvalidMessageException()
-      numberOfMessages += 1;
+      }
+      numberOfMessages += 1;  // 对记录数计数
     }
+    println("-------------Log-------------------append-----------验证消息结束-------")
+    logStats.recordAppendedMessages(numberOfMessages) // 设置消息条数
 
-    logStats.recordAppendedMessages(numberOfMessages)
-    
     // they are valid, insert them in the log
     lock synchronized {
-      val segment = segments.view.last
+      val segment = segments.view.last // 获取最后的 segments
       segment.messageSet.append(messages)
       maybeFlush(numberOfMessages)
       maybeRoll(segment)
     }
+    println("-------------Log-------------------append-----------end-------")
   }
 
   /**
-   * Read from the log file at the given offset
-   */
+    * Read from the log file at the given offset
+    */
   def read(offset: Long, length: Int): MessageSet = {
     val view = segments.view
     Log.findRange(view, offset, view.length) match {
@@ -226,31 +238,35 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
   }
 
   /**
-   * Delete any log segments matching the given predicate function
-   */
+    * Delete any log segments matching the given predicate function
+    */
   def markDeletedWhile(predicate: LogSegment => Boolean): Seq[LogSegment] = {
+    println("-------------Log-------------------markDeletedWhile-----------start-------")
     lock synchronized {
       val view = segments.view
       val deletable = view.takeWhile(predicate)
-      for(seg <- deletable)
+      for (seg <- deletable)
         seg.deleted = true
       val numToDelete = deletable.size
       // if we are deleting everything, create a new empty segment
-      if(numToDelete == view.size)
+      if (numToDelete == view.size) {
         roll()
-      segments.trunc(numToDelete)
+      }
+      val res = segments.trunc(numToDelete)
+      println("-------------Log-------------------markDeletedWhile-----------end-------")
+      res
     }
   }
 
   /**
-   * Get the size of the log in bytes
-   */
+    * Get the size of the log in bytes
+    */
   def size: Long =
     segments.view.foldLeft(0L)(_ + _.size)
 
   /**
-   * The byte offset of the message that will be appended next.
-   */
+    * The byte offset of the message that will be appended next.
+    */
   def nextAppendOffset: Long = {
     flush
     val last = segments.view.last
@@ -258,55 +274,61 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
   }
 
   /**
-   *  get the current high watermark of the log
-   */
+    * get the current high watermark of the log
+    */
   def getHighwaterMark: Long = segments.view.last.messageSet.highWaterMark
 
   /**
-   * Roll the log over if necessary
-   */
+    * Roll the log over if necessary
+    */
   private def maybeRoll(segment: LogSegment) {
-    if(segment.messageSet.sizeInBytes > maxSize)
+    println("-------------Log-------------------maybeRoll------------------")
+    if (segment.messageSet.sizeInBytes > maxSize)
       roll()
   }
 
   /**
-   * Create a new segment and make it active
-   */
+    * Create a new segment and make it active
+    */
   def roll() {
+    println("-------------Log-------------------roll------------------")
     lock synchronized {
       val last = segments.view.last
       val newOffset = nextAppendOffset
       val newFile = new File(dir, Log.nameFromOffset(newOffset))
-      if(logger.isDebugEnabled)
+      if (logger.isDebugEnabled) {
         logger.debug("Rolling log '" + name + "' to " + newFile.getName())
+      }
+      Thread.sleep(30 * 1000)
+      System.out.println("-------------------开始追加日志文件--------------------------------------")
       segments.append(new LogSegment(newFile, new FileMessageSet(newFile, true), newOffset))
     }
   }
 
   /**
-   * Flush the log if necessary
-   */
-  private def maybeFlush(numberOfMessages : Int) {
-    if(unflushed.addAndGet(numberOfMessages) >= flushInterval) {
+    * Flush the log if necessary
+    */
+  private def maybeFlush(numberOfMessages: Int) {
+    println("-------------Log-------------------maybeFlush------------------")
+    if (unflushed.addAndGet(numberOfMessages) >= flushInterval) {
       flush()
     }
   }
 
   /**
-   * Flush this log file to the physical disk
-   */
-  def flush() : Unit = {
+    * Flush this log file to the physical disk
+    */
+  def flush(): Unit = {
     if (unflushed.get == 0) return
 
     lock synchronized {
-      if(logger.isDebugEnabled)
+      if (logger.isDebugEnabled)
         logger.debug("Flushing log '" + name + "' last flushed: " + getLastFlushedTime + " current time: " +
           System.currentTimeMillis)
       segments.view.last.messageSet.flush()
       unflushed.set(0)
       lastflushedTime.set(System.currentTimeMillis)
-     }
+    }
   }
 
   def getOffsetsBefore(request: OffsetRequest): Array[Long] = {
@@ -329,17 +351,17 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
       case OffsetRequest.EarliestTime =>
         startIndex = 0
       case _ =>
-          var isFound = false
-          if(logger.isDebugEnabled) {
-            logger.debug("Offset time array = " + offsetTimeArray.foreach(o => "%d, %d".format(o._1, o._2)))
-          }
-          startIndex = offsetTimeArray.length - 1
-          while (startIndex >= 0 && !isFound) {
-            if (offsetTimeArray(startIndex)._2 <= request.time)
-              isFound = true
-            else
-              startIndex -=1
-          }
+        var isFound = false
+        if (logger.isDebugEnabled) {
+          logger.debug("Offset time array = " + offsetTimeArray.foreach(o => "%d, %d".format(o._1, o._2)))
+        }
+        startIndex = offsetTimeArray.length - 1
+        while (startIndex >= 0 && !isFound) {
+          if (offsetTimeArray(startIndex)._2 <= request.time)
+            isFound = true
+          else
+            startIndex -= 1
+        }
     }
 
     val retSize = request.maxNumOffsets.min(startIndex + 1)
@@ -351,11 +373,11 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
     ret
   }
 
-  def getTopicName():String = {
+  def getTopicName(): String = {
     name.substring(0, name.lastIndexOf("-"))
   }
 
-  def getLastFlushedTime():Long = {
+  def getLastFlushedTime(): Long = {
     return lastflushedTime.get
   }
 }

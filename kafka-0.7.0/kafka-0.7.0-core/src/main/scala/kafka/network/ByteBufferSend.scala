@@ -29,6 +29,7 @@ private[kafka] class ByteBufferSend(val buffer: ByteBuffer) extends Send {
   def this(size: Int) = this(ByteBuffer.allocate(size))
   
   def writeTo(channel: WritableByteChannel): Int = {
+    println("-------------ByteBufferSend----------------------writeTo--------------------------")
     expectIncomplete()
     var written = 0
     written += channel.write(buffer)

@@ -49,7 +49,7 @@ class KafkaServer(val config: KafkaConfig) {
    */
   def startup() {
     try {
-      logger.info("Starting Kafka server...")
+      logger.info("Starting Kafka server.........启动kafka服务...........")
       var needRecovery = true
       val cleanShutDownFile = new File(new File(config.logDir), CLEAN_SHUTDOWN_FILE)
       if (cleanShutDownFile.exists) {

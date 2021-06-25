@@ -86,6 +86,7 @@ private[kafka] class OffsetArraySend(offsets: Array[Long]) extends Send {
   var complete: Boolean = false
 
   def writeTo(channel: WritableByteChannel): Int = {
+    println("-------------OffsetArraySend-------------------------writeTo--------------------------")
     expectIncomplete()
     var written = 0
     if(header.hasRemaining)

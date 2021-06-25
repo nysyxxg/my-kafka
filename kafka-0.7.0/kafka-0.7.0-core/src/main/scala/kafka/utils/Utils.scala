@@ -412,8 +412,10 @@ object Utils {
    * @param buffer The buffer to write to
    * @param value The value to write
    */
-  def putUnsignedInt(buffer: ByteBuffer, value: Long): Unit = 
+  def putUnsignedInt(buffer: ByteBuffer, value: Long): Unit = {
+    println("-------------Utils-------------------------putUnsignedInt-------22-----len= " + (value & 0xffffffffL).asInstanceOf[Int])
     buffer.putInt((value & 0xffffffffL).asInstanceOf[Int])
+  }
   
   /**
    * Write the given long value as a 4 byte unsigned integer. Overflow is ignored.

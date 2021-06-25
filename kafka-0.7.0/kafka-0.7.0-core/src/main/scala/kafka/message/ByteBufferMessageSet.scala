@@ -59,6 +59,7 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
   def validBytes: Long = shallowValidBytes
 
   private def shallowValidBytes: Long = {
+    println("-------------ByteBufferMessageSet---------shallowValidBytes----------------------------")
     if(shallowValidByteCount < 0) {
       val iter = deepIterator
       while(iter.hasNext) {
@@ -71,16 +72,29 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
   }
   
   /** Write the messages in this set to the given channel */
-  def writeTo(channel: WritableByteChannel, offset: Long, size: Long): Long =
+  def writeTo(channel: WritableByteChannel, offset: Long, size: Long): Long ={
+    println("-------------ByteBufferMessageSet----writeTo---------------offset-----------" + offset +   " size= " + size +
+      "---buffer-compact: "+ buffer.compact())
+    /**
+      * 根据源码，调用duplicate方法返回的Buffer对象就是复制了一份原始缓冲区，复制了position、limit、capacity这些属性，
+      * 但是，复制后的缓冲区get和put所操作的数组还是与原始缓冲区一样的，
+      * 所以对复制后的缓冲区进行修改也会修改原始的缓冲区，反之亦然。
+      *
+      */
     channel.write(buffer.duplicate)
+  }
   
-  override def iterator: Iterator[MessageAndOffset] = deepIterator
+  override def iterator: Iterator[MessageAndOffset] ={ // 重写迭代器，返回 MessageAndOffset 集合
+    println("-------------ByteBufferMessageSet----iterator-------------1-------------")
+    deepIterator
+  }
 
   private def deepIterator(): Iterator[MessageAndOffset] = {
+    println("-------------ByteBufferMessageSet----deepIterator-----------1----------初始的--initialOffset---" + initialOffset)
     ErrorMapping.maybeThrowException(errorCode)
 
     new IteratorTemplate[MessageAndOffset] {
-      var topIter = buffer.slice()
+      var topIter = buffer.slice() // buffer的slice()方法返回的新buffer和原buffer引用的是同一个对象
       var currValidBytes = initialOffset
       var innerIter:Iterator[MessageAndOffset] = null
       var lastMessageSize = 0L
@@ -98,6 +112,7 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
           logger.trace("Remaining bytes in iterator = " + topIter.remaining)
           logger.trace("size of data = " + size)
         }
+        println("-------------ByteBufferMessageSet----deepIterator-----------1------size of data = " + size)
         if(size < 0 || topIter.remaining < size) {
           if (currValidBytes == initialOffset || size < 0)
             throw new InvalidMessageSizeException("invalid message size: " + size + " only received bytes: " +
@@ -110,15 +125,20 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
         topIter.position(topIter.position + size)
         val newMessage = new Message(message)
         newMessage.compressionCodec match {
-          case NoCompressionCodec =>
-            if(logger.isDebugEnabled)
+          case NoCompressionCodec =>  // 没有压缩
+            if(logger.isDebugEnabled){
               logger.debug("Message is uncompressed. Valid byte count = %d".format(currValidBytes))
+            }
             innerIter = null
+            println("-------------ByteBufferMessageSet----deepIterator-----------2------size of data = " + size)
+            println("-------------ByteBufferMessageSet----deepIterator-----------2------currValidBytes = " + currValidBytes)
             currValidBytes += 4 + size
-            if(logger.isTraceEnabled)
+            if(logger.isTraceEnabled){
               logger.trace("currValidBytes = " + currValidBytes)
+            }
+            println("-------------ByteBufferMessageSet----deepIterator----无压缩----实例化--MessageAndOffset---currValidBytes=" + currValidBytes)
             new MessageAndOffset(newMessage, currValidBytes)
-          case _ =>
+          case _ =>  // 如果压缩了，就需要解压
             if(logger.isDebugEnabled)
               logger.debug("Message is compressed. Valid byte count = %d".format(currValidBytes))
             innerIter = CompressionUtils.decompress(newMessage).deepIterator
@@ -132,15 +152,18 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
 
       override def makeNext(): MessageAndOffset = {
         val isInnerDone = innerDone()
-        if(logger.isDebugEnabled)
+        if(logger.isDebugEnabled){
           logger.debug("makeNext() in deepIterator: innerDone = " + isInnerDone)
+        }
         isInnerDone match {
           case true => makeNextOuter
           case false => {
             val messageAndOffset = innerIter.next
-            if (!innerIter.hasNext)
+            if (!innerIter.hasNext){
               currValidBytes += 4 + lastMessageSize
-            new MessageAndOffset(messageAndOffset.message, currValidBytes)
+            }
+            println("-------------ByteBufferMessageSet----deepIterator----压缩解压----实例化--MessageAndOffset---currValidBytes=" + currValidBytes)
+            new MessageAndOffset(messageAndOffset.message, currValidBytes)  // 封装为MessageAndOffset 对象
           }
         }
       }

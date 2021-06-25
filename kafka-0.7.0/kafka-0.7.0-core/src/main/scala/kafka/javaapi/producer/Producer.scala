@@ -29,7 +29,7 @@ class Producer[K,V](config: ProducerConfig,
                     populateProducerPool: Boolean = true) /* for testing purpose only. Applications should ideally */
                                                           /* use the other constructor*/
 {
-
+  // 实际上还是调用 kafka.producer.Producer，进行实例化对象
   private val underlying = new kafka.producer.Producer[K,V](config, partitioner, producerPool, populateProducerPool, null)
 
   /**
@@ -37,8 +37,11 @@ class Producer[K,V](config: ProducerConfig,
    * ProducerConfig object
    * @param config Producer Configuration object
    */
-  def this(config: ProducerConfig) = this(config, Utils.getObject(config.partitionerClass),
-    new ProducerPool[V](config, Utils.getObject(config.serializerClass)))
+  def this(config: ProducerConfig) = {
+    this(config, Utils.getObject(config.partitionerClass), // 默认的分区类
+      new ProducerPool[V](config, Utils.getObject(config.serializerClass) //使用序列化类
+      ))  // 初始化Producer的时候，就会初始化ProducerPool
+  }
 
   /**
    * This constructor can be used to provide pre-instantiated objects for all config parameters
@@ -100,9 +103,11 @@ class Producer[K,V](config: ProducerConfig,
    * @param producerData the producer data object that encapsulates the topic, key and message data
    */
   def send(producerData: kafka.javaapi.producer.ProducerData[K,V]) {
+    println("----------Producer--------send-----------start------")
     import collection.JavaConversions._
     underlying.send(new kafka.producer.ProducerData[K,V](producerData.getTopic, producerData.getKey,
       asScalaBuffer(producerData.getData)))
+    println("----------Producer--------send-----------end------")
   }
 
   /**

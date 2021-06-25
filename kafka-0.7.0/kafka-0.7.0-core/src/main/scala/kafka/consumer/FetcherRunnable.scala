@@ -78,8 +78,10 @@ class FetcherRunnable(val name: String,
                 done = true
               }
             }
-            if (!done)
+            if (!done){
+              println(Thread.currentThread().getName +  "---------FetcherRunnable-------run----------------------------")
               read += info.enqueue(messages, info.getFetchOffset)
+            }
           }
           catch {
             case e1: IOException =>
@@ -96,8 +98,9 @@ class FetcherRunnable(val name: String,
           }
         }
 
-        if (logger.isTraceEnabled)
+        if (logger.isTraceEnabled){
           logger.trace("fetched bytes: " + read)
+        }
         if (read == 0) {
           logger.debug("backing off " + config.backoffIncrementMs + " ms")
           Thread.sleep(config.backoffIncrementMs)

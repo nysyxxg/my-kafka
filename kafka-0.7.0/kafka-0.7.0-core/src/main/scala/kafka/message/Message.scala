@@ -64,7 +64,11 @@ object Message {
    *              0 for no compression
    *              1 for compression
    */
-  def payloadOffset(magic: Byte): Int = crcOffset(magic) + CrcLength
+  def payloadOffset(magic: Byte): Int ={
+   val size =  crcOffset(magic) + CrcLength
+    println("-------------Message-------------------------payloadOffset-------00-------消息大小---size= " + size + "--- crcOffset(magic)"+   crcOffset(magic))
+    size
+  }
 
   /**
    * Computes the size of the message header based on the magic byte
@@ -86,19 +90,17 @@ object Message {
  * If magic byte is 0
  *
  * 1. 1 byte "magic" identifier to allow format changes
- *
  * 2. 4 byte CRC32 of the payload
- *
  * 3. N - 5 byte payload
  *
  * If magic byte is 1
  *
  * 1. 1 byte "magic" identifier to allow format changes
- *
+ *     magic：这个占用1个字节，主要用于标识 Kafka 版本。这个版本的 Kafka magic有 0 和 1 两个值，不过默认 Message 使用的是 1；
  * 2. 1 byte "attributes" identifier to allow annotations on the message independent of the version (e.g. compression enabled, type of codec used)
- *
+ *    attributes：占用1个字节，这里面存储了消息压缩使用的编码。
  * 3. 4 byte CRC32 of the payload
- *
+ *    crc：占用4个字节，主要用于校验消息的内容
  * 4. N - 6 byte payload
  * 
  */
@@ -109,14 +111,15 @@ class Message(val buffer: ByteBuffer) {
   
   private def this(checksum: Long, bytes: Array[Byte], compressionCodec: CompressionCodec) = {
     this(ByteBuffer.allocate(Message.headerSize(Message.CurrentMagicValue) + bytes.length))
-    buffer.put(CurrentMagicValue)
+    println("-------------Message-------------------------crc32-------00-------消息大小---buffer= " + buffer.limit() + " --checksum=" + checksum)
+    buffer.put(CurrentMagicValue)   // 1 个字节
     var attributes:Byte = 0
     if (compressionCodec.codec > 0) {
       attributes =  (attributes | (Message.CompressionCodeMask & compressionCodec.codec)).toByte
     }
-    buffer.put(attributes)
-    Utils.putUnsignedInt(buffer, checksum)
-    buffer.put(bytes)
+    buffer.put(attributes)  //  1个字节
+    Utils.putUnsignedInt(buffer, checksum)   //  4个字节
+    buffer.put(bytes)   //  12 个字节
     buffer.rewind()
   }
 
@@ -125,6 +128,9 @@ class Message(val buffer: ByteBuffer) {
   def this(bytes: Array[Byte], compressionCodec: CompressionCodec) = {
     //Note: we're not crc-ing the attributes header, so we're susceptible to bit-flipping there
     this(Utils.crc32(bytes), bytes, compressionCodec)
+    println("-------------Message-------------------------init--------------原始消息大小---szie= " + bytes.length)
+    println("-------------Message-------------------------crc32--------------消息大小---buffer= " + buffer.limit())
+
   }
 
   def this(bytes: Array[Byte]) = this(bytes, NoCompressionCodec)
@@ -157,9 +163,10 @@ class Message(val buffer: ByteBuffer) {
     payload
   }
   
-  def isValid: Boolean =
+  def isValid: Boolean = {
+    println("-------------Message-------------------------isValid--------------原始消息大小---payloadSize= " + payloadSize)
     checksum == Utils.crc32(buffer.array, buffer.position + buffer.arrayOffset + payloadOffset(magic), payloadSize)
-
+  }
   def serializedSize: Int = 4 /* int size*/ + buffer.limit
    
   def serializeTo(serBuffer:ByteBuffer) = {

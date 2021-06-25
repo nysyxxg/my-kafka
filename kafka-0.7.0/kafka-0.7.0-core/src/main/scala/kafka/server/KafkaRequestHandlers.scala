@@ -33,8 +33,9 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
   
   private val logger = Logger.getLogger(classOf[KafkaRequestHandlers])
   private val requestLogger = Logger.getLogger("kafka.request.logger")
-
+  println("-------------KafkaRequestHandlers-------------------init---------------------")
   def handlerFor(requestTypeId: Short, request: Receive): Handler.Handler = {
+    println("-------------KafkaRequestHandlers-------------------handlerFor---------------------requestTypeId=" + requestTypeId)
     requestTypeId match {
       case RequestKeys.Produce => handleProducerRequest _
       case RequestKeys.Fetch => handleFetchRequest _
@@ -46,6 +47,7 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
   }
   
   def handleProducerRequest(receive: Receive): Option[Send] = {
+    println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------处理发送请求-----1--------------")
     val sTime = SystemTime.milliseconds
     val request = ProducerRequest.readFrom(receive.buffer)
 
@@ -58,6 +60,7 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
   }
 
   def handleMultiProducerRequest(receive: Receive): Option[Send] = {
+    println("-------------KafkaRequestHandlers-------------------handleMultiProducerRequest---------------------------")
     val request = MultiProducerRequest.readFrom(receive.buffer)
     if(requestLogger.isTraceEnabled)
       requestLogger.trace("Multiproducer request " + request.toString)
@@ -66,6 +69,7 @@ private[kafka] class KafkaRequestHandlers(val logManager: LogManager) {
   }
 
   private def handleProducerRequest(request: ProducerRequest, requestHandlerName: String) = {
+    println("-------------KafkaRequestHandlers-------------------handleProducerRequest--------ProduceRequest--------2-----------")
     val partition = request.getTranslatedPartition(logManager.chooseRandomPartition)
     try {
       logManager.getOrCreateLog(request.topic, partition).append(request.messages)

@@ -36,12 +36,13 @@ private[async] class ProducerSendThread[T](val threadName: String,
 
   private val logger = Logger.getLogger(classOf[ProducerSendThread[T]])
   private val shutdownLatch = new CountDownLatch(1)
-
+  // 启动异步发送线程之后，会运行run方法
   override def run {
-
     try {
-      val remainingEvents = processEvents
-      if(logger.isDebugEnabled) logger.debug("Remaining events = " + remainingEvents.size)
+      val remainingEvents = processEvents // 处理需要发送的event对象，返回剩余的event对象
+      if(logger.isDebugEnabled){
+        logger.debug("Remaining events = " + remainingEvents.size)
+      }
 
       // handle remaining events
       if(remainingEvents.size > 0) {
@@ -69,6 +70,7 @@ private[async] class ProducerSendThread[T](val threadName: String,
     var full: Boolean = false
 
     // drain the queue until you get a shutdown command
+    //  从队列中获取数据
     Stream.continually(queue.poll(scala.math.max(0, (lastSend + queueTime) - SystemTime.milliseconds), TimeUnit.MILLISECONDS))
                       .takeWhile(item => if(item != null) item.getData != shutdownCommand else true).foreach {
       currentQueueItem =>
@@ -78,8 +80,7 @@ private[async] class ProducerSendThread[T](val threadName: String,
         val expired = currentQueueItem == null
         if(currentQueueItem != null) {
           if(logger.isTraceEnabled)
-            logger.trace("Dequeued item for topic %s and partition %d"
-              .format(currentQueueItem.getTopic, currentQueueItem.getPartition))
+            logger.trace("Dequeued item for topic %s and partition %d".format(currentQueueItem.getTopic, currentQueueItem.getPartition))
           // handle the dequeued current item
           if(cbkHandler != null)
             events = events ++ cbkHandler.afterDequeuingExistingData(currentQueueItem)
@@ -89,13 +90,13 @@ private[async] class ProducerSendThread[T](val threadName: String,
           // check if the batch size is reached
           full = events.size >= batchSize
         }
-        if(full || expired) {
+        if(full || expired) { // 如果 events 这个集合满了，或者超出发送时间，就开始调用 tryToHandle 发送处理数据
           if(logger.isDebugEnabled) {
             if(expired) logger.debug(elapsed + " ms elapsed. Queue time reached. Sending..")
             if(full) logger.debug("Batch full. Sending..")
           }
           // if either queue time has reached or batch size has reached, dispatch to event handler
-          tryToHandle(events)
+          tryToHandle(events) // 真正的发送event数据进行处理
           lastSend = SystemTime.milliseconds
           events = new ListBuffer[QueueItem[T]]
         }
@@ -112,11 +113,12 @@ private[async] class ProducerSendThread[T](val threadName: String,
     events
   }
 
-  def tryToHandle(events: Seq[QueueItem[T]]) {
+  def tryToHandle(events: Seq[QueueItem[T]]) { // 试着处理要发送的数据
     try {
       if(logger.isDebugEnabled) logger.debug("Handling " + events.size + " events")
-      if(events.size > 0)
-        handler.handle(events, underlyingProducer, serializer)
+      if(events.size > 0){
+        handler.handle(events, underlyingProducer, serializer) // 处理数据，使用underlyingProducer 发送，其实还是同步发送对象
+      }
     }catch {
       case e: Exception => logger.error("Error in handling batch of " + events.size + " events", e)
     }

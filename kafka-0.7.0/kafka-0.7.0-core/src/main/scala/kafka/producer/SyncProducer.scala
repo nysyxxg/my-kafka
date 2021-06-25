@@ -19,10 +19,12 @@ package kafka.producer
 
 import java.net._
 import java.nio.channels._
+
 import kafka.message._
 import kafka.network._
 import kafka.utils._
-import kafka.api._
+import kafka.api.{ProducerRequest, _}
+
 import scala.math._
 import org.apache.log4j.{Level, Logger}
 import kafka.common.MessageSizeTooLargeException
@@ -79,13 +81,14 @@ class SyncProducer(val config: SyncProducerConfig) {
    * Common functionality for the public send methods
    */
   private def send(send: BoundedByteBufferSend) {
+    println("-------------SyncProducer-------------------------send-------------------111-------")
     lock synchronized {
       verifySendBuffer(send.buffer.slice)
       val startTime = SystemTime.nanoseconds
-      getOrMakeConnection()
+      getOrMakeConnection()  // 获取网络连接
 
       try {
-        send.writeCompletely(channel)
+        send.writeCompletely(channel) // 将数据写入到channel中
       } catch {
         case e : java.io.IOException =>
           // no way to tell if write succeeded. Disconnect and re-throw exception to let client handle retry
@@ -107,24 +110,29 @@ class SyncProducer(val config: SyncProducerConfig) {
   }
 
   /**
-   * Send a message
+   * Send a message  发送一条消息
    */
   def send(topic: String, partition: Int, messages: ByteBufferMessageSet) {
+    println("-------------SyncProducer-------------------------send----------------------000----")
     verifyMessageSize(messages)
     val setSize = messages.sizeInBytes.asInstanceOf[Int]
     if(logger.isTraceEnabled)
       logger.trace("Got message set with " + setSize + " bytes to send")
-    send(new BoundedByteBufferSend(new ProducerRequest(topic, partition, messages)))
+    val  producerRequest = new ProducerRequest(topic, partition, messages)
+    send(new BoundedByteBufferSend(producerRequest))
   }
  
   def send(topic: String, messages: ByteBufferMessageSet): Unit = send(topic, ProducerRequest.RandomPartition, messages)
 
   def multiSend(produces: Array[ProducerRequest]) {
-    for (request <- produces)
-      verifyMessageSize(request.messages)
+    println("-------------SyncProducer-------------------------multiSend----------------000----------")
+    for (request <- produces){
+      verifyMessageSize(request.messages)  // 验证消息大小
+    }
     val setSize = produces.foldLeft(0L)(_ + _.messages.sizeInBytes)
-    if(logger.isTraceEnabled)
+    if(logger.isTraceEnabled){
       logger.trace("Got multi message sets with " + setSize + " bytes to send")
+    }
     send(new BoundedByteBufferSend(new MultiProducerRequest(produces)))
   }
 
@@ -136,9 +144,12 @@ class SyncProducer(val config: SyncProducerConfig) {
   }
 
   private def verifyMessageSize(messages: ByteBufferMessageSet) {
-    for (messageAndOffset <- messages)
+    println("-------------SyncProducer-------------------------verifyMessageSize--------------start------------")
+    for (messageAndOffset <- messages) { // 调用迭代器
       if (messageAndOffset.message.payloadSize > config.maxMessageSize)
         throw new MessageSizeTooLargeException
+    }
+    println("-------------SyncProducer-------------------------verifyMessageSize--------------end------------")
   }
 
   /**
@@ -146,6 +157,7 @@ class SyncProducer(val config: SyncProducerConfig) {
    * Side effect: channel field is set to null on successful disconnect
    */
   private def disconnect() {
+    println("-------------SyncProducer-------------------------disconnect--------------------------")
     try {
       if(channel != null) {
         logger.info("Disconnecting from " + config.host + ":" + config.port)
@@ -164,20 +176,18 @@ class SyncProducer(val config: SyncProducerConfig) {
     val beginTimeMs = SystemTime.milliseconds
     while(channel == null && !shutdown) {
       try {
-        channel = SocketChannel.open()
+        channel = SocketChannel.open()  // 打开SocketChannel
         channel.socket.setSendBufferSize(config.bufferSize)
         channel.configureBlocking(true)
         channel.socket.setSoTimeout(config.socketTimeoutMs)
         channel.socket.setKeepAlive(true)
-        channel.connect(new InetSocketAddress(config.host, config.port))
+        channel.connect(new InetSocketAddress(config.host, config.port)) // 连接服务器端
         logger.info("Connected to " + config.host + ":" + config.port + " for producing")
-      }
-      catch {
+      } catch {
         case e: Exception => {
           disconnect()
           val endTimeMs = SystemTime.milliseconds
-          if ( (endTimeMs - beginTimeMs + connectBackoffMs) > config.connectTimeoutMs)
-          {
+          if ( (endTimeMs - beginTimeMs + connectBackoffMs) > config.connectTimeoutMs) {
             logger.error("Producer connection timing out after " + config.connectTimeoutMs + " ms", e)
             throw e
           }
@@ -192,6 +202,7 @@ class SyncProducer(val config: SyncProducerConfig) {
 
   private def getOrMakeConnection() {
     if(channel == null) {
+      println("-------------SyncProducer----------------------getOrMakeConnection----------init-------channel---------")
       channel = connect()
     }
   }

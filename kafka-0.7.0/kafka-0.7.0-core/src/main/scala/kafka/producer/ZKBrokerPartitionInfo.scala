@@ -65,7 +65,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
   // maintain a map from topic -> list of (broker, num_partitions) from zookeeper
   private var topicBrokerPartitions = getZKTopicPartitionInfo
   // maintain a map from broker id to the corresponding Broker object
-  private var allBrokers = getZKBrokerInfo
+  private var allBrokers = getZKBrokerInfo  // 获取所有的broker信息
 
   // use just the brokerTopicsListener for all watchers
   private val brokerTopicsListener = new BrokerTopicsListener(topicBrokerPartitions, allBrokers)
@@ -93,7 +93,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
   def getBrokerPartitionInfo(topic: String): SortedSet[Partition] = {
     zkWatcherLock synchronized {
       val brokerPartitions = topicBrokerPartitions.get(topic) // 根据你的topic，获取服务器中topic的信息
-      var numBrokerPartitions = SortedSet.empty[Partition]
+      var numBrokerPartitions = SortedSet.empty[Partition]  // 用来储存，这个topic的所有分区列表
       brokerPartitions match {
         case Some(bp) =>
           bp.size match {
@@ -126,7 +126,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
    * Generate a mapping from broker id to the host and port for all brokers
    * @return mapping from id to host and port of all brokers
    */
-  def getAllBrokerInfo: Map[Int, Broker] = allBrokers
+  def getAllBrokerInfo: Map[Int, Broker] = allBrokers // 获取所有的broker信息
 
   def close = zkClient.close
 
@@ -193,12 +193,12 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
    * registered in zookeeper
    * @return a mapping from brokerId to (host, port)
    */
-  private def getZKBrokerInfo(): Map[Int, Broker] = {
+  private def getZKBrokerInfo(): Map[Int, Broker] = {  //  从zk中获取所有注册在zk中的broker信息
     val brokers = new HashMap[Int, Broker]()
     val allBrokerIds = ZkUtils.getChildrenParentMayNotExist(zkClient, ZkUtils.BrokerIdsPath).map(bid => bid.toInt)
-    allBrokerIds.foreach { bid =>
-      val brokerInfo = ZkUtils.readData(zkClient, ZkUtils.BrokerIdsPath + "/" + bid)
-      brokers += (bid -> Broker.createBroker(bid, brokerInfo))
+    allBrokerIds.foreach { bid =>  // 从  /brokers/ids/0  去读取数据
+      val brokerInfo = ZkUtils.readData(zkClient, ZkUtils.BrokerIdsPath + "/" + bid) // 192.168.75.122-1624502181983:192.168.75.122:9092
+      brokers += (bid -> Broker.createBroker(bid, brokerInfo))  // bid--> Broker 对象
     }
     brokers
   }
@@ -371,7 +371,7 @@ private[producer] class ZKBrokerPartitionInfo(config: ZKConfig, producerCbk: (In
     @throws(classOf[Exception])
    def handleStateChanged(state: KeeperState) ={
       // do nothing, since zkclient will do reconnect for us.
-      println(123)
+      println("-----------------------ZKSessionExpirationListener----------handleStateChanged----------------" + 123)
     }
 
     /**

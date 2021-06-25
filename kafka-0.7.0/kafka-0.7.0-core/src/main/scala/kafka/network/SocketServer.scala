@@ -255,9 +255,10 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
   private def configureNewConnections() {
     while(newConnections.size() > 0) {
       val channel = newConnections.poll()
-      if(logger.isDebugEnabled())
+      if(logger.isDebugEnabled()){
         logger.debug("Listening to new connection from " + channel.socket.getRemoteSocketAddress)
-      channel.register(selector, SelectionKey.OP_READ)
+      }
+      channel.register(selector, SelectionKey.OP_READ)  // 注册slector
     }
   }
 
@@ -326,7 +327,8 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
    * Process writes to ready sockets
    */
   def write(key: SelectionKey) {
-    val response = key.attachment().asInstanceOf[Send]
+    println("-------------Processor----------write---------------writeTo-------------------start-------")
+    val response = key.attachment().asInstanceOf[Send]  // 获取注册的Send发送对象
     val socketChannel = channelFor(key)
     val written = response.writeTo(socketChannel)
     stats.recordBytesWritten(written)
@@ -339,6 +341,7 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
       key.interestOps(SelectionKey.OP_WRITE)
       selector.wakeup()
     }
+    println("-------------Processor----------write---------------writeTo-------------------end-------")
   }
 
   private def channelFor(key: SelectionKey) = key.channel().asInstanceOf[SocketChannel]

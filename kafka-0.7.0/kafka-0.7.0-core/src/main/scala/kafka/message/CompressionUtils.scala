@@ -29,7 +29,7 @@ object CompressionUtils {
   private val logger = Logger.getLogger(getClass)
 
   def compress(messages: Iterable[Message]): Message = compress(messages, DefaultCompressionCodec)
-
+  // 一个消息集合，压缩消息，返回 Message
   def compress(messages: Iterable[Message], compressionCodec: CompressionCodec):Message = compressionCodec match {
     case DefaultCompressionCodec =>
       val outputStream:ByteArrayOutputStream = new ByteArrayOutputStream()
@@ -86,7 +86,7 @@ object CompressionUtils {
     case _ =>
       throw new kafka.common.UnknownCodecException("Unknown Codec: " + compressionCodec)
   }
-
+  // 解压缩消息，返回 ByteBufferMessageSet
   def decompress(message: Message): ByteBufferMessageSet = message.compressionCodec match {
     case DefaultCompressionCodec =>
       val outputStream:ByteArrayOutputStream = new ByteArrayOutputStream

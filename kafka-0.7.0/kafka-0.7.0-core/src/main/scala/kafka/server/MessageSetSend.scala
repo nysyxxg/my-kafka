@@ -43,6 +43,7 @@ private[server] class MessageSetSend(val messages: MessageSet, val errorCode: In
   def this(messages: MessageSet) = this(messages, ErrorMapping.NoError)
 
   def writeTo(channel: WritableByteChannel): Int = {
+    println("-------------MessageSetSend----writeTo--------------------------")
     expectIncomplete()
     var written = 0
     if(header.hasRemaining)

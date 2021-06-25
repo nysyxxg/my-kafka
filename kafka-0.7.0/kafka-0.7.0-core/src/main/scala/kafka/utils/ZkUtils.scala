@@ -53,7 +53,7 @@ object ZkUtils {
     */
   private def createEphemeralPath(client: ZkClient, path: String, data: String): Unit = {
     try {
-      client.createEphemeral(path, data)
+      client.createEphemeral(path, data)//  创建临时节点
     }
     catch {
       case e: ZkNoNodeException => {

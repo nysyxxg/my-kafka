@@ -147,6 +147,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
   private def createLog(topic: String, partition: Int): Log = {
     logCreationLock synchronized {
       val d = new File(logDir, topic + "-" + partition)
+      println("-------------LogManager----createLog--------------------------")
       d.mkdirs()
       new Log(d, maxSize, flushInterval, false)
     }
@@ -161,12 +162,13 @@ private[kafka] class LogManager(val config: KafkaConfig,
    * Create the log if it does not exist, if it exists just return it
    */
   def getOrCreateLog(topic: String, partition: Int): Log = {
+    println("-------------LogManager----getOrCreateLog--------------------------")
     awaitStartup
-    if (topic.length <= 0)
+    if (topic.length <= 0){
       throw new InvalidTopicException("topic name can't be empty")
+    }
     if (partition < 0 || partition >= topicPartitionsMap.getOrElse(topic, numPartitions)) {
-      logger.warn("Wrong partition " + partition + " valid partitions (0," +
-              (topicPartitionsMap.getOrElse(topic, numPartitions) - 1) + ")")
+      logger.warn("Wrong partition " + partition + " valid partitions (0," + (topicPartitionsMap.getOrElse(topic, numPartitions) - 1) + ")")
       throw new InvalidPartitionException("wrong partition " + partition)
     }
     var hasNewTopic = false
@@ -190,8 +192,9 @@ private[kafka] class LogManager(val config: KafkaConfig,
         logger.info("Created log for '" + topic + "'-" + partition)
     }
 
-    if (hasNewTopic)
+    if (hasNewTopic){
       registerNewTopicInZK(topic)
+    }
     log
   }
   
@@ -212,11 +215,13 @@ private[kafka] class LogManager(val config: KafkaConfig,
 
   /* Runs through the log removing segments older than a certain age */
   private def cleanupExpiredSegments(log: Log): Int = {
+    println("-------------LogManager-------------------cleanupExpiredSegments-----------start-------")
     val startMs = time.milliseconds
     val topic = Utils.getTopicPartition(log.dir.getName)._1
     val logCleanupThresholdMS = logRetentionMSMap.get(topic).getOrElse(this.logCleanupDefaultAgeMs)
     val toBeDeleted = log.markDeletedWhile(startMs - _.file.lastModified > logCleanupThresholdMS)
     val total = deleteSegments(log, toBeDeleted)
+    println("-------------LogManager-------------------cleanupExpiredSegments-----------end-------")
     total
   }
 
@@ -244,6 +249,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
    * Delete any eligible logs. Return the number of segments deleted.
    */
   def cleanupLogs() {
+    println("-------------LogManager-------------------cleanupLogs-----------start-------")
     logger.debug("Beginning log cleanup...")
     val iter = getLogIterator
     var total = 0
@@ -253,8 +259,8 @@ private[kafka] class LogManager(val config: KafkaConfig,
       logger.debug("Garbage collecting '" + log.name + "'")
       total += cleanupExpiredSegments(log) + cleanupSegmentsToMaintainSize(log)
     }
-    logger.debug("Log cleanup completed. " + total + " files deleted in " + 
-                 (time.milliseconds - startMs) / 1000 + " seconds")
+    logger.debug("Log cleanup completed. " + total + " files deleted in " + (time.milliseconds - startMs) / 1000 + " seconds")
+    println("-------------LogManager-------------------cleanupLogs-----------end-------")
   }
   
   /**

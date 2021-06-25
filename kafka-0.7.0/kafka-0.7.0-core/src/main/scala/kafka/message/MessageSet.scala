@@ -53,7 +53,7 @@ object MessageSet {
    * The size of a size-delimited entry in a message set
    */
   def entrySize(message: Message): Int = LogOverhead + message.size
-
+  //  创建 ByteBuffer ，将 Message 集合 转化为 ByteBuffer
   def createByteBuffer(compressionCodec: CompressionCodec, messages: Message*): ByteBuffer =
     compressionCodec match {
       case NoCompressionCodec =>
@@ -70,9 +70,9 @@ object MessageSet {
             buffer.rewind
             buffer
           case _ =>
-            val message = CompressionUtils.compress(messages, compressionCodec)
-            val buffer = ByteBuffer.allocate(message.serializedSize)
-            message.serializeTo(buffer)
+            val message = CompressionUtils.compress(messages, compressionCodec) // 压缩消息
+            val buffer = ByteBuffer.allocate(message.serializedSize) // 申请缓冲区
+            message.serializeTo(buffer) // 将消息存储到缓冲区
             buffer.rewind
             buffer
         }

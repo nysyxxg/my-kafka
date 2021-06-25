@@ -23,10 +23,9 @@ import kafka.utils._
 
 @nonthreadsafe
 private[kafka] class BoundedByteBufferSend(val buffer: ByteBuffer) extends Send {
-  
+  println("-------------BoundedByteBufferSend----------init 初始化-------申请buffer--capacity:"+ buffer.capacity())
   private var sizeBuffer = ByteBuffer.allocate(4)
-  
-  sizeBuffer.putInt(buffer.limit)
+  sizeBuffer.putInt(buffer.limit) //  将数据的大小，放入缓冲区
   sizeBuffer.rewind()
   
   var complete: Boolean = false
@@ -39,21 +38,26 @@ private[kafka] class BoundedByteBufferSend(val buffer: ByteBuffer) extends Send 
     request.writeTo(buffer)
     buffer.rewind()
   }
-  
-  def writeTo(channel: WritableByteChannel): Int = {
+  // 复写了父类的writeTo方法
+ override def writeTo(channel: WritableByteChannel): Int = {
+    println("-------------BoundedByteBufferSend-----------------------writeTo----------------------sizeBuffer----"+ buffer.limit())
     expectIncomplete()
     var written = 0
     // try to write the size if we haven't already
-    if(sizeBuffer.hasRemaining)
-      written += channel.write(sizeBuffer)
+    if(sizeBuffer.hasRemaining){ // 当且仅当此缓冲区中至少剩余一个元素时，此方法才会返回true。
+      written += channel.write(sizeBuffer) // 先写入数据Buffer的大小
+    }
     // try to write the actual buffer itself
-    if(!sizeBuffer.hasRemaining && buffer.hasRemaining)
-      written += channel.write(buffer)
+    if(!sizeBuffer.hasRemaining && buffer.hasRemaining){
+      println("-------------BoundedByteBufferSend-----------------------writeTo-----------buffer-对象---"+ new String(buffer.array()) + " --capacity: " + buffer.capacity())
+      println("-------------BoundedByteBufferSend-----------------------writeTo-------------capacity: " + buffer.capacity())
+      written += channel.write(buffer) // 写入数据
+    }
     // if we are done, mark it off
-    if(!buffer.hasRemaining)
+    if(!buffer.hasRemaining){
       complete = true
-    
-    written
+    }
+   written
   }
     
 }

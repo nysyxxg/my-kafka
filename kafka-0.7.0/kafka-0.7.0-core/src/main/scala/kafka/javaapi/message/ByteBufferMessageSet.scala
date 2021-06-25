@@ -39,7 +39,10 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
     this(NoCompressionCodec, messages)
   }
 
-  def validBytes: Long = underlying.validBytes
+  def validBytes: Long = {
+
+    underlying.validBytes
+  }
 
   def serialized():ByteBuffer = underlying.serialized
 
