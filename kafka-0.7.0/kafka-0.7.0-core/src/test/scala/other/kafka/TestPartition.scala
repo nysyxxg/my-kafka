@@ -1,6 +1,6 @@
-package other
+package other.kafka
 
-object PartitionTest {
+object TestPartition {
 
   def main(args: Array[String]): Unit = {
     val numbers = Seq(3, 7, 2, 9, 6, 5, 1, 4, 2)

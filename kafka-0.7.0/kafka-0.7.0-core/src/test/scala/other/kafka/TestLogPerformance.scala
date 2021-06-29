@@ -17,32 +17,40 @@
 
 package kafka.log
 
-import kafka.log._
 import kafka.message._
 import kafka.utils.{TestUtils, Utils}
 
+/**
+  * 测试日志写入性能
+  */
 object TestLogPerformance {
 
   def main(args: Array[String]): Unit = {
-    if(args.length < 4)
+    val args = Array("50000","20","100","1")
+    if(args.length < 4){
       Utils.croak("USAGE: java " + getClass().getName() + " num_messages message_size batch_size compression_codec")
-    val numMessages = args(0).toInt
-    val messageSize = args(1).toInt
-    val batchSize = args(2).toInt
-    val compressionCodec = CompressionCodec.getCompressionCodec(args(3).toInt)
+    }
+    val numMessages = args(0).toInt  // 多少条数据
+    val messageSize = args(1).toInt // 每条消息多少字节
+    val batchSize = args(2).toInt  // 每个批次多少条数
+    val compressionCodec = CompressionCodec.getCompressionCodec(args(3).toInt) // 是否压缩
     val dir = TestUtils.tempDir()
+
     val log = new Log(dir, 50*1024*1024, 5000000, false)
     val bytes = new Array[Byte](messageSize)
     new java.util.Random().nextBytes(bytes)
     val message = new Message(bytes)
     val messages = new Array[Message](batchSize)
-    for(i <- 0 until batchSize)
+    for(i <- 0 until batchSize){
       messages(i) = message
+    }
+
     val messageSet = new ByteBufferMessageSet(compressionCodec = compressionCodec, messages = messages: _*)
     val numBatches = numMessages / batchSize
     val start = System.currentTimeMillis()
-    for(i <- 0 until numBatches)
+    for(i <- 0 until numBatches){
       log.append(messageSet)
+    }
     log.close()
     val ellapsed = (System.currentTimeMillis() - start) / 1000.0
     val writtenBytes = MessageSet.entrySize(message) * numMessages

@@ -21,8 +21,13 @@ import consumer.ConsumerConfig
 import utils.{ZKStringSerializer, ZkUtils, Utils}
 import org.I0Itec.zkclient.ZkClient
 
+/**
+  * 删除ZK的目录
+  */
 object DeleteZKPath {
+
   def main(args: Array[String]) {
+    val args = Array("D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties","/consumers/test-consumer-group1")
     if(args.length < 2) {
       println("USAGE: " + DeleteZKPath.getClass.getName + " consumer.properties zk_path")
       System.exit(1)
@@ -35,11 +40,10 @@ object DeleteZKPath {
       ZKStringSerializer)
 
     try {
-      ZkUtils.deletePathRecursive(zkClient, zkPath);
+      ZkUtils.deletePathRecursive(zkClient, zkPath); // 递归删zk节点目录
       System.out.println(zkPath + " is deleted")
     } catch {
       case e: Exception => System.err.println("Path not deleted " + e.printStackTrace())
     }
-    
   }
 }

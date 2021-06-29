@@ -26,7 +26,7 @@ object TestKafkaAppender {
   private val logger = Logger.getLogger(TestKafkaAppender.getClass)
   
   def main(args:Array[String]) {
-    
+    val args = Array("D:\\my-kafka\\kafka-0.7.0\\kafka-0.7.0-core\\src\\test\\scala\\other\\kafka.log4j.properties")
     if(args.length < 1) {
       println("USAGE: " + TestKafkaAppender.getClass.getName + " log4j_config")
       System.exit(1)

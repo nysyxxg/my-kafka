@@ -1,8 +1,8 @@
-package other
+package other.kafka
 
-import java.util.concurrent.{BlockingQueue, LinkedBlockingQueue, TimeUnit}
+import java.util.concurrent.{LinkedBlockingQueue, TimeUnit}
 
-object StreamTest {
+object TestStream {
 
   def main(args: Array[String]): Unit = {
 

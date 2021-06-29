@@ -2,7 +2,7 @@ package other.kafka
 
 import java.util
 
-object MySetTesT {
+object TestMySet {
 
   import scala.collection.mutable.Set // 可以在任何地方引入 可变集合
 

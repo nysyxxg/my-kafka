@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch
 
 object TestZKConsumerOffsets {
   def main(args: Array[String]): Unit = {
+    val args = Array("D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties","test-xxg","largest")
     if(args.length < 1) {
       println("USAGE: " + TestZKConsumerOffsets.getClass.getName + " consumer.properties topic latest")
       System.exit(1)
@@ -38,12 +39,14 @@ object TestZKConsumerOffsets {
     val consumerConnector: ConsumerConnector = Consumer.create(config)
     val topicMessageStreams = consumerConnector.createMessageStreams(Predef.Map(topic -> 1))
     var threadList = List[ConsumerThread]()
-    for ((topic, streamList) <- topicMessageStreams)
+    for ((topic, streamList) <- topicMessageStreams){
       for (stream <- streamList)
         threadList ::= new ConsumerThread(stream)
+    }
 
-    for (thread <- threadList)
+    for (thread <- threadList){
       thread.start
+    }
 
     // attach shutdown handler to catch control-c
     Runtime.getRuntime().addShutdownHook(new Thread() {
