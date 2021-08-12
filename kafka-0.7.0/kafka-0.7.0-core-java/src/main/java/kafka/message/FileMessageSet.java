@@ -12,10 +12,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class FileMessageSet extends MessageSet {
+    private Logger logger = Logger.getLogger(FileMessageSet.class);
     private AtomicLong setSize = new AtomicLong();
     private AtomicLong setHighWaterMark = new AtomicLong();
-    private Logger logger = Logger.getLogger(FileMessageSet.class);
-    
     
     FileChannel channel;
     Long offset;

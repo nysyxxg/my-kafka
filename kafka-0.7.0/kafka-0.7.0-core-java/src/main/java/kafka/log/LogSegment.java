@@ -10,7 +10,7 @@ public class LogSegment extends Range {
     FileMessageSet messageSet;
     static Long start;
     volatile boolean deleted = false;
-    public Long size = messageSet.highWaterMark();
+    public Long size;
     public LogSegment(File file, FileMessageSet messageSet, Long start) {
         this.file = file;
         this.messageSet = messageSet;

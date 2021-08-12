@@ -9,7 +9,7 @@ public class ProducerData<K, V> {
     K key;
     List<V> data;
     
-    ProducerData(String topic, K key, List<V> data) {
+    public   ProducerData(String topic, K key, List<V> data) {
         this.topic = topic;
         this.key = key;
         this.data = data;

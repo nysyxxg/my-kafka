@@ -18,7 +18,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ZookeeperConsumerConnector implements ConsumerConnector {
+public class ZookeeperConsumerConnector extends ConsumerConnector  implements  ZookeeperConsumerConnectorMBean{
     public static int MAX_N_RETRIES = 4;
     public static FetchedDataChunk shutdownCommand = new FetchedDataChunk(null, null, -1L);
     ConsumerConfig config;
@@ -66,7 +66,7 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
         }
     }
     
-    private void commitOffsets() {
+    public void commitOffsets() {
         if (zkClient == null) {
             return;
         }
@@ -79,7 +79,7 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
                 PartitionTopicInfo info = iterator.next();
                 Long newOffset = info.getConsumeOffset();
                 try {
-                    ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + info.partition.name, newOffset.toString());
+                    ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + info.partition.name, newOffset.toString());
                 } catch (Throwable t) {
                     // log it and let it go
                     logger.warn("exception during commitOffsets", t);
@@ -145,20 +145,20 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
     }
     
     @Override
-    public Map<String, List<KafkaMessageStream<?>>> createMessageStreams(Map<String, Integer> topicCountMap,
-                                                                         Decoder<?> decoder) throws UnknownHostException {
-        return consume(topicCountMap, new DefaultDecoder());
+    public <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(Map<String, Integer> topicCountMap,
+                                                                         Decoder<T> decoder) throws UnknownHostException {
+        return consume(topicCountMap, decoder);
     }
     
-    private Map<String, List<KafkaMessageStream<?>>> consume(Map<String, Integer> topicCountMap,
-                                                             DefaultDecoder defaultDecoder) throws UnknownHostException {
+    public <T> Map<String, List<KafkaMessageStream<T>>> consume(Map<String, Integer> topicCountMap,
+                                                            Decoder<T> defaultDecoder) throws UnknownHostException {
         
         logger.debug("entering consume ");
         if (topicCountMap == null)
             throw new RuntimeException("topicCountMap is null");
         
         ZKGroupDirs dirs = new ZKGroupDirs(config.groupId);
-        Map<String, List<KafkaMessageStream<?>>> ret = new HashMap<String, List<KafkaMessageStream<?>>>();
+        Map<String, List<KafkaMessageStream<T>>> ret = new HashMap<String, List<KafkaMessageStream<T>>>();
         String consumerUuid = null;
         String consumerId = config.getConsumerId();
         
@@ -180,13 +180,13 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
         // register listener for session expired event
         zkClient.subscribeStateChanges(new ZKSessionExpireListenner(zkClient,dirs, consumerIdString, topicCount, loadBalancerListener));
         
-        zkClient.subscribeChildChanges(dirs.consumerRegistryDir, loadBalancerListener);
+        zkClient.subscribeChildChanges(dirs.getConsumerRegistryDir(), loadBalancerListener);
         
         // create a queue per topic per consumer thread
         Map<String, Set<String>> consumerThreadIdsPerTopic = topicCount.getConsumerThreadIdsPerTopic();
         for (String topic : consumerThreadIdsPerTopic.keySet()) {
             Set<String> threadIdSet = consumerThreadIdsPerTopic.get(topic);
-            List<KafkaMessageStream<?>> streamList = null;
+            List<KafkaMessageStream<T>> streamList = null;
             for (String threadId : threadIdSet) {
                 LinkedBlockingQueue stream = new LinkedBlockingQueue<FetchedDataChunk>(config.maxQueuedChunks);
                 Tuple2 tuple2 = new Tuple2<>(topic, threadId);
@@ -254,7 +254,7 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
         //otherwise, try to get it from zookeeper
         try {
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(config.groupId, topic);
-            String znode = topicDirs.consumerOffsetDir + "/" + partition.name;
+            String znode = topicDirs.getConsumerOffsetDir() + "/" + partition.name;
             String offsetString = ZkUtils.readDataMaybeNull(zkClient, znode);
             if (offsetString != null) {
                 return Long.parseLong(offsetString);
@@ -308,7 +308,7 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
     }
     
     
-   
+    
 }
 
 

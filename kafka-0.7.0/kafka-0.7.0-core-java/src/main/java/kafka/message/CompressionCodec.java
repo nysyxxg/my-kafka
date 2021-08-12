@@ -3,7 +3,7 @@ package kafka.message;
 import kafka.common.UnknownCodecException;
 
 public abstract class CompressionCodec {
-    int codec = 0;
+    public int codec = 0;
     
     public static CompressionCodec getCompressionCodec(int codec) {
         if (codec == 0) {

@@ -59,7 +59,7 @@ public class ZKRebalancerListener implements IZkChildListener {
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(groupId, topic);
             while (iterator.hasNext()) {
                 PartitionTopicInfo partition = iterator.next();
-                String znode = topicDirs.consumerOwnerDir + "/" + partition;
+                String znode = topicDirs.getConsumerOwnerDir() + "/" + partition;
                 ZkUtils.deletePath(zkClient, znode);
                 if (logger.isDebugEnabled())
                     logger.debug("Consumer " + consumerIdString + " releasing " + znode);
@@ -69,7 +69,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     
     private Map<String, List<String>> getConsumersPerTopic(String group) {
-        List<String> consumers = ZkUtils.getChildrenParentMayNotExist(zkClient, dirs.consumerRegistryDir);
+        List<String> consumers = ZkUtils.getChildrenParentMayNotExist(zkClient, dirs.getConsumerRegistryDir());
         Map<String, List<String>> consumersPerTopicMap = new HashMap<String, List<String>>();
         for (String consumer : consumers) {
             TopicCount topicCount = getTopicCount(consumer);
@@ -112,7 +112,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     }
     
     private TopicCount getTopicCount(String consumerId) {
-        String topicCountJson = ZkUtils.readData(zkClient, dirs.consumerRegistryDir + "/" + consumerId);
+        String topicCountJson = ZkUtils.readData(zkClient, dirs.getConsumerRegistryDir() + "/" + consumerId);
         return TopicCount.constructTopicCount(consumerId, topicCountJson);
     }
     
@@ -255,7 +255,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     private Boolean processPartition(ZKGroupTopicDirs topicDirs, String partition,
                                      String topic, String consumerThreadId) {
-        String partitionOwnerPath = topicDirs.consumerOwnerDir + "/" + partition;
+        String partitionOwnerPath = topicDirs.getConsumerOwnerDir() + "/" + partition;
         try {
             ZkUtils.createEphemeralPathExpectConflict(zkClient, partitionOwnerPath, consumerThreadId);
         } catch (ZkNodeExistsException e) {
@@ -273,7 +273,7 @@ public class ZKRebalancerListener implements IZkChildListener {
         Partition partition = Partition.parse(partitionString);
         Pool<Partition, PartitionTopicInfo> partTopicInfoMap = topicRegistry.get(topic);
         
-        String znode = topicDirs.consumerOffsetDir + "/" + partition.name;
+        String znode = topicDirs.getConsumerOffsetDir() + "/" + partition.name;
         String offsetString = ZkUtils.readDataMaybeNull(zkClient, znode);
         // If first time starting a consumer, set the initial offset based on the config
         Long offset = 0L;
@@ -337,7 +337,7 @@ public class ZKRebalancerListener implements IZkChildListener {
                 PartitionTopicInfo info = iterator.next();
                 Long newOffset = info.getConsumeOffset();
                 try {
-                    ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + info.partition.name, newOffset.toString());
+                    ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + info.partition.name, newOffset.toString());
                 } catch (Throwable t) {
                     // log it and let it go
                     logger.warn("exception during commitOffsets", t);

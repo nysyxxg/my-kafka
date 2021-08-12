@@ -11,7 +11,7 @@ public abstract class Receive extends Transmission {
     
     public int readCompletely(ReadableByteChannel channel) {
         int read = 0;
-        while (!complete) {
+        while (!complete()) {
             read = readFrom(channel);
             if (logger.isTraceEnabled()) {
                 logger.trace(read + " bytes read.");

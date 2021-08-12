@@ -12,9 +12,9 @@ import java.util.function.Consumer;
 
 public class MultiFetchResponse implements Iterable<ByteBufferMessageSet> {
     
-    private ByteBuffer buffer;
-    private int numSets;
-    private Long offsets[];
+    public ByteBuffer buffer;
+    public int numSets;
+    public Long offsets[];
     
     private List<ByteBufferMessageSet> messageSets = new ArrayList<>();
     

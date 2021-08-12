@@ -177,11 +177,8 @@ class EmbeddedConsumer implements TopicEventHandler {
         if (!mirrorTopics.isEmpty()) {
             String s1 = ":%d,".format(consumerConfig.mirrorConsumerNumThreads + "");
             String s2 = ":%d".format(consumerConfig.mirrorConsumerNumThreads + "");
-
 //            String arry[] = (String[]) mirrorTopics.toArray();
-            
             String arry[] = mirrorTopics.toArray(new String[0]);
-            
             String dataS = String.join("", arry) + "" + s1 + "" + s2;
             return Utils.getConsumerTopicMap(dataS);
         } else {
@@ -207,10 +204,10 @@ class EmbeddedConsumer implements TopicEventHandler {
             }
             
             consumerConnector = Consumer.create(consumerConfig);
-            Map<String, List<KafkaMessageStream<?>>> topicMessageStreams = consumerConnector.createMessageStreams(topicMap, new DefaultDecoder());
+            Map<String, List<KafkaMessageStream<Message>>> topicMessageStreams = consumerConnector.createMessageStreams(topicMap, new DefaultDecoder());
             
             for (String topic : topicMessageStreams.keySet()) {
-                List<KafkaMessageStream<?>> streamList = topicMessageStreams.get(topic);
+                List<KafkaMessageStream<Message>> streamList = topicMessageStreams.get(topic);
                 for (int i = 0; i < streamList.size(); i++) {
                     KafkaMessageStream kafkaMessageStream = streamList.get(i);
                     threadList.add(new MirroringThread(kafkaMessageStream, topic, i));
@@ -252,8 +249,7 @@ class MirroringThread extends Thread {
         try {
             shutdownComplete.await();
         } catch (InterruptedException e) {
-            logger.fatal("Shutdown of thread " + name + " interrupted. " +
-                    "Mirroring thread might leak data!");
+            logger.fatal("Shutdown of thread " + name + " interrupted. " + "Mirroring thread might leak data!");
         }
     }
 }

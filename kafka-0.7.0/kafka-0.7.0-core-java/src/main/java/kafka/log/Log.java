@@ -278,6 +278,8 @@ public class Log {
                 logger.debug("Rolling log '" + name + "' to " + newFile.getName());
             }
             try {
+                Thread.sleep(30 * 1000);
+                System.out.println("-------------------开始追加日志文件--------------------------------------");
                 segments.append(new LogSegment(newFile, new FileMessageSet(newFile, true), newOffset));
             } catch (Throwable throwable) {
                 throwable.printStackTrace();

@@ -6,8 +6,12 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
-public interface ConsumerConnector extends  ZookeeperConsumerConnectorMBean{
-    void shutdown();
+public abstract class ConsumerConnector {
     
-    Map<String, List<KafkaMessageStream<?>>>  createMessageStreams(Map<String, Integer> topicCountMap,  Decoder<?> decoder ) throws UnknownHostException;
+    abstract void commitOffsets();
+    
+    public abstract void shutdown();
+    
+    public  abstract <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(Map<String, Integer> topicCountMap, Decoder<T> decoder)
+            throws UnknownHostException;
 }

@@ -21,7 +21,7 @@ public class ConsoleProducer {
     
     private Logger logger = Logger.getLogger(ConsoleProducer.class);
     
-    public void main(String[] args) throws IOException {
+    public void main(String[] args) throws Throwable {
         OptionParser parser = new OptionParser();
         ArgumentAcceptingOptionSpec<String> topicOpt = parser.accepts("topic", "REQUIRED: The topic id to produce messages to.")
                 .withRequiredArg()

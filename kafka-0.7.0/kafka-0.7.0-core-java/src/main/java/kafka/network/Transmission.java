@@ -6,16 +6,17 @@ public abstract class Transmission {
     
     public Logger logger = Logger.getLogger(Transmission.class);
     
-    public Boolean complete;
+    public abstract Boolean complete();
     
     public void expectIncomplete() {
-        if (complete)
+        if (complete())
             throw new IllegalStateException("This operation cannot be completed on a complete request.");
     }
     
     protected void expectComplete() {
-        if (!complete)
+        if (!complete())
             throw new IllegalStateException("This operation cannot be completed on an incomplete request.");
     }
     
 }
+

@@ -29,7 +29,7 @@ public class KafkaConfig extends ZKConfig {
     
     public int numPartitions;
     
-    public   String logDir;
+    public String logDir;
     
     public int logFileSize;
     
@@ -37,13 +37,13 @@ public class KafkaConfig extends ZKConfig {
     
     int logRetentionHours;
     
-    public  int logRetentionSize;
+    public int logRetentionSize;
     
     public Map logRetentionHoursMap;
     
     int logCleanupIntervalMinutes;
     
-    public  Boolean enableZookeeper;
+    public Boolean enableZookeeper;
     
     public Map flushIntervalMap;
     

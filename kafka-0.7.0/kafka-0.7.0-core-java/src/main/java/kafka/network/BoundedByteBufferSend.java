@@ -69,4 +69,9 @@ public class BoundedByteBufferSend extends Send {
     public void setBuffer(ByteBuffer buffer) {
         this.buffer = buffer;
     }
+    
+    @Override
+    public Boolean complete() {
+        return complete;
+    }
 }

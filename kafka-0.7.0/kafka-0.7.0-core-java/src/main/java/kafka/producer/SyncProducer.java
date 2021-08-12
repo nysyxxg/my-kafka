@@ -99,7 +99,7 @@ public class SyncProducer {
                 throw new MessageSizeTooLargeException();
     }
     
-    void multiSend(ProducerRequest produces[]) {
+    public void multiSend(ProducerRequest produces[]) {
         Long setSize = 0L;
         for (ProducerRequest request : produces) {
             verifyMessageSize(request.messages);
@@ -116,7 +116,7 @@ public class SyncProducer {
         send(topic, ProducerRequest.RandomPartition, messages);
     }
     
-    void close() {
+    public void close() {
         synchronized (lock) {
             disconnect();
             shutdown = true;

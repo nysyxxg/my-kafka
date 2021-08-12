@@ -1,7 +1,7 @@
 package kafka.cluster;
 
 public class Partition {
-    private int brokerId;
+    public int brokerId;
     public int partId;
     
     public String name = brokerId + "-" + partId;

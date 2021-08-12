@@ -63,7 +63,7 @@ public class ProducerPool<V> {
     }
     
     
-    ProducerPool(ProducerConfig config, Encoder<V> serializer,
+    public  ProducerPool(ProducerConfig config, Encoder<V> serializer,
                  EventHandler<V> eventHandler, CallbackHandler<V> cbkHandler) {
         this(config, serializer,
                 new ConcurrentHashMap<Integer, SyncProducer>(),
@@ -197,31 +197,7 @@ public class ProducerPool<V> {
         return new ProducerPoolData<V>(topic, bidPid, data);
     }
     
-    class ProducerPoolData<V> {
-        String topic;
-        Partition bidPid;
-        List<V> data;
-        
-        ProducerPoolData(String topic,
-                         Partition bidPid,
-                         List<V> data) {
-            this.bidPid = bidPid;
-            this.topic = topic;
-            this.data = data;
-        }
-        
-        public String getTopic() {
-            return topic;
-        }
-        
-        public Partition getBidPid() {
-            return bidPid;
-        }
-        
-        public List<V> getData() {
-            return data;
-        }
-    }
+    
     
     
 }

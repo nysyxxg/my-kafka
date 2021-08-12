@@ -94,7 +94,7 @@ public class LogManager {
                     Log log = new Log(dir, maxSize, flushInterval, needRecovery);
                     Tuple2<String, Integer> topicPartion = Utils.getTopicPartition(dir.getName());
                     logs.putIfNotExists(topicPartion._1, new Pool<Integer, Log>());
-                    ConcurrentHashMap parts = (ConcurrentHashMap) logs.get(topicPartion._1);
+                    Pool<Integer, Log> parts =  (Pool<Integer, Log>)logs.get(topicPartion._1);
                     parts.put(topicPartion._2, log);
                 }
             }
@@ -122,25 +122,24 @@ public class LogManager {
             kafkaZookeeper = new KafkaZooKeeper(config, this);
             kafkaZookeeper.startup();
             
-            zkActorThread = new Thread() {
-                @Override
-                public void run() {
-                    while (true) {
-                        // 监听topic信息
-                        if (!StringUtils.isEmpty(topic)) {
-                            kafkaZookeeper.registerTopicInZk(topic);
-                        }
-                        
-                        if (state.equals("stop")) {
-                            Thread.currentThread().interrupt();
-                            logger.info("zkActor stopped");
-                            System.exit(0);
-                        }
-                    }
-                }
-            };
-            
-            zkActorThread.start();
+//            zkActorThread = new Thread() {
+//                @Override
+//                public void run() {
+//                    while (true) {
+//                        // 监听topic信息
+//                        if (!StringUtils.isEmpty(topic)) {
+//                            kafkaZookeeper.registerTopicInZk(topic);
+//                        }
+//
+//                        if (state.equals("stop")) {
+//                            Thread.currentThread().interrupt();
+//                            logger.info("zkActor stopped");
+//                            System.exit(0);
+//                        }
+//                    }
+//                }
+//            };
+//            zkActorThread.start();
         }
         
     }

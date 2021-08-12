@@ -12,13 +12,13 @@ public class ProducerConfig extends ZKConfig {
     Properties props;
     String brokerList;
     
-    String partitionerClass;
+    public String partitionerClass;
     
     String producerType;
     
-    CompressionCodec compressionCodec;
+    public CompressionCodec compressionCodec;
     
-    List<String> compressedTopics;
+    public List<String> compressedTopics;
     
     int zkReadRetries = 0;
     

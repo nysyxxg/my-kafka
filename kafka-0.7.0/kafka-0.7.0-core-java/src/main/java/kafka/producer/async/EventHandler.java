@@ -5,13 +5,14 @@ import kafka.producer.SyncProducer;
 
 import java.util.List;
 import java.util.Properties;
+
 import kafka.serializer.Encoder;
 
 public interface EventHandler<T> {
     
-    void init(Properties props  );
+    public void init(Properties props);
     
-    void close();
+    public  void close();
     
-    void handle(List<QueueItem> events, SyncProducer producer , Encoder encoder);
+    public  void handle(List<QueueItem<T>> events, SyncProducer producer, Encoder<T> encoder);
 }

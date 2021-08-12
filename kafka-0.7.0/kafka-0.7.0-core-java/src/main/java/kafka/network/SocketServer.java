@@ -14,7 +14,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.*;
 import java.util.Iterator;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -192,6 +191,13 @@ class Processor extends AbstractServerThread {
     public void run() {
         startupComplete();
         while (isRunning()) {
+            try {
+                Thread.sleep(3* 1000);
+                System.out.println("-------------正在后台运行的线程---->" + Thread.currentThread().getName());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+           
             // setup any new connections that have been queued up
             configureNewConnections();
             int ready = 0;
@@ -287,10 +293,7 @@ class Processor extends AbstractServerThread {
         return send;
     }
     
- 
-    
-    
-    private void write(SelectionKey key) {
+    private void read(SelectionKey key) {
         SocketChannel socketChannel = channelFor(key);
         Receive request = (Receive) key.attachment();
         if(key.attachment() == null) {
@@ -304,7 +307,7 @@ class Processor extends AbstractServerThread {
         if(read < 0) {
             close(key);
             return;
-        } else if(request.complete) {
+        } else if(request.complete()) {
            Send  maybeResponse = handle(key, request);
             key.attach(null);
             // if there is a response, send it, otherwise do nothing
@@ -320,14 +323,14 @@ class Processor extends AbstractServerThread {
         }
     }
     
-    private void read(SelectionKey key)  throws IOException {
+    private void write(SelectionKey key)  throws IOException {
         Send response = (Send) key.attachment();
         SocketChannel socketChannel = channelFor(key);
         int written = response.writeTo(socketChannel);
         stats.recordBytesWritten(written);
         if(logger.isTraceEnabled())
             logger.trace(written + " bytes written to " + socketChannel.socket().getRemoteSocketAddress());
-        if(response.complete) {
+        if(response.complete()) {
             key.attach(null);
             key.interestOps(SelectionKey.OP_READ);
         } else {
@@ -363,16 +366,14 @@ public class SocketServer {
     private Logger logger = Logger.getLogger(SocketServer.class);
     private SystemTime time = new SystemTime();
     
+    private int port;
+    private  int maxRequestSize = Integer.MAX_VALUE;
+    private  int numProcessorThreads;
+    private int monitoringPeriodSecs;
+    private   KafkaRequestHandlers  handlers;
     
-    int port;
-    int maxRequestSize = Integer.MAX_VALUE;
-    ;
-    int numProcessorThreads;
-    int monitoringPeriodSecs;
-    KafkaRequestHandlers  handlers;
-    
-    Processor processors[];
-    Acceptor acceptor;
+    private  Processor processors[];
+    private  Acceptor acceptor;
     public SocketServerStats stats;
     
     public  SocketServer(int port,

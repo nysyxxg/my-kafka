@@ -55,7 +55,7 @@ public class UpdateOffsetsInZK {
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(config.getGroupId(), topic);
     
             System.out.println("updating partition " + part.name + " with new offset: " + offsets[0]);
-            ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + part.name, offsets[0].toString());
+            ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + part.name, offsets[0].toString());
             numParts += 1;
         }
         System.out.println("updated the offset for " + numParts + " partitions");

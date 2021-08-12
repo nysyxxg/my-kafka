@@ -31,4 +31,8 @@ public class ByteBufferSend extends Send {
         return written;
     }
     
+    @Override
+    public Boolean complete() {
+        return complete;
+    }
 }

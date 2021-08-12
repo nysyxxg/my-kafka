@@ -311,8 +311,7 @@ public class ZKBrokerPartitionInfo implements BrokerPartitionInfo {
                     allBrokers.put(bid, new Broker(bid, brokerHostPort[1], brokerHostPort[1], Integer.parseInt(brokerHostPort[2])));
                     if (logger.isDebugEnabled())
                         logger.debug("[BrokerTopicsListener] Invoking the callback for broker: " + bid);
-                    producerCbk(producerPool, populateProducerPool,
-                            bid, brokerHostPort[1], Integer.parseInt(brokerHostPort[2]));
+                    producerCbk(producerPool, populateProducerPool, bid, brokerHostPort[1], Integer.parseInt(brokerHostPort[2]));
                 }
                 // remove dead brokers from the in memory list of live brokers
                 Set<Integer> deadBrokers = new HashSet<Integer>();

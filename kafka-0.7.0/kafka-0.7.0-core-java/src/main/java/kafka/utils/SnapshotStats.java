@@ -6,10 +6,6 @@ import java.util.concurrent.atomic.AtomicReference;
 public class SnapshotStats {
     private Long monitorDurationNs = 600L * 1000L * 1000L * 1000L;
     
-    public SnapshotStats(Long monitorDurationNs) {
-        this.monitorDurationNs = monitorDurationNs;
-    }
-    
     private Time time = new SystemTime();
     
     private AtomicReference complete = new AtomicReference(new Stats());
@@ -18,7 +14,10 @@ public class SnapshotStats {
     private AtomicLong numCumulatedRequests = new AtomicLong(0);
     
     public SnapshotStats() {
+    }
     
+    public SnapshotStats(Long monitorDurationNs) {
+        this.monitorDurationNs = monitorDurationNs;
     }
     
     public void recordRequestMetric(Long requestNs) {

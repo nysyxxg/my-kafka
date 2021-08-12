@@ -14,8 +14,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.zip.CRC32;
 
@@ -41,7 +39,7 @@ public class Utils {
             public void run() {
                 try {
                     func.call();
-                    System.out.println("------当前线程名称：--->"+ Thread.currentThread().getName());
+                    System.out.println("------当前线程名称：--->" + Thread.currentThread().getName());
                 } catch (Exception t) {
                     logger.error(t, t);
                     logger.error(stackTrace(t), t);
@@ -445,7 +443,8 @@ public class Utils {
                 return index;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("---------index------------" + index);
+            logger.error(e);
         }
         return index;
     }
@@ -557,7 +556,7 @@ public class Utils {
             throw new IllegalArgumentException("requirement failed");
     }
     
-    Boolean propertyExists(String prop) {
+   public static Boolean propertyExists(String prop) {
         if (prop == null)
             return false;
         else if (prop.compareTo("") == 0)

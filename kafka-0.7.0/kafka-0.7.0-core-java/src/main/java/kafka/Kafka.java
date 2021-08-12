@@ -18,10 +18,12 @@ public class Kafka {
     private static Logger logger = Logger.getLogger(Kafka.class);
     
     public static void main(String[] args) {
-        args = new String[]{
-                "D:\\my-kafka\\kafka-0.7.0\\config\\server.properties",
-                "D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties",
-                "D:\\my-kafka\\kafka-0.7.0\\config\\producer.properties"};
+        if (args.length == 0) {
+            args = new String[]{"D:\\my-kafka\\kafka-0.7.0\\config\\server.properties"
+            };
+//            "D:\\my-kafka\\kafka-0.7.0\\config\\consumer.properties",
+//            "D:\\my-kafka\\kafka-0.7.0\\config\\producer.properties"
+        }
         
         String kafkaLog4jMBeanName = "kafka:type=kafka.KafkaLog4j";
         try {
@@ -60,7 +62,7 @@ public class Kafka {
              * 当系统执行完这些钩子后，jvm才会关闭。所以这些钩子可以在jvm关闭的时候进行内存清理、对象销毁等操作。
              */
             // attach shutdown handler to catch control-c
-           final KafkaServerStartable finalKafkaServerStartble = kafkaServerStartble;
+            final KafkaServerStartable finalKafkaServerStartble = kafkaServerStartble;
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {

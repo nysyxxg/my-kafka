@@ -60,4 +60,9 @@ public class MessageSetSend extends Send {
         }
         return written;
     }
+    
+    @Override
+    public Boolean complete() {
+        return complete;
+    }
 }

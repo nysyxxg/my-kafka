@@ -199,7 +199,7 @@ public class ZkUtils {
     public static void registerConsumerInZK(ZkClient zkClient,
                                             ZKGroupDirs dirs, String consumerIdString, TopicCount topicCount) {
         logger.info("begin registering consumer " + consumerIdString + " in ZK");
-        ZkUtils.createEphemeralPathExpectConflict(zkClient, dirs.consumerRegistryDir + "/" + consumerIdString, topicCount.toJsonString());
+        ZkUtils.createEphemeralPathExpectConflict(zkClient, dirs.getConsumerRegistryDir() + "/" + consumerIdString, topicCount.toJsonString());
         logger.info("end registering consumer " + consumerIdString + " in ZK");
     }
     

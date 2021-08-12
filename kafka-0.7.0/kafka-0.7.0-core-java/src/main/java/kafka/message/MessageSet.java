@@ -1,8 +1,12 @@
 package kafka.message;
 
+import clover.it.unimi.dsi.fastutil.bytes.AbstractByteList;
+import kafka.common.InvalidMessageException;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Spliterator;
@@ -39,7 +43,7 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
         return size;
     }
     
-    int messageSetSize(List<Message> messages) {
+   static int messageSetSize(List<Message> messages) {
         int size = 0;
         Iterator<Message> iter = messages.iterator();
         while (iter.hasNext()) {
@@ -50,7 +54,7 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
     }
     
     
-    static ByteBuffer createByteBuffer(CompressionCodec compressionCodec, Iterable<Message> messages) throws IOException {
+    public static ByteBuffer createByteBuffer(CompressionCodec compressionCodec, Iterable<Message> messages) throws IOException {
         if (compressionCodec instanceof NoCompressionCodec) {
             ByteBuffer buffer = ByteBuffer.allocate(MessageSet.messageSetSize(messages));
             Iterator<Message> iterator = messages.iterator();
@@ -61,19 +65,20 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
             buffer.rewind();
             return buffer;
         } else {
+            List<Message>  newMessages = new ArrayList<Message>();
             int size = 0;//
-            Iterator it = messages.iterator();
+            Iterator<Message> it = messages.iterator();
             while (it.hasNext()) {
-                it.next();
+                newMessages.add(it.next());
                 size++;
             }
             
             if (size == 0) {
-                ByteBuffer buffer = ByteBuffer.allocate(MessageSet.messageSetSize(messages));
+                ByteBuffer buffer = ByteBuffer.allocate(MessageSet.messageSetSize(newMessages));
                 buffer.rewind();
                 return buffer;
             } else {
-                Message message = CompressionUtils.compress(messages, compressionCodec);
+                Message message = CompressionUtils.compress(newMessages, compressionCodec);
                 ByteBuffer buffer = ByteBuffer.allocate(message.serializedSize);
                 message.serializeTo(buffer);
                 buffer.rewind();

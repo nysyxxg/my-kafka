@@ -8,7 +8,7 @@ import java.nio.channels.ReadableByteChannel;
 
 public class BoundedByteBufferReceive extends Receive {
     
-    Boolean complete = false;
+    private Boolean complete = false;
     private ByteBuffer sizeBuffer = ByteBuffer.allocate(4);
     private ByteBuffer contentBuffer = null;
     private int maxSize;
@@ -65,5 +65,10 @@ public class BoundedByteBufferReceive extends Receive {
             throw new RuntimeException("OOME with size " + size, e);
         }
         return buffer;
+    }
+    
+    @Override
+    public Boolean complete() {
+        return complete;
     }
 }

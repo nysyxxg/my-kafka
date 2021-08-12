@@ -85,7 +85,7 @@ public class FetcherRunnable extends Thread {
         // reset manually in zookeeper
         logger.info("updating partition " + partition.name + " for topic " + topic + " with " + signStr + "offset " + offsets[0]);
         
-        ZkUtils.updatePersistentPath(zkClient, topicDirs.consumerOffsetDir + "/" + partition.name, String.valueOf(offsets[0]));
+        ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + partition.name, String.valueOf(offsets[0]));
         
         return offsets[0];
     }

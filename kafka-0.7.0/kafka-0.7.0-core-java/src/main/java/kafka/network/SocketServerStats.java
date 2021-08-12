@@ -8,20 +8,25 @@ import kafka.utils.Time;
 public class SocketServerStats implements SocketServerStatsMBean {
     private Long monitorDurationNs;
     private Time time;
+    private SnapshotStats produceTimeStats;
+    private SnapshotStats fetchTimeStats;
+    private SnapshotStats produceBytesStats;
+    private SnapshotStats fetchBytesStats;
     
     public SocketServerStats(Long monitorDurationNs, Time time) {
         this.monitorDurationNs = monitorDurationNs;
         this.time = time;
+        
+        this.produceTimeStats = new SnapshotStats(monitorDurationNs);
+        this.fetchTimeStats = new SnapshotStats(monitorDurationNs);
+        this.produceBytesStats = new SnapshotStats(monitorDurationNs);
+        this.fetchBytesStats = new SnapshotStats(monitorDurationNs);
     }
     
     public SocketServerStats(Long monitorDurationNs) {
         this(monitorDurationNs, new SystemTime());
     }
     
-    SnapshotStats produceTimeStats = new SnapshotStats(monitorDurationNs);
-    SnapshotStats fetchTimeStats = new SnapshotStats(monitorDurationNs);
-    SnapshotStats produceBytesStats = new SnapshotStats(monitorDurationNs);
-    SnapshotStats fetchBytesStats = new SnapshotStats(monitorDurationNs);
     
     public void recordRequest(Short requestTypeId, Long durationNs) {
         

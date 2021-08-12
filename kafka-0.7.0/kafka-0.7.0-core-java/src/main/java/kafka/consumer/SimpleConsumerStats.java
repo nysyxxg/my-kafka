@@ -29,7 +29,6 @@ public class SimpleConsumerStats implements SimpleConsumerStatsMBean {
     }
     
     
-    
     @Override
     public Double getFetchRequestsPerSecond() {
         return fetchRequestStats.getRequestsPerSecond();

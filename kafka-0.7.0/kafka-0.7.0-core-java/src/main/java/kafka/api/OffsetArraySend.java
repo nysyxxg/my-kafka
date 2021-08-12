@@ -46,4 +46,9 @@ public class OffsetArraySend extends Send {
         }
         return written;
     }
+    
+    @Override
+    public Boolean complete() {
+        return complete;
+    }
 }
