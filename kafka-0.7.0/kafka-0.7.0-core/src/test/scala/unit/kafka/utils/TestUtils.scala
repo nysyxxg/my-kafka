@@ -130,7 +130,7 @@ object TestUtils {
     props.put("consumer.timeout.ms", consumerTimeout.toString)
     props.put("zk.sessiontimeout.ms", "400")
     props.put("zk.synctime.ms", "200")
-    props.put("autocommit.interval.ms", "1000")
+    props.put("autocommit.interval.ms", "1000") // 设置自动提交offset时间间隔
 
     props
   }

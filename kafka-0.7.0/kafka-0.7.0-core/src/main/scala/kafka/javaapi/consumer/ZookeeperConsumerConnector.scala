@@ -61,7 +61,8 @@ import scala.collection.JavaConversions
 private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
                                  val enableFetcher: Boolean) // for testing only
     extends ConsumerConnector {
-
+  println(this.getClass() + "------------------------ZookeeperConsumerConnector----init------")
+  //  初始化消费端连接器
   val underlying = new kafka.consumer.ZookeeperConsumerConnector(config, enableFetcher)
 
   def this(config: ConsumerConfig) = this(config, true)
@@ -72,21 +73,23 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
         decoder: Decoder[T])
       : java.util.Map[String,java.util.List[KafkaMessageStream[T]]] = {
     import scala.collection.JavaConversions._
-
+    println(this.getClass + "------------------------createMessageStreams--------")
+    // 转化为scala的map集合
     val scalaTopicCountMap: Map[String, Int] = Map.empty[String, Int] ++  JavaConversions.asScalaMap(topicCountMap.asInstanceOf[java.util.Map[String, Int]])
+   // 核心消息方法
     val scalaReturn = underlying.consume(scalaTopicCountMap, decoder)
-    val ret = new java.util.HashMap[String,java.util.List[KafkaMessageStream[T]]]
+    val ret = new java.util.HashMap[String,java.util.List[KafkaMessageStream[T]]]  // 一个topic对应一个List集合
     for ((topic, streams) <- scalaReturn) {
       var javaStreamList = new java.util.ArrayList[KafkaMessageStream[T]]
-      for (stream <- streams)
+      for (stream <- streams){
         javaStreamList.add(stream)
+      }
       ret.put(topic, javaStreamList)
     }
     ret
   }
 
-  def createMessageStreams(
-        topicCountMap: java.util.Map[String,java.lang.Integer])
+  def createMessageStreams(topicCountMap: java.util.Map[String,java.lang.Integer])
       : java.util.Map[String,java.util.List[KafkaMessageStream[Message]]] =
     createMessageStreams(topicCountMap, new DefaultDecoder)
 

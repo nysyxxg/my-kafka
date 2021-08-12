@@ -73,6 +73,7 @@ private[log] class SegmentList[T](seq: Seq[T])(implicit m: ClassManifest[T]) {
         done = true
       }
     }
+    println(Thread.currentThread().getName + "-------------SegmentList----trunc---------------end-----------")
     deleted
   }
 

@@ -51,6 +51,9 @@ class ZookeeperConsumerConnectorTest extends JUnit3Suite with KafkaServerTestHar
   val consumer3 = "consumer3"
   val nMessages = 2
 
+  /**
+    * 测试消费消息和发送消息
+    */
   def testBasic() {
     val requestHandlerLogger = Logger.getLogger(classOf[kafka.server.KafkaRequestHandlers])
     requestHandlerLogger.setLevel(Level.FATAL)
@@ -58,14 +61,17 @@ class ZookeeperConsumerConnectorTest extends JUnit3Suite with KafkaServerTestHar
     var actualMessages: List[Message] = Nil
 
     // test consumer timeout logic
+    // 构建消费端配置参数
     val consumerConfig0 = new ConsumerConfig(
       TestUtils.createConsumerProperties(zkConnect, group, consumer0)) {
       override val consumerTimeoutMs = 200
     }
+    // 创建消费者连接器
     val zkConsumerConnector0 = new ZookeeperConsumerConnector(consumerConfig0, true)
+    // 根据topic 创建消费信息流
     val topicMessageStreams0 = zkConsumerConnector0.createMessageStreams(Predef.Map(topic -> numNodes * numParts / 2))
     try {
-      getMessages(nMessages * 2, topicMessageStreams0)
+      getMessages(nMessages * 2, topicMessageStreams0) // 获取消息
       fail("should get an exception")
     }
     catch {
@@ -121,6 +127,9 @@ class ZookeeperConsumerConnectorTest extends JUnit3Suite with KafkaServerTestHar
     requestHandlerLogger.setLevel(Level.ERROR)
   }
 
+  /**
+    * 测试压缩
+    */
   def testCompression() {
     val requestHandlerLogger = Logger.getLogger(classOf[kafka.server.KafkaRequestHandlers])
     requestHandlerLogger.setLevel(Level.FATAL)

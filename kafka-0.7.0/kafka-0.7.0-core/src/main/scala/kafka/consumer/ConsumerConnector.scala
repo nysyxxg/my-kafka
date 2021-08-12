@@ -72,6 +72,7 @@ object Consumer {
    *                 connection string zk.connect.
    */
   def createJavaConsumerConnector(config: ConsumerConfig): kafka.javaapi.consumer.ConsumerConnector = {
+    println(getClass() + "------------------------------------createJavaConsumerConnector------")
     val consumerConnect = new kafka.javaapi.consumer.ZookeeperConsumerConnector(config)
     Utils.swallow(logger.warn, Utils.registerMBean(consumerConnect.underlying, consumerStatsMBeanName))
     consumerConnect

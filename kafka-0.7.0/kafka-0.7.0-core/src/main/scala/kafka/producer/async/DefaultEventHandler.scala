@@ -23,8 +23,11 @@ import org.apache.log4j.Logger
 import kafka.api.ProducerRequest
 import kafka.serializer.Encoder
 import java.util.Properties
+
 import kafka.producer.{ProducerConfig, SyncProducer}
-import kafka.message.{NoCompressionCodec, ByteBufferMessageSet}
+import kafka.message.{ByteBufferMessageSet, Message, NoCompressionCodec}
+
+import scala.collection.mutable
 
 
 private[kafka] class DefaultEventHandler[T](val config: ProducerConfig,
@@ -52,7 +55,7 @@ private[kafka] class DefaultEventHandler[T](val config: ProducerConfig,
   private def send(messagesPerTopic: Map[(String, Int), ByteBufferMessageSet], syncProducer: SyncProducer) {
     println("-------------DefaultEventHandler-------------------------send--------------------------")
     if (messagesPerTopic.size > 0) {
-      val requests = messagesPerTopic.map(f => new ProducerRequest(f._1._1, f._1._2, f._2)).toArray  // 将发送的消息，转化为ProducerRequest发送请求
+      val requests: Array[ProducerRequest] = messagesPerTopic.map(f => new ProducerRequest(f._1._1, f._1._2, f._2)).toArray  // 将发送的消息，转化为ProducerRequest发送请求
       syncProducer.multiSend(requests) // 批量发送
       if (logger.isTraceEnabled)
         logger.trace("kafka producer sent messages for topics " + messagesPerTopic)
@@ -61,7 +64,8 @@ private[kafka] class DefaultEventHandler[T](val config: ProducerConfig,
 
   private def serialize(eventsPerTopic: Map[(String, Int), Seq[T]],
                         serializer: Encoder[T]): Map[(String, Int), ByteBufferMessageSet] = {
-    val eventsPerTopicMap = eventsPerTopic.map(e => ((e._1._1, e._1._2), e._2.map(l => serializer.toMessage(l)))) // 转化为 Message
+    val eventsPerTopicMap: mutable.Map[(String, Int), Seq[Message]] =
+      eventsPerTopic.map(e => ((e._1._1, e._1._2), e._2.map(l => serializer.toMessage(l)))) // 转化为 Message
     /** enforce the compressed.topics config here.
       * If the compression codec is anything other than NoCompressionCodec,
       * Enable compression only for specified topics if any
@@ -112,10 +116,10 @@ private[kafka] class DefaultEventHandler[T](val config: ProducerConfig,
 
     var remainingEvents = events
     distinctTopics foreach { topic => // 开始遍历所有的topic
-      val topicEvents = remainingEvents partition (e => e.getTopic.equals(topic)) // 对所有的envents 进行分区
+      val topicEvents: (Seq[QueueItem[T]], Seq[QueueItem[T]]) = remainingEvents partition (e => e.getTopic.equals(topic)) // 对所有的envents 进行分区
       remainingEvents = topicEvents._2 // 不满足条件的数据
       distinctPartitions.foreach { p => // 遍历event中所有的分区
-        val topicPartitionEvents = (topicEvents._1 partition (e => (e.getPartition == p)))._1 // 得到相同topic的相同分区的events对象集合
+        val topicPartitionEvents: Seq[QueueItem[T]] = (topicEvents._1 partition (e => (e.getPartition == p)))._1 // 得到相同topic的相同分区的events对象集合
         if (topicPartitionEvents.size > 0) { // 如果集合对象大于0
           collatedEvents += ((topic, p) -> topicPartitionEvents.map(q => q.getData)) //相同topic的相同分区的--->events对象集合
         }

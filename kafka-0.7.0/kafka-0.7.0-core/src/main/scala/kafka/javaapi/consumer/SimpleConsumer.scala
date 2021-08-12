@@ -32,6 +32,7 @@ class SimpleConsumer(val host: String,
                      val port: Int,
                      val soTimeout: Int,
                      val bufferSize: Int) {
+
   val underlying = new kafka.consumer.SimpleConsumer(host, port, soTimeout, bufferSize)
 
   /**

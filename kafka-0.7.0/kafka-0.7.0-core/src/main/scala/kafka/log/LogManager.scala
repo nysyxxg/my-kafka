@@ -52,7 +52,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
   private val logFlushIntervalMap = config.flushIntervalMap
   private val logRetentionMSMap = getLogRetentionMSMap(config.logRetentionHoursMap)
   private val logRetentionSize = config.logRetentionSize
-
+  println("--------------------LogManager-------init-------------logDir---------:"+ logDir)
   /* Initialize a log for each subdirectory of the main log directory */
   private val logs = new Pool[String, Pool[Int, Log]]()
   if(!logDir.exists()) { // 判断日志目录是否存在
@@ -218,13 +218,14 @@ private[kafka] class LogManager(val config: KafkaConfig,
 
   /* Runs through the log removing segments older than a certain age */
   private def cleanupExpiredSegments(log: Log): Int = {
-    println("-------------LogManager-------------------cleanupExpiredSegments-----------start-------")
+    println(Thread.currentThread().getName + "-------------LogManager-------------------cleanupExpiredSegments-----------start-------")
     val startMs = time.milliseconds
     val topic = Utils.getTopicPartition(log.dir.getName)._1
     val logCleanupThresholdMS = logRetentionMSMap.get(topic).getOrElse(this.logCleanupDefaultAgeMs)
+    // 删除过期的文件，如果文件最后修改时间和当前时间做时间差，大于设置时间，就满足条件，删除
     val toBeDeleted = log.markDeletedWhile(startMs - _.file.lastModified > logCleanupThresholdMS)
     val total = deleteSegments(log, toBeDeleted) // 删除特定的日志分片
-    println("-------------LogManager-------------------cleanupExpiredSegments-----------end-------")
+    println(Thread.currentThread().getName + "-------------LogManager-------------------cleanupExpiredSegments-----------end-------")
     total
   }
 
@@ -252,7 +253,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
    * Delete any eligible logs. Return the number of segments deleted.
    */
   def cleanupLogs() {
-    println("-------------LogManager-------------------cleanupLogs-----------start-------")
+    println(Thread.currentThread().getName + "-------------LogManager--------定时清理日志线程-----------cleanupLogs-----------start-------")
     logger.debug("Beginning log cleanup...")
     val iter = getLogIterator
     var total = 0
@@ -263,7 +264,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
       total += cleanupExpiredSegments(log) + cleanupSegmentsToMaintainSize(log)
     }
     logger.debug("Log cleanup completed. " + total + " files deleted in " + (time.milliseconds - startMs) / 1000 + " seconds")
-    println("-------------LogManager-------------------cleanupLogs-----------end-------")
+    println(Thread.currentThread().getName +"-------------LogManager----------定时清理日志线程---------cleanupLogs-----------end-------")
   }
   
   /**
@@ -301,6 +302,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
   }
 
   private def flushAllLogs() = {
+    //println(Thread.currentThread().getName +"-------------LogManager---------flushAllLogs-----刷新日志-----------start-------")
     if (logger.isDebugEnabled)
       logger.debug("flushing the high watermark of all logs")
 
@@ -308,15 +310,16 @@ private[kafka] class LogManager(val config: KafkaConfig,
       try{
         val timeSinceLastFlush = System.currentTimeMillis - log.getLastFlushedTime
         var logFlushInterval = config.defaultFlushIntervalMs
-        if(logFlushIntervalMap.contains(log.getTopicName))
+        if(logFlushIntervalMap.contains(log.getTopicName)) {
           logFlushInterval = logFlushIntervalMap(log.getTopicName)
-        if (logger.isDebugEnabled)
-          logger.debug(log.getTopicName + " flush interval  " + logFlushInterval +
-            " last flushed " + log.getLastFlushedTime + " timesincelastFlush: " + timeSinceLastFlush)
-        if(timeSinceLastFlush >= logFlushInterval)
+        }
+        if (logger.isDebugEnabled){
+          logger.debug(log.getTopicName + " flush interval  " + logFlushInterval + " last flushed " + log.getLastFlushedTime + " timesincelastFlush: " + timeSinceLastFlush)
+        }
+        if(timeSinceLastFlush >= logFlushInterval) {
           log.flush
-      }
-      catch {
+        }
+      } catch {
         case e =>
           logger.error("Error flushing topic " + log.getTopicName, e)
           e match {
@@ -327,6 +330,7 @@ private[kafka] class LogManager(val config: KafkaConfig,
           }
       }
     }
+   // println(Thread.currentThread().getName +"-------------LogManager---------flushAllLogs-----刷新日志-----------end-------")
   }
 
 

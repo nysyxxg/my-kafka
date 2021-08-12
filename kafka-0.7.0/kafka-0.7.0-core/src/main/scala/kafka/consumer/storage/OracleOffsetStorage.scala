@@ -71,9 +71,9 @@ class OracleOffsetStorage(val connection: Connection) extends OffsetStorage {
    */
   private def maybeInsertZeroOffset(connection: Connection, node: Int, topic: String): Boolean = {
     val stmt = connection.prepareStatement(
-      """insert into kafka_offsets (node, topic, offset) 
-         select ?, ?, 0 from dual where not exists 
-         (select null from kafka_offsets where node = ? and topic = ?)""")
+      """insert into kafka_offsets (node, topic, offset)  select ?, ?, 0 from dual where not exists
+              (select null from kafka_offsets where node = ? and topic = ?)
+           """)
     stmt.setInt(1, node)
     stmt.setString(2, topic)
     stmt.setInt(3, node)

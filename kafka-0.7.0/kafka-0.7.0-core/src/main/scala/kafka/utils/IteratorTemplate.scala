@@ -27,14 +27,15 @@ object FAILED extends State
  * Transliteration of the iterator template in google collections. To implement an iterator
  * override makeNext and call allDone() when there is no more items
  */
-abstract class IteratorTemplate[T] extends Iterator[T] with java.util.Iterator[T] {
+abstract class IteratorTemplate[T] extends Iterator[T] with java.util.Iterator[T] {  // 迭代器模板方法设计模式
   
   private var state: State = NOT_READY
   private var nextItem: Option[T] = None
 
   def next(): T = {
-    if(!hasNext())
+    if(!hasNext()){
       throw new NoSuchElementException()
+    }
     state = NOT_READY
     nextItem match {
       case Some(item) => item
@@ -52,11 +53,11 @@ abstract class IteratorTemplate[T] extends Iterator[T] with java.util.Iterator[T
     }
   }
   
-  protected def makeNext(): T
+  protected def makeNext(): T   // 子类只需要重写这个方法
   
   def maybeComputeNext(): Boolean = {
     state = FAILED
-    nextItem = Some(makeNext())
+    nextItem = Some(makeNext()) // 获取下一个元素
     if(state == DONE) {
       false
     } else {

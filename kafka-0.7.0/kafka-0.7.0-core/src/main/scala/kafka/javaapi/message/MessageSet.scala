@@ -33,6 +33,7 @@ abstract class MessageSet extends java.lang.Iterable[MessageAndOffset] {
 
   /**
    * Provides an iterator over the messages in this set
+    * 在此集合中的消息上提供迭代器，子类实现这个迭代器
    */
   def iterator: java.util.Iterator[MessageAndOffset]
 
@@ -49,8 +50,9 @@ abstract class MessageSet extends java.lang.Iterable[MessageAndOffset] {
     val thisIterator = this.iterator
     while(thisIterator.hasNext) {
       val messageAndOffset = thisIterator.next
-      if(!messageAndOffset.message.isValid)
+      if(!messageAndOffset.message.isValid){
         throw new InvalidMessageException
+      }
     }
   }
 }

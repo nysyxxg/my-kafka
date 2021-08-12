@@ -30,7 +30,7 @@ class KafkaScheduler(val numThreads: Int, val baseThreadName: String, isDaemon: 
   private val logger = Logger.getLogger(getClass())
 
   private val threadId = new AtomicLong(0)
-
+  // 创建线程池
   private val executor = new ScheduledThreadPoolExecutor(numThreads, new ThreadFactory() {
     def newThread(runnable: Runnable): Thread = {
       val t = new Thread(runnable, baseThreadName + threadId.getAndIncrement)

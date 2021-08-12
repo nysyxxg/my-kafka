@@ -215,7 +215,7 @@ object ZkUtils {
       val brokers = getChildrenParentMayNotExist(zkClient, BrokerIdsPath)
       for (broker <- brokers) {
         val dataPath = BrokerTopicsPath + "/" + topic + "/" + broker
-        val data = readData(zkClient, dataPath)
+        val data = readData(zkClient, dataPath)  // 获取到topic对应的broker上包含的分区个数，
         val nParts = data.toInt
         for (part <- 0 until nParts) {
           partList ::= broker + "-" + part

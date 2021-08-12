@@ -18,8 +18,8 @@
 package kafka.api
 
 object RequestKeys {
-  val Produce: Short = 0 // 发送数据
-  val Fetch: Short = 1 // 获取数据
+  val Produce: Short = 0 //生产者--> 发送数据
+  val Fetch: Short = 1 //消费者--> 获取数据
   val MultiFetch: Short = 2 // 批量获取
   val MultiProduce: Short = 3 // 批量发送
   val Offsets: Short = 4

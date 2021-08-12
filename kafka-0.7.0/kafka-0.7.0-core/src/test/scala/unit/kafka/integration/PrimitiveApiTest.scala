@@ -154,8 +154,7 @@ class PrimitiveApiTest extends JUnit3Suite with ProducerConsumerTestHarness with
       val messages = new mutable.HashMap[String, ByteBufferMessageSet]
       val fetches = new mutable.ArrayBuffer[FetchRequest]
       for(topic <- topics) {
-        val set = new ByteBufferMessageSet(DefaultCompressionCodec,
-                                           new Message(("a_" + topic).getBytes), new Message(("b_" + topic).getBytes))
+        val set = new ByteBufferMessageSet(DefaultCompressionCodec, new Message(("a_" + topic).getBytes), new Message(("b_" + topic).getBytes))
         messages += topic -> set
         producer.send(topic, set)
         set.getBuffer.rewind

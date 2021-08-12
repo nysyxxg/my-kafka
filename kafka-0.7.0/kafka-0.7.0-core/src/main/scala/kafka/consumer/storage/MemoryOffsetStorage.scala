@@ -27,8 +27,9 @@ class MemoryOffsetStorage extends OffsetStorage {
 
   def reserve(node: Int, topic: String): Long = {
     val key = (node, topic)
-    if(!offsetAndLock.containsKey(key))
+    if(!offsetAndLock.containsKey(key)){
       offsetAndLock.putIfAbsent(key, (new AtomicLong(0), new ReentrantLock))
+    }
     val (offset, lock) = offsetAndLock.get(key)
     lock.lock
     offset.get

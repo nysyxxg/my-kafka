@@ -159,7 +159,8 @@ class Message(val buffer: ByteBuffer) {
     payload.position(headerSize(magic))
     payload = payload.slice()
     payload.limit(payloadSize)
-    payload.rewind()
+    payload.rewind()  // 1. flip会改变limit的值，一般会设置为当前的读写位置；
+                       //2. rewind不会改变limit的值，一般会设置为capacity的值；
     payload
   }
   

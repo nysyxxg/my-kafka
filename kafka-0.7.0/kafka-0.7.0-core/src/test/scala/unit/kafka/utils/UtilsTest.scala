@@ -23,11 +23,21 @@ import org.junit.Test
 
 class UtilsTest extends JUnitSuite {
   
-  private val logger = Logger.getLogger(classOf[UtilsTest]) 
+  private val logger = Logger.getLogger(classOf[UtilsTest])
+
+
+  def test2: Unit = {
+
+  }
+
+  def test(message: Any, t: Throwable)   = {
+    logger.info(message,t)
+  }
 
   @Test
   def testSwallow() {
     Utils.swallow(logger.info, throw new IllegalStateException("test"))
+
   }
   
 }

@@ -94,21 +94,21 @@ trait ZookeeperConsumerConnectorMBean {
 private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
                                                 val enableFetcher: Boolean) // for testing only
   extends ConsumerConnector with ZookeeperConsumerConnectorMBean {
-
+  println(getClass() + "------------------------ZookeeperConsumerConnector----init------")
   private val logger = Logger.getLogger(getClass())
   private val isShuttingDown = new AtomicBoolean(false)
-  private val rebalanceLock = new Object
+  private val rebalanceLock = new Object //  重新平衡加一把锁
   private var fetcher: Option[Fetcher] = None
   private var zkClient: ZkClient = null
-  private val topicRegistry = new Pool[String, Pool[Partition, PartitionTopicInfo]]
+  private val topicRegistry = new Pool[String, Pool[Partition, PartitionTopicInfo]] // topic--> Partition, PartitionTopicInfo
   // queues : (topic,consumerThreadId) -> queue
   private val queues = new Pool[Tuple2[String, String], BlockingQueue[FetchedDataChunk]]
   private val scheduler = new KafkaScheduler(1, "Kafka-consumer-autocommit-", false)
   connectZk()
   createFetcher()
-  if (config.autoCommit) {
+  if (config.autoCommit) { // 判断是否自动提交offset，如果是需要开启定时线程
     logger.info("starting auto committer every " + config.autoCommitIntervalMs + " ms")
-    scheduler.scheduleWithRate(autoCommit, config.autoCommitIntervalMs, config.autoCommitIntervalMs)
+    scheduler.scheduleWithRate(autoCommit, config.autoCommitIntervalMs, config.autoCommitIntervalMs) // 默认10秒提交一次
   }
 
   def this(config: ConsumerConfig) = this(config, true)
@@ -116,15 +116,18 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
   def createMessageStreams[T](topicCountMap: Map[String, Int],
                               decoder: Decoder[T])
   : Map[String, List[KafkaMessageStream[T]]] = {
+    println(getClass() + "------------------------createMessageStreams--------")
     consume(topicCountMap, decoder)
   }
 
   private def createFetcher() {
+    println(getClass() + "------------------------createFetcher---------")
     if (enableFetcher)
       fetcher = Some(new Fetcher(config, zkClient))
   }
 
   private def connectZk() {
+    println(getClass() + "------------------------connectZk---------")
     logger.info("Connecting to zookeeper instance at " + config.zkConnect)
     zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs, config.zkConnectionTimeoutMs, ZKStringSerializer)
   }
@@ -158,14 +161,16 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
   def consume[T](topicCountMap: scala.collection.Map[String, Int],
                  decoder: Decoder[T])
   : Map[String, List[KafkaMessageStream[T]]] = {
+    println(getClass() + "---------------------entering---consume--------")
     logger.debug("entering consume ")
-    if (topicCountMap == null)
+    if (topicCountMap == null){
       throw new RuntimeException("topicCountMap is null")
-
+    }
     val dirs = new ZKGroupDirs(config.groupId)
+    println(getClass() + "------------------entering------consume--------dirs= "+ dirs)
     var ret = new mutable.HashMap[String, List[KafkaMessageStream[T]]]
 
-    var consumerUuid: String = null
+    var consumerUuid: String = null  // 创建消费者uuid
     config.consumerId match {
       case Some(consumerId) // for testing only 
       => consumerUuid = consumerId
@@ -175,39 +180,40 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
           InetAddress.getLocalHost.getHostName, System.currentTimeMillis,
           uuid.getMostSignificantBits().toHexString.substring(0, 8))
     }
-    val consumerIdString = config.groupId + "_" + consumerUuid
+    val consumerIdString = config.groupId + "_" + consumerUuid  // 拼接消费者id
     val topicCount = new TopicCount(consumerIdString, topicCountMap)
 
     // listener to consumer and partition changes
+    // 初始化监听器，主要监听 消费者 和 partition的改变
     val loadBalancerListener = new ZKRebalancerListener(config.groupId, consumerIdString)
-    registerConsumerInZK(dirs, consumerIdString, topicCount)
+    registerConsumerInZK(dirs, consumerIdString, topicCount) // 注册消费者到zk
 
-    // register listener for session expired event
-    zkClient.subscribeStateChanges(
+    // register listener for session expired event  为会话过期事件注册侦听器
+    zkClient.subscribeStateChanges( // 订阅状态改变
       new ZKSessionExpireListenner(dirs, consumerIdString, topicCount, loadBalancerListener))
-
+    // 订阅 子节点改变
     zkClient.subscribeChildChanges(dirs.consumerRegistryDir, loadBalancerListener)
 
-    // create a queue per topic per consumer thread
+    // create a queue per topic per consumer thread  为每个使用者线程的每个主题创建一个队列
     val consumerThreadIdsPerTopic = topicCount.getConsumerThreadIdsPerTopic
     for ((topic, threadIdSet) <- consumerThreadIdsPerTopic) {
       var streamList: List[KafkaMessageStream[T]] = Nil
       for (threadId <- threadIdSet) {
-        val stream = new LinkedBlockingQueue[FetchedDataChunk](config.maxQueuedChunks)
+        val stream = new LinkedBlockingQueue[FetchedDataChunk](config.maxQueuedChunks) // 定义一个阻塞队列，存储获取的数据块
         queues.put((topic, threadId), stream)
         streamList ::= new KafkaMessageStream[T](topic, stream, config.consumerTimeoutMs, decoder)
       }
       ret += (topic -> streamList)
-      logger.debug("adding topic " + topic + " and stream to map..")
+      logger.debug("adding topic " + topic + " and stream to map.............")
 
       // register on broker partition path changes
-      val partitionPath = ZkUtils.BrokerTopicsPath + "/" + topic
-      ZkUtils.makeSurePersistentPathExists(zkClient, partitionPath)
-      zkClient.subscribeChildChanges(partitionPath, loadBalancerListener)
+      val partitionPath = ZkUtils.BrokerTopicsPath + "/" + topic  // /brokers/topics/topicname
+      ZkUtils.makeSurePersistentPathExists(zkClient, partitionPath) // 确保持久化节点路径存在
+      zkClient.subscribeChildChanges(partitionPath, loadBalancerListener) // 监听这个目录子节点改变
     }
 
     // explicitly trigger load balancing for this consumer
-    loadBalancerListener.syncedRebalance()
+    loadBalancerListener.syncedRebalance()  // 同步平衡
     ret
   }
 
@@ -230,6 +236,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
     if (logger.isTraceEnabled)
       logger.trace("auto committing")
     try {
+      println(getClass() + "------------------------autoCommit--------" + Thread.currentThread().getName)
       commitOffsets()
     }
     catch {
@@ -239,9 +246,12 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
     }
   }
 
+  // 提交offset
   def commitOffsets() {
-    if (zkClient == null)
+    println(getClass() + "------------------------commitOffsets--------" + Thread.currentThread().getName)
+    if (zkClient == null) {
       return
+    }
     for ((topic, infos) <- topicRegistry) {
       val topicDirs = new ZKGroupTopicDirs(config.groupId, topic)
       for (info <- infos.values) {
@@ -442,15 +452,14 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       oldPartitionsPerTopicMap.clear
     }
 
-    def syncedRebalance() {  // 同步平衡
+    def syncedRebalance() { // 同步平衡
       rebalanceLock synchronized {
         for (i <- 0 until ZookeeperConsumerConnector.MAX_N_RETRIES) {
           logger.info("begin rebalancing consumer " + consumerIdString + " try #" + i)
           var done = false
           try {
             done = rebalance()
-          }
-          catch {
+          } catch {
             case e =>
               // occasionally, we may hit a ZK exception because the ZK state is changing while we are iterating.
               // For example, a ZK node can disappear between the time we get all children and the time we try to get
@@ -552,7 +561,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
 
     private def processPartition(topicDirs: ZKGroupTopicDirs, partition: String,
                                  topic: String, consumerThreadId: String): Boolean = {
-      val partitionOwnerPath = topicDirs.consumerOwnerDir + "/" + partition
+      val partitionOwnerPath = topicDirs.consumerOwnerDir + "/" + partition // 创建消费者消费这个分区的临时目录
       try {
         ZkUtils.createEphemeralPathExpectConflict(zkClient, partitionOwnerPath, consumerThreadId)
       }
@@ -576,17 +585,18 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       val offsetString = ZkUtils.readDataMaybeNull(zkClient, znode)
       // If first time starting a consumer, set the initial offset based on the config
       var offset: Long = 0L
-      if (offsetString == null)
-        offset = config.autoOffsetReset match {
-          case OffsetRequest.SmallestTimeString =>
+      if (offsetString == null){
+        offset = config.autoOffsetReset match { // 根据设置autoOffsetReset，来获取offset的消费位置
+          case OffsetRequest.SmallestTimeString => // 从 smallest开始
             earliestOrLatestOffset(topic, partition.brokerId, partition.partId, OffsetRequest.EarliestTime)
-          case OffsetRequest.LargestTimeString =>
+          case OffsetRequest.LargestTimeString => // 从 largest 开始
             earliestOrLatestOffset(topic, partition.brokerId, partition.partId, OffsetRequest.LatestTime)
           case _ =>
             throw new InvalidConfigException("Wrong value in autoOffsetReset in ConsumerConfig")
         }
-      else
+      }else{
         offset = offsetString.toLong
+      }
       val queue = queues.get((topic, consumerThreadId))
       val consumedOffset = new AtomicLong(offset)
       val fetchedOffset = new AtomicLong(offset)
@@ -598,8 +608,9 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
         fetchedOffset,
         new AtomicInteger(config.fetchSize))
       partTopicInfoMap.put(partition, partTopicInfo)
-      if (logger.isDebugEnabled)
+      if (logger.isDebugEnabled){
         logger.debug(partTopicInfo + " selected new offset " + offset)
+      }
     }
 
     override def handleChildChange(s: String, list: util.List[String]): Unit = {

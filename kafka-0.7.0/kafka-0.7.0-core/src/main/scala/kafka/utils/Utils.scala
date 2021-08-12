@@ -137,8 +137,8 @@ object Utils {
     } else if(string.length > Short.MaxValue) {
       throw new IllegalArgumentException("String exceeds the maximum size of " + Short.MaxValue + ".")
     } else {
-      buffer.putShort(string.length.asInstanceOf[Short])
-      buffer.put(string.getBytes(encoding))
+      buffer.putShort(string.length.asInstanceOf[Short])  // 占用占用2个字节，存储topic的长度
+      buffer.put(string.getBytes(encoding))  // topic的数据
     }
   }
   

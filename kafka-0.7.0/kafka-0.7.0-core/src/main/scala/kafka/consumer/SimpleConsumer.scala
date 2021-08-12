@@ -40,7 +40,7 @@ class SimpleConsumer(val host: String,
   private var channel : SocketChannel = null
   private val lock = new Object()
 
-  private def connect(): SocketChannel = {
+  private def connect(): SocketChannel = { // 获取 SocketChannel
     close
     val address = new InetSocketAddress(host, port)
 
@@ -86,8 +86,8 @@ class SimpleConsumer(val host: String,
       getOrMakeConnection()
       var response: Tuple2[Receive,Int] = null
       try {
-        sendRequest(request)
-        response = getResponse
+        sendRequest(request)  //  发送客户端，fetch请求
+        response = getResponse  // 得到响应
       } catch {
         case e : java.io.IOException =>
           logger.info("fetch reconnect due to " + e)
@@ -190,6 +190,7 @@ class SimpleConsumer(val host: String,
 
   private def getOrMakeConnection() {
     if(channel == null) {
+      println("-----------------------SimpleConsumer------------------getOrMakeConnection------------------------")
       channel = connect()
     }
   }

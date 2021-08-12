@@ -19,5 +19,6 @@ package kafka.message
 
 /**
  * Represents message and offset of the next message. This is used in the MessageSet to iterate over it
+  * 封装消息实体信息 和 offset数据
  */
 case class MessageAndOffset(val message: Message, val offset: Long)

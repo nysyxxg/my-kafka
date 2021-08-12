@@ -122,6 +122,7 @@ private[kafka] class Acceptor(val port: Int, private val processors: Array[Proce
     * Accept loop that checks for new connection attempts
     */
   override def run() {
+    println(Thread.currentThread().getName + "-------------Acceptor----------Acceptor线程--------------------------")
     val serverChannel = ServerSocketChannel.open()
     serverChannel.configureBlocking(false)  //设置为非阻塞
     serverChannel.socket.bind(new InetSocketAddress(port))
@@ -182,12 +183,13 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
                                val time: Time,
                                val stats: SocketServerStats,
                                val maxRequestSize: Int) extends AbstractServerThread {
-  println("-------------Processor----------init--------------------------" + Thread.currentThread().getName)
+
   private val newConnections = new ConcurrentLinkedQueue[SocketChannel]();
   private val requestLogger = Logger.getLogger("kafka.request.logger")
 
   override def run() {
     startupComplete()
+    println(Thread.currentThread().getName + "-------------Processor----------Processor线程--------------------------")
     while (isRunning) {
       // setup any new connections that have been queued up
       configureNewConnections()
@@ -300,11 +302,11 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
    * Process reads from ready sockets
    */
   def read(key: SelectionKey) {
-    println("-------------Processor----------read(key: SelectionKey)----------------------start------------")
+    println(Thread.currentThread().getName + "-------------Processor----------read(key: SelectionKey)----------------------start------------")
     val socketChannel = channelFor(key)  // 根据key 获取对应的 socketChannel
     var request = key.attachment.asInstanceOf[Receive]
     if (key.attachment == null) {
-      println("-------------Processor----------read(key: SelectionKey)---------------key.attachment------------" + key.attachment)
+      println(Thread.currentThread().getName + "-------------Processor----------read(key: SelectionKey)---------------key.attachment------------" + key.attachment)
       request = new BoundedByteBufferReceive(maxRequestSize) //
       key.attach(request)
     }
@@ -329,7 +331,7 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
       key.interestOps(SelectionKey.OP_READ)
       selector.wakeup()
     }
-    println("-------------Processor----------read(key: SelectionKey)----------------------end------------")
+    println(Thread.currentThread().getName + "-------------Processor----------read(key: SelectionKey)----------------------end------------")
   }
 
   /*

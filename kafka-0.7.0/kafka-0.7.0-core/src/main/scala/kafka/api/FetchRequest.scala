@@ -38,13 +38,17 @@ class FetchRequest(val topic: String,
                    val maxSize: Int) extends Request(RequestKeys.Fetch) {
   
   def writeTo(buffer: ByteBuffer) {
-    Utils.writeShortString(buffer, topic, "UTF-8")
-    buffer.putInt(partition)
-    buffer.putLong(offset)
-    buffer.putInt(maxSize)
+    Utils.writeShortString(buffer, topic, "UTF-8") // 放入topic
+    buffer.putInt(partition)  // 放入partition，占用4个字节
+    buffer.putLong(offset)  // 放入offset，占用 8个字节
+    buffer.putInt(maxSize)   // 占用4个字节
   }
   
-  def sizeInBytes(): Int = 2 + topic.length + 4 + 8 + 4
+  def sizeInBytes(): Int ={
+    val sizeInBytes = 2 + topic.length + 4 + 8 + 4
+    println("-------------FetchRequest---------sizeInBytes=(2 + topic.length + 4 + 8 + 4)=:"+ sizeInBytes)
+    sizeInBytes
+  }
 
   override def toString(): String= "FetchRequest(topic:" + topic + ", part:" + partition +" offset:" + offset +
     " maxSize:" + maxSize + ")"

@@ -244,7 +244,7 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
     * Delete any log segments matching the given predicate function
     */
   def markDeletedWhile(predicate: LogSegment => Boolean): Seq[LogSegment] = {
-    println("-------------Log-------------------markDeletedWhile-----------start-------")
+    println(Thread.currentThread().getName +"-------------Log-------------------markDeletedWhile-----------start-------")
     lock synchronized {
       val view = segments.view
       val deletable = view.takeWhile(predicate)
@@ -256,7 +256,7 @@ private[log] class Log(val dir: File, val maxSize: Long, val flushInterval: Int,
         roll()
       }
       val res = segments.trunc(numToDelete)
-      println("-------------Log-------------------markDeletedWhile-----------end-------")
+      println(Thread.currentThread().getName +"-------------Log-------------------markDeletedWhile-----------end-------")
       res
     }
   }

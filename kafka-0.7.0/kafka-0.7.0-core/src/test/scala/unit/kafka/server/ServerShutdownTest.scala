@@ -1,19 +1,19 @@
 /**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  * Licensed to the Apache Software Foundation (ASF) under one or more
+  * contributor license agreements.  See the NOTICE file distributed with
+  * this work for additional information regarding copyright ownership.
+  * The ASF licenses this file to You under the Apache License, Version 2.0
+  * (the "License"); you may not use this file except in compliance with
+  * the License.  You may obtain a copy of the License at
+  *
+  * http://www.apache.org/licenses/LICENSE-2.0
+  *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  * See the License for the specific language governing permissions and
+  * limitations under the License.
+  */
 package kafka.server
 
 import kafka.utils.TestUtils
@@ -47,14 +47,14 @@ class ServerShutdownTest extends JUnitSuite {
 
     {
       val producer = new SyncProducer(getProducerConfig(host,
-                                                        port,
-                                                        64*1024,
-                                                        100000,
-                                                        10000))
+        port,
+        64 * 1024,
+        100000,
+        10000))
       val consumer = new SimpleConsumer(host,
-                                        port,
-                                        1000000,
-                                        64*1024)
+        port,
+        1000000,
+        64 * 1024)
 
       val server = new KafkaServer(config)
       server.startup()
@@ -73,22 +73,25 @@ class ServerShutdownTest extends JUnitSuite {
 
     {
       val producer = new SyncProducer(getProducerConfig(host,
-                                                        port,
-                                                        64*1024,
-                                                        100000,
-                                                        10000))
+        port,
+        64 * 1024,
+        100000,
+        10000))
       val consumer = new SimpleConsumer(host,
-                                        port,
-                                        1000000,
-                                        64*1024)
+        port,
+        1000000,
+        64 * 1024)
 
       val server = new KafkaServer(config)
+      val logDir = server.config.logDir
+      println("logDir : " + logDir)
       server.startup()
 
       // bring the server back again and read the messages
       var fetched: ByteBufferMessageSet = null
-      while(fetched == null || fetched.validBytes == 0)
+      while (fetched == null || fetched.validBytes == 0) {
         fetched = consumer.fetch(new FetchRequest(topic, 0, 0, 10000))
+      }
       TestUtils.checkEquals(sent1.iterator, fetched.iterator)
       val newOffset = fetched.validBytes
 
@@ -99,12 +102,14 @@ class ServerShutdownTest extends JUnitSuite {
       Thread.sleep(200)
 
       fetched = null
-      while(fetched == null || fetched.validBytes == 0)
+      while (fetched == null || fetched.validBytes == 0) {
         fetched = consumer.fetch(new FetchRequest(topic, 0, newOffset, 10000))
+      }
       TestUtils.checkEquals(sent2.map(m => m.message).iterator, fetched.map(m => m.message).iterator)
 
       server.shutdown()
-      Utils.rm(server.config.logDir)
+
+      Utils.rm(logDir)
     }
 
   }

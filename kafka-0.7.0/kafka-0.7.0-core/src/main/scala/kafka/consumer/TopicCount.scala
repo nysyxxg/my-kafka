@@ -47,14 +47,15 @@ private[consumer] object TopicCount {
 
 private[consumer] class TopicCount(val consumerIdString: String, val topicCountMap: Map[String, Int]) {
 
-  def getConsumerThreadIdsPerTopic()
-    : Map[String, Set[String]] = {
+  def getConsumerThreadIdsPerTopic(): Map[String, Set[String]] = {
+    println(getClass() + "------------------------getConsumerThreadIdsPerTopic--------")
     val consumerThreadIdsPerTopicMap = new mutable.HashMap[String, Set[String]]()
     for ((topic, nConsumers) <- topicCountMap) {
       val consumerSet = new mutable.HashSet[String]
       assert(nConsumers >= 1)
-      for (i <- 0 until nConsumers)
+      for (i <- 0 until nConsumers){
         consumerSet += consumerIdString + "-" + i
+      }
       consumerThreadIdsPerTopicMap.put(topic, consumerSet)
     }
     consumerThreadIdsPerTopicMap

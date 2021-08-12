@@ -24,6 +24,7 @@ import kafka.message._
 class ByteBufferMessageSet(private val buffer: ByteBuffer,
                            private val initialOffset: Long = 0L,
                            private val errorCode: Int = ErrorMapping.NoError) extends MessageSet {
+
   private val logger = Logger.getLogger(getClass())
   val underlying: kafka.message.ByteBufferMessageSet = new kafka.message.ByteBufferMessageSet(buffer,
                                                                                               initialOffset,
@@ -31,8 +32,7 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
   def this(buffer: ByteBuffer) = this(buffer, 0L, ErrorMapping.NoError)
 
   def this(compressionCodec: CompressionCodec, messages: java.util.List[Message]) {
-    this(MessageSet.createByteBuffer(compressionCodec, scala.collection.JavaConversions.asScalaBuffer(messages): _*),
-         0L, ErrorMapping.NoError)
+    this(MessageSet.createByteBuffer(compressionCodec, scala.collection.JavaConversions.asScalaBuffer(messages): _*), 0L, ErrorMapping.NoError)
   }
 
   def this(messages: java.util.List[Message]) {

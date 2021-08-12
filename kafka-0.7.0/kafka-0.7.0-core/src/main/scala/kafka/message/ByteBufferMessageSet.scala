@@ -37,7 +37,8 @@ class ByteBufferMessageSet(private val buffer: ByteBuffer,
                            private val initialOffset: Long = 0L,
                            private val errorCode: Int = ErrorMapping.NoError) extends MessageSet {
   println("-------------ByteBufferMessageSet---------init--初始化--将需要写入的消息，进行封装--------------------buffer----"+ buffer)
-  private val logger = Logger.getLogger(getClass())  
+
+  private val logger = Logger.getLogger(getClass())
   private var validByteCount = -1L
   private var shallowValidByteCount = -1L
 

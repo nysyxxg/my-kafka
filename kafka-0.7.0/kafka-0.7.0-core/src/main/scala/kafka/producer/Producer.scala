@@ -199,8 +199,7 @@ class Producer[K, V](config: ProducerConfig,
     */
   private def getPartition(key: K, numPartitions: Int): Int = {
     if (numPartitions <= 0)
-      throw new InvalidPartitionException("Invalid number of partitions: " + numPartitions +
-        "\n Valid values are > 0")
+      throw new InvalidPartitionException("Invalid number of partitions: " + numPartitions + "\n Valid values are > 0")
     val partition = if (key == null) random.nextInt(numPartitions)
     else partitioner.partition(key, numPartitions)
     if (partition < 0 || partition >= numPartitions)

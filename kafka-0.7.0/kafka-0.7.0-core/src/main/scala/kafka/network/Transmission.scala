@@ -74,7 +74,7 @@ private[kafka] trait Send extends Transmission {
     println("-------------Send----------writeCompletely---------------writeTo--------------------------")
     var written = 0
     while (!complete) {
-      written = writeTo(channel)
+      written = writeTo(channel)  // 将数据写入到 channel，调用子类的实现方法
       if (logger.isTraceEnabled)
         logger.trace(written + " bytes written.")
     }
