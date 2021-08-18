@@ -10,6 +10,10 @@ public class MessageAndOffset {
         this.offset = offset;
     }
     
+    public Message message() {
+        return message;
+    }
+    
     public Message getMessage() {
         return message;
     }

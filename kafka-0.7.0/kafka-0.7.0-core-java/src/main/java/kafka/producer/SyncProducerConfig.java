@@ -12,8 +12,8 @@ public class SyncProducerConfig  extends SyncProducerConfigShared{
     public SyncProducerConfig(Properties props) {
         super(props);
         this.props = props;
-        host = Utils.getString(props, "host");
-        port = Utils.getInt(props, "port");
+        this.host = Utils.getString(props, "host");
+        this.port = Utils.getInt(props, "port");
     }
 }
 

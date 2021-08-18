@@ -2,6 +2,6 @@ package kafka.message;
 
 
 public class GZIPCompressionCodec extends CompressionCodec {
-    int codec = 1;
+    public static   int codec = 1;
 }
 

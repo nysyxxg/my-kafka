@@ -32,7 +32,7 @@ public class LogManager {
     private int numPartitions;
     private Long maxSize = null;
     private int flushInterval;
-    private Map<String, Integer> topicPartitionsMap = null;
+    private Map<String, Integer> topicPartitionsMap;
     
     public KafkaConfig config;
     public KafkaScheduler scheduler;
@@ -94,7 +94,7 @@ public class LogManager {
                     Log log = new Log(dir, maxSize, flushInterval, needRecovery);
                     Tuple2<String, Integer> topicPartion = Utils.getTopicPartition(dir.getName());
                     logs.putIfNotExists(topicPartion._1, new Pool<Integer, Log>());
-                    Pool<Integer, Log> parts =  (Pool<Integer, Log>)logs.get(topicPartion._1);
+                    Pool<Integer, Log> parts = (Pool<Integer, Log>) logs.get(topicPartion._1);
                     parts.put(topicPartion._2, log);
                 }
             }
@@ -121,7 +121,7 @@ public class LogManager {
         if (config.enableZookeeper) {
             kafkaZookeeper = new KafkaZooKeeper(config, this);
             kafkaZookeeper.startup();
-            
+
 //            zkActorThread = new Thread() {
 //                @Override
 //                public void run() {
@@ -267,17 +267,17 @@ public class LogManager {
             throw new InvalidPartitionException("wrong partition " + partition);
         }
         boolean hasNewTopic = false;
-        Map<Integer, Log> parts = (Map<Integer, Log>) logs.get(topic);
+        Pool<Integer, Log> parts = (Pool<Integer, Log>) logs.get(topic);
         if (parts == null) {
             Pool<Integer, Log> found = (Pool<Integer, Log>) logs.putIfNotExists(topic, new Pool<Integer, Log>());
             if (found == null)
                 hasNewTopic = true;
-            parts = (Map<Integer, Log>) logs.get(topic);
+            parts = (Pool<Integer, Log>) logs.get(topic);
         }
         Log log = parts.get(partition);
         if (log == null) {
             log = createLog(topic, partition);
-            Log found = parts.putIfAbsent(partition, log);
+            Log found = parts.putIfNotExists(partition, log);
             if (found != null) {
                 // there was already somebody there
                 log.close();

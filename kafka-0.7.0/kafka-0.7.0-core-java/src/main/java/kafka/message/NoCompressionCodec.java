@@ -1,5 +1,5 @@
 package kafka.message;
 
 public class NoCompressionCodec extends CompressionCodec {
-    int codec = 0;
+    public static int codec = 0;
 }

@@ -21,7 +21,6 @@ import java.util.zip.CRC32;
 public class Utils {
     private static Logger logger = Logger.getLogger(Utils.class);
     
-    
     public static Runnable runnable(UnitFunction func) {
         Runnable runnable = new Runnable() {
             @Override
@@ -39,7 +38,7 @@ public class Utils {
             public void run() {
                 try {
                     func.call();
-                    System.out.println("------当前线程名称：--->" + Thread.currentThread().getName());
+                    //System.out.println("------当前线程名称：--->" + Thread.currentThread().getName());
                 } catch (Exception t) {
                     logger.error(t, t);
                     logger.error(stackTrace(t), t);
@@ -74,8 +73,12 @@ public class Utils {
     
     public static int getIntInRange(Properties props, String name, int def, Tuple2<Integer, Integer> range) {
         int v = 0;
+        System.out.println(" props :" + props);
         if (props.containsKey(name)) {
-            v = Integer.valueOf(props.getProperty(name));
+            Object value = props.get(name);
+            if (value != null) {
+                v = Integer.valueOf(value.toString());
+            }
         } else {
             v = def;
         }
@@ -434,7 +437,7 @@ public class Utils {
     }
     
     public static int read(ReadableByteChannel channel, ByteBuffer buffer) {
-        int index = 0;
+        int index = -1;
         try {
             index = channel.read(buffer);
             if (index == -1) {
@@ -443,7 +446,8 @@ public class Utils {
                 return index;
             }
         } catch (IOException e) {
-            System.out.println("---------index------------" + index);
+            System.out.println(Thread.currentThread().getName() + "---------index------------" + index);
+            e.printStackTrace();
             logger.error(e);
         }
         return index;
@@ -526,10 +530,10 @@ public class Utils {
     }
     
     public static Object getObject(String className) {
+        Class clazz = null;
         if (className == null) {
             return null;
         } else {
-            Class clazz = null;
             try {
                 clazz = Class.forName(className);
             } catch (ClassNotFoundException e) {
@@ -537,9 +541,11 @@ public class Utils {
             }
             Class clazzT = clazz;
             Constructor<?>[] constructors = clazzT.getConstructors();
-            require(constructors.length == 1);
+            
             try {
-                return constructors[0].newInstance();
+                if (constructors.length == 1) {
+                    return constructors[0].newInstance();
+                }
             } catch (InstantiationException e) {
                 e.printStackTrace();
             } catch (IllegalAccessException e) {
@@ -556,7 +562,7 @@ public class Utils {
             throw new IllegalArgumentException("requirement failed");
     }
     
-   public static Boolean propertyExists(String prop) {
+    public static Boolean propertyExists(String prop) {
         if (prop == null)
             return false;
         else if (prop.compareTo("") == 0)

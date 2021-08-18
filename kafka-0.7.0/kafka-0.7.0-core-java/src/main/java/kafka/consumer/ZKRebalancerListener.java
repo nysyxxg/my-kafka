@@ -23,19 +23,20 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class ZKRebalancerListener implements IZkChildListener {
     private Logger logger = Logger.getLogger(getClass());
-    private Object rebalanceLock = new Object();
     
+    String groupId;
+    String consumerIdString;
     private ZKGroupDirs dirs;
     private Map<String, List<String>> oldPartitionsPerTopicMap = new HashMap<String, List<String>>();
     private Map<String, List<String>> oldConsumersPerTopicMap = new HashMap<String, List<String>>();
-    ZkClient zkClient;
-    String groupId;
-    String consumerIdString;
-    ConsumerConfig config;
-    private Pool<String, Pool<Partition, PartitionTopicInfo>> topicRegistry = null;
     
-    private Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>> queues = null;
-    private Fetcher fetcher = null;
+    
+    private Object rebalanceLock = new Object();
+    ConsumerConfig config;
+    ZkClient zkClient;
+    private Pool<String, Pool<Partition, PartitionTopicInfo>> topicRegistry;
+    private Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>> queues;
+    private Fetcher fetcher;
     
     public ZKRebalancerListener(ConsumerConfig config, ZkClient zkClient, String groupId, String consumerIdString,
                                 Pool<String, Pool<Partition, PartitionTopicInfo>> topicRegistry,
@@ -112,13 +113,14 @@ public class ZKRebalancerListener implements IZkChildListener {
     }
     
     private TopicCount getTopicCount(String consumerId) {
-        String topicCountJson = ZkUtils.readData(zkClient, dirs.getConsumerRegistryDir() + "/" + consumerId);
+        String path  = dirs.getConsumerRegistryDir() + "/" + consumerId;
+        System.out.println("path : " + path);
+        String topicCountJson = ZkUtils.readData(zkClient, path);
         return TopicCount.constructTopicCount(consumerId, topicCountJson);
     }
     
     @Override
     public void handleChildChange(String s, List<String> list) throws Exception {
-        
     }
     
     public void syncedRebalance() {
@@ -316,6 +318,7 @@ public class ZKRebalancerListener implements IZkChildListener {
             Long[] offsets = simpleConsumer.getOffsetsBefore(topic, partitionId, earliestOrLatest, 1);
             producedOffset = offsets[0];
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("error in earliestOrLatestOffset() ", e);
         } finally {
             if (simpleConsumer != null)

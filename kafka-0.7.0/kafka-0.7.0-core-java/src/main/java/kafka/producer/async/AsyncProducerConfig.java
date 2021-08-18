@@ -7,7 +7,7 @@ import java.util.Properties;
 
 
 public class AsyncProducerConfig extends SyncProducerConfig {
-    Properties props = new Properties();
+    Properties props;
     int queueTime;
     int queueSize;
     int enqueueTimeoutMs;

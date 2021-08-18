@@ -94,8 +94,12 @@ public class Producer<K, V> {
                 }), true);
     }
     
-    public void send(kafka.javaapi.producer.ProducerData<K, V> producerData) throws Throwable {
-        underlying.send(new kafka.producer.ProducerData<K, V>(producerData.getTopic(), producerData.getKey(), producerData.getData()));
+    public void send(kafka.javaapi.producer.ProducerData<K, V> producerData)   {
+        try {
+            underlying.send(new kafka.producer.ProducerData<K, V>(producerData.getTopic(), producerData.getKey(), producerData.getData()));
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
     }
     
     

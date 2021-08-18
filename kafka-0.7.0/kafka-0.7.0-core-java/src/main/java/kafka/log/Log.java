@@ -38,21 +38,27 @@ public class Log {
     private Object lock = new Object();
     private AtomicInteger unflushed = new AtomicInteger(0);
     private AtomicLong lastflushedTime = new AtomicLong(System.currentTimeMillis());
-    private SegmentList segments = null;
+    private SegmentList segments;
     private LogStats logStats = new LogStats(this);
     
     public Log() {
+    }
+    
+    public Log(File dir, Long maxSize, int flushInterval, Boolean needRecovery) {
+        this.dir = dir;
+        this.maxSize = maxSize;
+        this.flushInterval = flushInterval;
+        this.needRecovery = needRecovery;
+        this.name = dir.getName();
         try {
             this.segments = this.loadSegments();
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        
         this.name = dir.getName();
-        
         Utils.registerMBean(logStats, "kafka:type=kafka.logs." + dir.getName());
-        
     }
+    
     
     public <T> Range findRange(Range<? extends Range<T>>[] ranges, Long value, int arraySize) {
         if (ranges.length < 1) {
@@ -82,7 +88,6 @@ public class Log {
         return null;
     }
     
-    
     public <T> Range findRange(Range<? extends Range<T>>[] ranges, Long value) {
         return findRange(ranges, value, ranges.length);
     }
@@ -93,15 +98,6 @@ public class Log {
         nf.setMaximumFractionDigits(0);
         nf.setGroupingUsed(false);
         return nf.format(offset) + Log.FileSuffix;
-    }
-    
-    public Log(File dir, Long maxSize, int flushInterval, Boolean needRecovery) {
-        this.dir = dir;
-        this.maxSize = maxSize;
-        this.flushInterval = flushInterval;
-        this.needRecovery = needRecovery;
-        this.name = dir.getName();
-        ;
     }
     
     
@@ -201,9 +197,8 @@ public class Log {
     
     public void close() {
         synchronized (lock) {
-            Object[] objects = segments.getView();
-            for (Object object : objects) {
-                LogSegment seg = (LogSegment) object;
+            LogSegment[] logSegments = this.segments.getView();
+            for (LogSegment seg : logSegments) {
                 try {
                     seg.messageSet.close();
                 } catch (IOException e) {

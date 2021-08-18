@@ -39,20 +39,18 @@ public class SimpleConsumer {
         InetSocketAddress address = new InetSocketAddress(host, port);
         
         SocketChannel channel = null;
-        try {
-            channel = SocketChannel.open();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        
         if (logger.isDebugEnabled()) {
             logger.debug("Connected to " + address + " for fetching.");
         }
         try {
+            channel = SocketChannel.open();
             channel.configureBlocking(true);
             channel.socket().setReceiveBufferSize(bufferSize);
             channel.socket().setSoTimeout(soTimeout);
             channel.socket().setKeepAlive(true);
             channel.connect(address);
+            System.out.println("-------------init  初始化连接服务端---------------channel： " + channel);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,6 +65,14 @@ public class SimpleConsumer {
         if (logger.isDebugEnabled()) {
             logger.debug("Disconnecting from " + channel.socket().getRemoteSocketAddress());
         }
+    
+        try {
+            channel.socket().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.warn(e.getMessage(), e);
+        }
+        
         try {
             channel.close();
         } catch (IOException e) {
@@ -74,17 +80,13 @@ public class SimpleConsumer {
             logger.warn(e.getMessage(), e);
         }
         
-        try {
-            channel.socket().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            logger.warn(e.getMessage(), e);
-        }
+      
     }
     
     public void close() {
         synchronized (lock) {
             if (channel != null) {
+                System.out.println(this.getClass().getName() + "-----------close()------------------" + channel);
                 close(channel);
             }
             channel = null;
@@ -156,6 +158,7 @@ public class SimpleConsumer {
     
     public Long[] getOffsetsBefore(String topic, int partition, Long time, int maxNumOffsets) {
         synchronized (lock) {
+            System.out.println(this.getClass().getName() + "----------------getOffsetsBefore------------------");
             getOrMakeConnection();
             Tuple2<Receive, Integer> response = null;
             try {
@@ -170,6 +173,8 @@ public class SimpleConsumer {
                     response = getResponse();
                 } catch (IOException ioe) {
                     channel = null;
+                    ioe.printStackTrace();
+                    
                 }
             }
             return OffsetRequest.deserializeOffsetArray(response._1.buffer());
@@ -178,6 +183,7 @@ public class SimpleConsumer {
     
     
     private void sendRequest(Request request) {
+        System.out.println(this.getClass().getName() + "----------------sendRequest------------------");
         Send send = new BoundedByteBufferSend(request);
         try {
             send.writeCompletely(channel);
@@ -187,10 +193,13 @@ public class SimpleConsumer {
     }
     
     private Tuple2<Receive, Integer> getResponse() {
+        System.out.println(this.getClass().getName() + "----------------getResponse------------------");
+    
         BoundedByteBufferReceive response = new BoundedByteBufferReceive();
         response.readCompletely(channel);
         // this has the side effect of setting the initial position of buffer correctly
         int errorCode = response.buffer().getShort();
+        System.out.println("-------------errorCode---------> " + errorCode);
         return new Tuple2<>(response, errorCode);
     }
     

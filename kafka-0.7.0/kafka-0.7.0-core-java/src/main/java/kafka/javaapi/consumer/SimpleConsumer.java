@@ -3,7 +3,7 @@ package kafka.javaapi.consumer;
 import kafka.api.FetchRequest;
 import kafka.javaapi.Implicits;
 import kafka.javaapi.MultiFetchResponse;
-import kafka.message.ByteBufferMessageSet;
+import kafka.javaapi.message.ByteBufferMessageSet;
 
 public class SimpleConsumer {
     
@@ -22,8 +22,14 @@ public class SimpleConsumer {
         this.underlying = new kafka.consumer.SimpleConsumer(host, port, soTimeout, bufferSize);
     }
     
-    public ByteBufferMessageSet fetch(FetchRequest request) throws Throwable {
-        return underlying.fetch(request);
+    public ByteBufferMessageSet fetch(FetchRequest request)   {
+        try {
+            // 转化为： kafka.javaapi.message.ByteBufferMessageSet
+            return  Implicits.scalaMessageSetToJavaMessageSet(underlying.fetch(request));
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+        return null;
     }
     
     public MultiFetchResponse multifetch(java.util.List<FetchRequest> fetches) {

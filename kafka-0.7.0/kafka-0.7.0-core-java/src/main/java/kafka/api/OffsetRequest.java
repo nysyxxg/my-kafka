@@ -9,8 +9,8 @@ public class OffsetRequest extends Request {
     
     public static String SmallestTimeString = "smallest";
     public static String LargestTimeString = "largest";
-    public static Long LatestTime = -1L;
-    public static Long EarliestTime = -2L;
+    public static Long LatestTime = -1L;  // 从最新的offset开始消息
+    public static Long EarliestTime = -2L;// 从最早的offset开始消息
     
     public String topic;
     public int partition;
@@ -18,6 +18,7 @@ public class OffsetRequest extends Request {
     public int maxNumOffsets;
     
     public OffsetRequest(String topic, int partition, long offset, int maxNumOffsets) {
+        super(RequestKeys.Offsets);
         this.partition = partition;
         this.topic = topic;
         this.offset = offset;
@@ -40,10 +41,12 @@ public class OffsetRequest extends Request {
             buffer.putLong(offsets[i]);
         }
         buffer.rewind();
+        System.out.println(OffsetRequest.class.getName() + "-----------serializeOffsetArray------------buffer:" + buffer);
         return buffer;
     }
     
     public static Long[] deserializeOffsetArray(ByteBuffer buffer) {
+        System.out.println(OffsetRequest.class.getName() + "-----------deserializeOffsetArray------------buffer:" + buffer);
         int size = buffer.getInt();
         Long offsets[] = new Long[size];
         for (int i = 0; i < offsets.length; i++) {
@@ -60,12 +63,12 @@ public class OffsetRequest extends Request {
         buffer.putInt(maxNumOffsets);
     }
     
-    public int sizeInBytes(){
-        return  2 + topic.length() + 4 + 8 + 4;
+    public int sizeInBytes() {
+        return 2 + topic.length() + 4 + 8 + 4;
     }
     
-    public String   toString() {
-        return  "OffsetRequest(topic:" + topic + ", part:" + partition + ", time:" + offset +
+    public String toString() {
+        return "OffsetRequest(topic:" + topic + ", part:" + partition + ", time:" + offset +
                 ", maxNumOffsets:" + maxNumOffsets + ")";
     }
     

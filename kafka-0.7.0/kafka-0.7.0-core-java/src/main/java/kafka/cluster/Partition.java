@@ -1,6 +1,6 @@
 package kafka.cluster;
 
-public class Partition {
+public class Partition  implements   Comparable<Partition>{
     public int brokerId;
     public int partId;
     
@@ -27,12 +27,6 @@ public class Partition {
         return name;
     }
     
-    int compare(Partition that) {
-        if (this.brokerId == that.brokerId)
-            return this.partId - that.partId;
-        else
-            return this.brokerId - that.brokerId;
-    }
     
     @Override
     public boolean equals(Object other) {
@@ -75,5 +69,20 @@ public class Partition {
     
     public void setName(String name) {
         this.name = name;
+    }
+    
+    /**
+     * 实现自己的分区比较器
+     * @param that
+     * @return
+     */
+    @Override
+    public int compareTo(Partition that) {
+        if (this.brokerId == that.brokerId) {
+            return this.partId - that.partId;
+        }
+        else {
+            return this.brokerId - that.brokerId;
+        }
     }
 }

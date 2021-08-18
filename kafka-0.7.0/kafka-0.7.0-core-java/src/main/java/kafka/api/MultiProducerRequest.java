@@ -9,10 +9,10 @@ public class MultiProducerRequest extends Request {
     public  ProducerRequest[] produces;
     
     public MultiProducerRequest() {
-        super(RequestKeys.MultiProduce);
     }
     
     public MultiProducerRequest(ProducerRequest[] produces) {
+        super(RequestKeys.MultiProduce);
         this.produces = produces;
     }
     

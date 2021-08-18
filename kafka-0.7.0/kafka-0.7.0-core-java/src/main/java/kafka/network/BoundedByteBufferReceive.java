@@ -33,16 +33,19 @@ public class BoundedByteBufferReceive extends Receive {
         expectIncomplete();
         int read = 0;
         // have we read the request size yet?
-        if (sizeBuffer.remaining() > 0)
-            read += Utils.read(channel, sizeBuffer);
+        if (sizeBuffer.remaining() > 0) {
+            read += Utils.read(channel, sizeBuffer); //  先从channel 获取数据的大小
+        }
         // have we allocated the request buffer yet?
         if (contentBuffer == null && !sizeBuffer.hasRemaining()) {
             sizeBuffer.rewind();
             int size = sizeBuffer.getInt();
-            if (size <= 0)
+            if (size <= 0) {
                 throw new InvalidRequestException("%d is not a valid request size.".format(String.valueOf(size)));
-            if (size > maxSize)
+            }
+            if (size > maxSize) {
                 throw new InvalidRequestException("Request of length %d is not valid, it is larger than the maximum size of %d bytes.".format(String.valueOf(size), maxSize));
+            }
             contentBuffer = byteBufferAllocate(size);
         }
         // if we have a buffer read some stuff into it

@@ -13,7 +13,7 @@ public interface CallbackHandler<T> {
     
     QueueItem<T> beforeEnqueue(QueueItem   data ,Boolean added  );
     
-    List<QueueItem> afterDequeuingExistingData(QueueItem data );
+    List<QueueItem<T>> afterDequeuingExistingData(QueueItem<T> data );
     
     List<QueueItem<T>> beforeSendingData(List<QueueItem<T>> data);
     

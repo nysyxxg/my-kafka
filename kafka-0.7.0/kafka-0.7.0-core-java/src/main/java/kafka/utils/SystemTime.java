@@ -3,7 +3,7 @@ package kafka.utils;
 
 public class SystemTime implements Time {
     
-    public Long milliseconds() {
+    public   Long milliseconds() {
         return System.currentTimeMillis();
     }
     

@@ -14,6 +14,7 @@ public class ProducerRequest extends Request {
     public  ByteBufferMessageSet messages;
     
     public ProducerRequest(String topic, int partition, ByteBufferMessageSet messages) {
+        super(RequestKeys.Produce);// 设置请求类型：RequestKeys.Produce
         this.topic = topic;
         this.partition = partition;
         this.messages = messages;

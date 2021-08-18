@@ -22,8 +22,8 @@ public class KafkaZooKeeper {
     
     private Logger logger = Logger.getLogger(KafkaZooKeeper.class);
     
-    String brokerIdPath = null;
-    ZkClient zkClient = null;
+    String brokerIdPath;
+    ZkClient zkClient ;
     List<String> topics = new ArrayList<String>();
     Object lock = new Object();
     

@@ -24,23 +24,28 @@ public class KafkaRequestHandlers {
     }
     
     public Send handlerFor(Short requestTypeId, Receive receive) {
+        Send send = null;
         if (requestTypeId == RequestKeys.Produce) {
-            handleProducerRequest(receive);
+            send =   handleProducerRequest(receive);
         } else if (requestTypeId == RequestKeys.Fetch) {
-            handleFetchRequest(receive);
+            send = handleFetchRequest(receive);
         } else if (requestTypeId == RequestKeys.MultiFetch) {
-            handleMultiFetchRequest(receive);
+            send =   handleMultiFetchRequest(receive);
         } else if (requestTypeId == RequestKeys.MultiProduce) {
-            handleMultiProducerRequest(receive);
+            send =  handleMultiProducerRequest(receive);
         } else if (requestTypeId == RequestKeys.Offsets) {
-            handleOffsetRequest(receive);
+            send =  handleOffsetRequest(receive);
         } else {
             throw new IllegalStateException("No mapping found for handler id " + requestTypeId);
         }
-        return null;
+        return send;
     }
     
-    
+    /**
+     *  处理 根据offset 消息消息请求
+     * @param request
+     * @return
+     */
     Send handleOffsetRequest(Receive request) {
         OffsetRequest offsetRequest = OffsetRequest.readFrom(request.buffer());
         if (requestLogger.isTraceEnabled())
@@ -91,7 +96,11 @@ public class KafkaRequestHandlers {
         return readMessageSet(fetchRequest);
     }
     
-    
+    /**
+     * 处理生产者请求
+     * @param receive
+     * @return
+     */
     public Send handleProducerRequest(Receive receive) {
         Long sTime = System.currentTimeMillis();
         ProducerRequest request = ProducerRequest.readFrom(receive.buffer());

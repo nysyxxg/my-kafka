@@ -14,7 +14,7 @@ public interface ConsumerConnector {
             Map<String, Integer> topicCountMap, Decoder<T> decoder) throws UnknownHostException;
     
     public Map<String, List<KafkaMessageStream<Message>>> createMessageStreams(
-            Map<String, Integer> topicCountMap) throws UnknownHostException;
+            Map<String, Integer> topicCountMap);
     
     
     public void commitOffsets();

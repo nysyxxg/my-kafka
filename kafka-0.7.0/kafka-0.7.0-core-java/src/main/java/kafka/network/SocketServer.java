@@ -7,6 +7,7 @@ import kafka.server.KafkaRequestHandlers;
 import kafka.utils.SystemTime;
 import kafka.utils.Time;
 import kafka.utils.Utils;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -193,7 +194,7 @@ class Processor extends AbstractServerThread {
         while (isRunning()) {
             try {
                 Thread.sleep(3* 1000);
-                System.out.println("-------------正在后台运行的线程---->" + Thread.currentThread().getName());
+               // System.out.println("-------------正在后台运行的线程---->" + Thread.currentThread().getName());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -214,7 +215,6 @@ class Processor extends AbstractServerThread {
                     try {
                         key = iter.next();
                         iter.remove();
-                        
                         if (key.isReadable()) {
                             read(key);
                         } else if (key.isWritable()) {
@@ -269,8 +269,9 @@ class Processor extends AbstractServerThread {
     
     private  Send  handle(SelectionKey key, Receive request) {
         Short requestTypeId = request.buffer().getShort();
+        System.out.println(" kafka 服务器端开始处理接收到的请求： requestTypeId = " +  requestTypeId );
+        requestLogger.setLevel(Level.DEBUG);
         if (requestLogger.isTraceEnabled()) {
-            
             if (requestTypeId == RequestKeys.Produce) {
                 requestLogger.trace("Handling produce request from " + channelFor(key).socket().getRemoteSocketAddress());
             } else if (requestTypeId == RequestKeys.Fetch) {
@@ -286,8 +287,9 @@ class Processor extends AbstractServerThread {
             }
         }
         Send send =  handlers.handlerFor(requestTypeId,request);
-        if (send  == null)
-            throw new InvalidRequestException("No handler found for request");
+        if (send  == null) {
+            throw new InvalidRequestException("No handler found for request.....没有handler 处理这个请求!!!!");
+        }
         Long start = time.nanoseconds();
         stats.recordRequest(requestTypeId, time.nanoseconds() - start);
         return send;

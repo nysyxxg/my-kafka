@@ -56,10 +56,9 @@ public class ProducerPool<V> {
             this.sync = true;
         } else if (config.producerType.equals("async")) {
             this.sync = false;
+        } else {
+            throw new InvalidConfigException("Valid values for producer.type are sync/async");
         }
-//        else {
-//            throw new InvalidConfigException("Valid values for producer.type are sync/async");
-//        }
     }
     
     
@@ -84,7 +83,7 @@ public class ProducerPool<V> {
         props.put("host", broker.host);
         props.put("port", broker.port);
         props.putAll(config.props);
-        if (sync) {
+        if (sync) {  // 同步发送
             SyncProducer producer = new SyncProducer(new SyncProducerConfig(props));
             logger.info("Creating sync producer for broker id = " + broker.id + " at " + broker.host + ":" + broker.port);
             syncProducers.put(broker.id, producer);
@@ -121,7 +120,6 @@ public class ProducerPool<V> {
             List<ProducerPoolData> remainingRequests2 = notEqRemainingRequests2;
             
             if (sync) {
-                
                 List<ProducerRequest> producerRequests = new ArrayList<>();
                 for (ProducerPoolData req : eqRemainingRequests1) {
                     List<Message> msgList = new ArrayList();

@@ -19,6 +19,7 @@ public class ByteBufferMessageSet extends MessageSet {
     private ByteBuffer buffer;
     private Long initialOffset = 0L;
     private int errorCode = ErrorMapping.NoError;
+    public Long validBytes;
     
     public ByteBufferMessageSet(ByteBuffer buffer) throws Throwable {
         this.buffer = buffer;
@@ -30,6 +31,7 @@ public class ByteBufferMessageSet extends MessageSet {
         this.buffer = buffer;
         this.initialOffset = initialOffset;
         this.errorCode = errorCode;
+        this.validBytes = shallowValidBytes();
     }
     
     
@@ -46,8 +48,6 @@ public class ByteBufferMessageSet extends MessageSet {
         return buffer;
     }
     
-    
-    public  Long validBytes = shallowValidBytes();
     
     private Long shallowValidBytes() throws Throwable {
         if (shallowValidByteCount < 0) {

@@ -1,11 +1,13 @@
 package kafka.log;
 
 
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class SegmentList {
+public class SegmentList  {
+    
     private List<LogSegment> seq;
     public AtomicReference<LogSegment[]> contents;
     public LogSegment view[];
@@ -13,14 +15,16 @@ public class SegmentList {
     
     public SegmentList(List<LogSegment> seq) {
         this.seq = seq;
-        this.contents = new AtomicReference(seq.toArray());
+        LogSegment[] logSegments = new LogSegment[seq.size()];
+        seq.toArray(logSegments);
+        this.contents = new AtomicReference(logSegments);
         this.view = contents.get();
     }
     
     public void append(LogSegment... ts) {
         while (true) {
             LogSegment[] curr = contents.get();
-            LogSegment[] updated = new LogSegment[curr.length + ts.length];
+            LogSegment[] updated =  new  LogSegment[curr.length + ts.length];
             System.arraycopy(curr, 0, updated, 0, curr.length);
             for (int i = 0; i < ts.length; i++) {
                 updated[curr.length + i] = ts[i];

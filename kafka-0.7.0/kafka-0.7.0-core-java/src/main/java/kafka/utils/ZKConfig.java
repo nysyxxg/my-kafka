@@ -13,7 +13,7 @@ public class ZKConfig extends AsyncProducerConfigShared {
     public int zkSyncTimeMs;
     
     public ZKConfig(Properties props) {
-        super();
+        super(props);
         this.props = props;
         
         /** ZK host string */

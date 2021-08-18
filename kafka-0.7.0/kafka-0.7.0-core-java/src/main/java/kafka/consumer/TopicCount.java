@@ -1,7 +1,7 @@
 package kafka.consumer;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.log4j.Logger;
-import scala.util.parsing.json.JSON;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +25,8 @@ public class TopicCount {
     public static TopicCount constructTopicCount(String consumerIdSting, String jsonString) {
         Map<String, Integer> topMap = null;
         try {
-            Object obj = JSON.parseFull(jsonString).get();
+//            Object obj = JSON.parseFull(jsonString).get();
+            Object obj =  JSON.parseObject(jsonString, Map.class);
             if (obj instanceof Map) {
                 topMap = (Map<String, Integer>) obj;
             } else {
@@ -71,7 +72,7 @@ public class TopicCount {
         }
     }
     
-    public  String toJsonString() {
+    public String toJsonString() {
         StringBuilder builder = new StringBuilder();
         builder.append("{ ");
         int i = 0;

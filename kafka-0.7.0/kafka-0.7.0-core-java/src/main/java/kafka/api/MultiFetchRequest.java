@@ -9,10 +9,9 @@ public class MultiFetchRequest extends Request {
     public FetchRequest fetches[];
     
     public MultiFetchRequest(FetchRequest fetches[]) {
+        super(RequestKeys.MultiFetch);
         this.fetches = fetches;
     }
-    
-    
     
     public static MultiFetchRequest readFrom(ByteBuffer buffer) {
         short count = buffer.getShort();

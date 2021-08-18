@@ -13,7 +13,7 @@ public class KafkaMessageStream<T> implements Iterable<T> {
     public int consumerTimeoutMs;
     public Decoder<T> decoder;
     
-    private ConsumerIterator<T> iter = new ConsumerIterator<T>(topic, queue, consumerTimeoutMs, decoder);
+    private ConsumerIterator<T> iter;
     
     public ConsumerIterator<T> iterator() {
         return iter;
@@ -25,7 +25,7 @@ public class KafkaMessageStream<T> implements Iterable<T> {
         this.queue = queue;
         this.consumerTimeoutMs = consumerTimeoutMs;
         this.decoder = decoder;
-        
+        this.iter = new ConsumerIterator<T>(topic, queue, consumerTimeoutMs, decoder);
     }
     
     

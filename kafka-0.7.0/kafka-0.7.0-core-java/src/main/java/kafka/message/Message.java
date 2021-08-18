@@ -14,38 +14,32 @@ public class Message {
     static int MagicLength = 1;
     static int AttributeOffset = MagicOffset + MagicLength;
     static int AttributeLength = 1;
-    
     static int CompressionCodeMask = 0x03;
     int NoCompression = 0;
     
-    static int crcOffset(byte magic) {
-        if (magic == MagicVersion1) {
-            return MagicOffset + MagicLength;
-        }
-        if (magic == MagicVersion2) {
-            return AttributeOffset + AttributeLength;
-        } else {
-            throw new UnknownMagicByteException("Magic byte value of %d is unknown".format(String.valueOf(magic)));
-        }
-    }
-    
     static int CrcLength = 4;
     
-    static int payloadOffset(byte magic) {
-        return crcOffset(magic) + CrcLength;
-    }
-    
-    
-    static int headerSize(byte magic) {
-        return payloadOffset(magic);
-    }
-    
-    public static int MinHeaderSize = headerSize((byte) 0);
+    public static int MinHeaderSize;
     
     public ByteBuffer buffer;
     
+    public int payloadSize;
+    public int size;
+    public byte magic;
+    public byte attributes;
+    public Long checksum;
+    public int serializedSize;
+    
     public Message(ByteBuffer buffer) {
         this.buffer = buffer;
+        this.size = buffer.limit();
+        this.magic = buffer.get(MagicOffset);
+        this.payloadSize = size - headerSize(magic);
+        this.attributes = buffer.get(AttributeOffset);
+        
+        this.checksum = Utils.getUnsignedInt(buffer, crcOffset(magic));
+        this.serializedSize = 4 /* int size*/ + buffer.limit();
+        this.MinHeaderSize = headerSize((byte) 0);
     }
     
     public Message(Long checksum, byte bytes[], CompressionCodec compressionCodec) {
@@ -74,17 +68,26 @@ public class Message {
         this(bytes, new NoCompressionCodec());
     }
     
+    public static int headerSize(byte magic) {
+        return payloadOffset(magic);
+    }
     
-    int size = buffer.limit();
+    public static int payloadOffset(byte magic) {
+        return crcOffset(magic) + CrcLength;
+    }
     
-    byte magic = buffer.get(MagicOffset);
+    public static int crcOffset(byte magic) {
+        if (magic == MagicVersion1) {
+            return MagicOffset + MagicLength;
+        }
+        if (magic == MagicVersion2) {
+            return AttributeOffset + AttributeLength;
+        } else {
+            throw new UnknownMagicByteException("Magic byte value of %d is unknown".format(String.valueOf(magic)));
+        }
+    }
     
-    public int payloadSize = size - headerSize(magic);
-    
-    
-    byte attributes = buffer.get(AttributeOffset);
-    
-    CompressionCodec compressionCodec() {
+    public CompressionCodec compressionCodec() {
         if (magic == 0) {
             return new NoCompressionCodec();
         } else if (magic == 1) {
@@ -93,9 +96,6 @@ public class Message {
             throw new RuntimeException("Invalid magic byte " + magic);
         }
     }
-    
-    Long checksum = Utils.getUnsignedInt(buffer, crcOffset(magic));
-    
     
     public ByteBuffer payload() {
         ByteBuffer payload = buffer.duplicate();
@@ -106,15 +106,11 @@ public class Message {
         return payload;
     }
     
-    
     public Boolean isValid() {
         return checksum == Utils.crc32(buffer.array(), buffer.position() + buffer.arrayOffset() + payloadOffset(magic), payloadSize);
     }
     
-    int serializedSize = 4 /* int size*/ + buffer.limit();
-    
-    
-    void serializeTo(ByteBuffer serBuffer) {
+    public void serializeTo(ByteBuffer serBuffer) {
         serBuffer.putInt(buffer.limit());
         serBuffer.put(buffer.duplicate());
     }

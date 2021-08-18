@@ -86,7 +86,7 @@ public class CompressionUtils {
     
     public static ByteBufferMessageSet decompress(Message message) throws Throwable {
         CompressionCodec compressionCodec = message.compressionCodec();
-        
+        System.out.println("---------compressionCodec------------------" + compressionCodec);
         if (compressionCodec instanceof DefaultCompressionCodec) {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             InputStream inputStream = new ByteBufferBackedInputStream(message.payload());

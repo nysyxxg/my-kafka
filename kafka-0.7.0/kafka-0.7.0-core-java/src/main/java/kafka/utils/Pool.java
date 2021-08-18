@@ -1,11 +1,16 @@
 package kafka.utils;
 
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import scala.Tuple2;
 
-public class Pool<K, V> {
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+
+public class Pool<K, V>  implements Iterable<Tuple2<K, V>>{
     
-    private ConcurrentHashMap pool = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<K, V> pool = new ConcurrentHashMap<K, V>();
    
     public ConcurrentHashMap.KeySetView<K, V> keys = pool.keySet();
     
@@ -15,8 +20,8 @@ public class Pool<K, V> {
     
     public Pool() {
     }
-    public Pool(ConcurrentHashMap map) {
-        for (Object key : map.keySet()) {
+    public Pool(ConcurrentHashMap<K, V> map) {
+        for (K key : map.keySet()) {
             pool.put(key, map.get(key));
         }
     }
@@ -36,7 +41,7 @@ public class Pool<K, V> {
     }
     
     public V get(K key) {
-        return (V) pool.get(key);
+        return   pool.get(key);
     }
     
     public V remove(K key) {
@@ -46,5 +51,32 @@ public class Pool<K, V> {
     
     public void clear() {
         pool.clear();
+    }
+    
+    @Override
+    public Iterator<Tuple2<K, V>> iterator() {
+        return new Iterator<Tuple2<K, V>>() {
+            private  Iterator<Map.Entry<K, V>>  iter = pool.entrySet().iterator();
+            @Override
+            public boolean hasNext() {
+                return iter.hasNext();
+            }
+    
+            @Override
+            public Tuple2<K, V> next() {
+                Map.Entry<K, V> n = iter.next();
+                return new Tuple2<K, V>(n.getKey(), n.getValue());
+            }
+    
+            @Override
+            public void remove() {
+        
+            }
+    
+            @Override
+            public void forEachRemaining(Consumer action) {
+        
+            }
+        };
     }
 }

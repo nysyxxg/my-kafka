@@ -1,6 +1,5 @@
 package kafka.utils;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

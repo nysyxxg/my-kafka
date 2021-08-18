@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class ZookeeperConsumerConnector implements ConsumerConnector {
     
-    private kafka.consumer.ZookeeperConsumerConnector underlying;
+    public kafka.consumer.ZookeeperConsumerConnector underlying;
     
     public ZookeeperConsumerConnector(ConsumerConfig config, Boolean enableFetcher) {
         super();
@@ -27,9 +27,7 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
     
     @Override
     public <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(Map<String, Integer> topicCountMap, Decoder<T> decoder) throws UnknownHostException {
-
-//          import scala.collection.JavaConversions._
-//        println(this.getClass + "------------------------createMessageStreams--------")
+        System.out.println("------------------------createMessageStreams--------");
         // 核心消息方法
         Map<String, List<KafkaMessageStream<T>>> scalaReturn = underlying.consume(topicCountMap, decoder);
         Map<String, List<KafkaMessageStream<T>>> ret = new HashMap<String, List<KafkaMessageStream<T>>>();  // 一个topic对应一个List集合
@@ -45,8 +43,13 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
     }
     
     @Override
-    public Map<String, List<KafkaMessageStream<Message>>> createMessageStreams(Map<String, Integer> topicCountMap) throws UnknownHostException {
-        return createMessageStreams(topicCountMap, new DefaultDecoder());
+    public Map<String, List<KafkaMessageStream<Message>>> createMessageStreams(Map<String, Integer> topicCountMap)  {
+        try {
+            return createMessageStreams(topicCountMap, new DefaultDecoder());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     
     @Override

@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 public class ConsumerIterator<T> extends IteratorTemplate<T> {
     
     private Logger logger = Logger.getLogger(ConsumerIterator.class);
-    private Iterator<MessageAndOffset> current  = null;
-    private FetchedDataChunk currentDataChunk  = null;
-    private PartitionTopicInfo currentTopicInfo   = null;
+    private Iterator<MessageAndOffset> current;
+    private FetchedDataChunk currentDataChunk;
+    private PartitionTopicInfo currentTopicInfo;
     private Long consumedOffset = -1L;
     
     String topic;
@@ -50,9 +50,9 @@ public class ConsumerIterator<T> extends IteratorTemplate<T> {
     protected T makeNext() throws Throwable {
         // if we don't have an iterator, get one
         if(current == null || !current.hasNext()) {
-            if (consumerTimeoutMs < 0)
+            if (consumerTimeoutMs < 0) {
                 currentDataChunk = channel.take();
-            else {
+            }else {
                 currentDataChunk = channel.poll(consumerTimeoutMs, TimeUnit.MILLISECONDS);
                 if (currentDataChunk == null) {
                     throw new ConsumerTimeoutException();
@@ -76,8 +76,6 @@ public class ConsumerIterator<T> extends IteratorTemplate<T> {
         }
         MessageAndOffset item = current.next();
         consumedOffset = item.offset;
-        decoder.toEvent(item.message);
-        
-        return null;
+        return  decoder.toEvent(item.message);
     }
 }

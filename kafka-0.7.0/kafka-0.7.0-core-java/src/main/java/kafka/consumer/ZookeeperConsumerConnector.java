@@ -5,10 +5,11 @@ import kafka.cluster.Broker;
 import kafka.cluster.Cluster;
 import kafka.cluster.Partition;
 import kafka.serializer.Decoder;
-import kafka.serializer.DefaultDecoder;
 import kafka.utils.*;
+import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.apache.log4j.Logger;
+import org.apache.zookeeper.Watcher;
 import scala.Tuple2;
 
 import java.net.InetAddress;
@@ -18,26 +19,39 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ZookeeperConsumerConnector extends ConsumerConnector  implements  ZookeeperConsumerConnectorMBean{
-    public static int MAX_N_RETRIES = 4;
-    public static FetchedDataChunk shutdownCommand = new FetchedDataChunk(null, null, -1L);
+public class ZookeeperConsumerConnector extends ConsumerConnector implements ZookeeperConsumerConnectorMBean {
+    private Logger logger = Logger.getLogger(getClass());
+    
     ConsumerConfig config;
     Boolean enableFetcher;
     
-    private Logger logger = Logger.getLogger(getClass());
+    public static int MAX_N_RETRIES = 4;
+    public static FetchedDataChunk shutdownCommand = new FetchedDataChunk(null, null, -1L);
     private AtomicBoolean isShuttingDown = new AtomicBoolean(false);
-
-    private Fetcher fetcher = null;
-    private ZkClient zkClient = null;
+    
+    private Fetcher fetcher;
+    private ZkClient zkClient;
     private Pool<String, Pool<Partition, PartitionTopicInfo>> topicRegistry = new Pool<String, Pool<Partition, PartitionTopicInfo>>();
     // queues : (topic,consumerThreadId) -> queue
     private Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>> queues = new Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>>();
     
     private KafkaScheduler scheduler = new KafkaScheduler(1, "Kafka-consumer-autocommit-", false);
     
-    public ZookeeperConsumerConnector() {
+    public ZookeeperConsumerConnector(ConsumerConfig config) {
+        this(config, true);
+    }
+    
+    public ZookeeperConsumerConnector(ConsumerConfig config,
+                                      Boolean enableFetcher) {
+        this.config = config;
+        this.enableFetcher = enableFetcher;
+        initZk();
+    }
+    
+    public void initZk() {
         connectZk();
         createFetcher();
+        System.out.println("-------------是否自动提交Offset： " + config.autoCommit);
         if (config.autoCommit) {
             logger.info("starting auto committer every " + config.autoCommitIntervalMs + " ms");
             UnitFunction function = new UnitFunction() {
@@ -45,6 +59,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
                 public void call() {
                     autoCommit();
                 }
+                
                 @Override
                 public Object call(Object v) {
                     return null;
@@ -55,6 +70,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
     }
     
     private void autoCommit() {
+        System.out.println("----------------自动提交offset-----------autoCommit---------");
         if (logger.isTraceEnabled()) {
             logger.trace("auto committing");
         }
@@ -94,6 +110,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
     
     private void connectZk() {
         logger.info("Connecting to zookeeper instance at " + config.zkConnect);
+        logger.info("Connecting to zookeeper instance at " + config.getZkConnect());
         zkClient = new ZkClient(config.zkConnect, config.zkSessionTimeoutMs, config.zkConnectionTimeoutMs, new ZKStringSerializer());
     }
     
@@ -101,16 +118,6 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
         if (enableFetcher) {
             fetcher = new Fetcher(config, zkClient);
         }
-    }
-    
-    public ZookeeperConsumerConnector(ConsumerConfig config) {
-        this(config, true);
-    }
-    
-    public ZookeeperConsumerConnector(ConsumerConfig config,
-                                      Boolean enableFetcher) {
-        this.config = config;
-        this.enableFetcher = enableFetcher;
     }
     
     
@@ -146,12 +153,12 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
     
     @Override
     public <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(Map<String, Integer> topicCountMap,
-                                                                         Decoder<T> decoder) throws UnknownHostException {
+                                                                             Decoder<T> decoder) throws UnknownHostException {
         return consume(topicCountMap, decoder);
     }
     
     public <T> Map<String, List<KafkaMessageStream<T>>> consume(Map<String, Integer> topicCountMap,
-                                                            Decoder<T> defaultDecoder) throws UnknownHostException {
+                                                                Decoder<T> defaultDecoder) throws UnknownHostException {
         
         logger.debug("entering consume ");
         if (topicCountMap == null)
@@ -162,7 +169,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
         String consumerUuid = null;
         String consumerId = config.getConsumerId();
         
-        if (!consumerId.isEmpty()) {
+        if (consumerId != null) {
             consumerUuid = consumerId;
         } else {  // generate unique consumerId automatically
             UUID uuid = UUID.randomUUID();
@@ -174,11 +181,11 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
         TopicCount topicCount = new TopicCount(consumerIdString, topicCountMap);
         
         // listener to consumer and partition changes
-        ZKRebalancerListener loadBalancerListener = new ZKRebalancerListener(config,zkClient,config.groupId, consumerIdString,topicRegistry,queues,fetcher);
+        ZKRebalancerListener loadBalancerListener = new ZKRebalancerListener(config, zkClient, config.groupId, consumerIdString, topicRegistry, queues, fetcher);
         ZkUtils.registerConsumerInZK(zkClient, dirs, consumerIdString, topicCount);
         
         // register listener for session expired event
-        zkClient.subscribeStateChanges(new ZKSessionExpireListenner(zkClient,dirs, consumerIdString, topicCount, loadBalancerListener));
+        zkClient.subscribeStateChanges(new ZKSessionExpireListenner(dirs, consumerIdString, topicCount, loadBalancerListener));
         
         zkClient.subscribeChildChanges(dirs.getConsumerRegistryDir(), loadBalancerListener);
         
@@ -186,7 +193,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
         Map<String, Set<String>> consumerThreadIdsPerTopic = topicCount.getConsumerThreadIdsPerTopic();
         for (String topic : consumerThreadIdsPerTopic.keySet()) {
             Set<String> threadIdSet = consumerThreadIdsPerTopic.get(topic);
-            List<KafkaMessageStream<T>> streamList = null;
+            List<KafkaMessageStream<T>> streamList = new ArrayList<>();
             for (String threadId : threadIdSet) {
                 LinkedBlockingQueue stream = new LinkedBlockingQueue<FetchedDataChunk>(config.maxQueuedChunks);
                 Tuple2 tuple2 = new Tuple2<>(topic, threadId);
@@ -289,7 +296,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
         }
         return producedOffset;
     }
-
+    
     
     private void sendShudownToAllQueues() {
         Iterable<BlockingQueue<FetchedDataChunk>> queueValues = queues.values;
@@ -308,7 +315,35 @@ public class ZookeeperConsumerConnector extends ConsumerConnector  implements  Z
     }
     
     
-    
+    class ZKSessionExpireListenner implements IZkStateListener {
+        private Logger logger = Logger.getLogger(ZKSessionExpireListenner.class);
+        ZKGroupDirs dirs;
+        String consumerIdString;
+        TopicCount topicCount;
+        ZKRebalancerListener loadBalancerListener;
+        
+        public ZKSessionExpireListenner(ZKGroupDirs dirs, String consumerIdString,
+                                        TopicCount topicCount, ZKRebalancerListener loadBalancerListener) {
+            this.dirs = dirs;
+            this.consumerIdString = consumerIdString;
+            this.loadBalancerListener = loadBalancerListener;
+            this.topicCount = topicCount;
+        }
+        
+        @Override
+        public void handleStateChanged(Watcher.Event.KeeperState keeperState) throws Exception {
+        }
+        
+        @Override
+        public void handleNewSession() throws Exception {
+            logger.info("ZK expired; release old broker parition ownership; re-register consumer " + consumerIdString);
+            loadBalancerListener.resetState();
+            ZkUtils.registerConsumerInZK(zkClient, dirs, consumerIdString, topicCount);
+            // explicitly trigger load balancing for this consumer
+            loadBalancerListener.syncedRebalance();
+        }
+    }
+ 
 }
 
 

@@ -12,7 +12,7 @@ public class FetchRequest extends Request {
     public int maxSize;
     
     public FetchRequest(String topic, int partition, long offset, int size) {
-        super();
+        super(RequestKeys.Fetch);
         this.topic = topic;
         this.partition = partition;
         this.offset = offset;

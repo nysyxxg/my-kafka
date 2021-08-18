@@ -36,7 +36,7 @@ public class ZkUtils {
     // Create an ephemeral node with the given path and data. Create parents if necessary.
     private static void createEphemeralPath(ZkClient client, String path, String data) {
         try {
-            logger.info("createEphemeralPath使用给定的路径和数据创建临时节点....................path=" + path );
+            logger.info("Zk client : " + client + "createEphemeralPath使用给定的路径和数据创建临时节点....................path=" + path);
             client.createEphemeral(path, data);
         } catch (ZkNoNodeException e) {
             createParentPath(client, path);
@@ -132,8 +132,8 @@ public class ZkUtils {
         return client.getChildren(path);
     }
     
-    public  static List<String> getChildrenParentMayNotExist(ZkClient client, String path) {
-        java.util.List<String> ret = null;
+    public static List<String> getChildrenParentMayNotExist(ZkClient client, String path) {
+        List<String> ret = null;
         try {
             ret = client.getChildren(path);
         } catch (ZkNoNodeException e) {

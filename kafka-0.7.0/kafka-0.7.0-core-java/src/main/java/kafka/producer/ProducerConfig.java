@@ -40,6 +40,5 @@ public class ProducerConfig extends ZKConfig {
         this.compressedTopics = Utils.getCSVList(Utils.getString(props, "compressed.topics", null));
         
         this.zkReadRetries = Utils.getInt(props, "zk.read.num.retries", 3);
-        
     }
 }

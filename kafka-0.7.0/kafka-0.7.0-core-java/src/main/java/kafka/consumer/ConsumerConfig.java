@@ -15,7 +15,7 @@ public class ConsumerConfig extends ZKConfig {
     int MaxFetchSize = 10 * FetchSize;
     int BackoffIncrementMs = 1000;
     boolean AutoCommit = true;
-    int AutoCommitInterval = 10 * 1000;
+    int AutoCommitInterval = 60 * 1000;
     int MaxQueuedChunks = 100;
     String AutoOffsetReset = OffsetRequest.SmallestTimeString;
     int ConsumerTimeoutMs = -1;

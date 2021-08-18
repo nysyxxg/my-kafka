@@ -17,14 +17,14 @@ public class OffsetArraySend extends Send {
     public OffsetArraySend(Long offsets[]) {
         this.offsets = offsets;
         
-        Long size = 0l;
-        for (int i = 4; i < offsets.length; i++) {
-            size = size + offsets[i];
+        Long size = 4L;
+        for (int i = 0; i < offsets.length; i++) {
+            size += 8;
         }
-        size += 8;
+        
         ByteBuffer header = ByteBuffer.allocate(6);
-        header.putInt((int) (size + 2));
-        header.putShort((short) ErrorMapping.NoError);
+        header.putInt((int) (size + 2)); //4个字节
+        header.putShort((short) ErrorMapping.NoError); //  char 和 short 都是 2个字节
         header.rewind();
         this.header = header;
         this.contentBuffer = OffsetRequest.serializeOffsetArray(offsets);

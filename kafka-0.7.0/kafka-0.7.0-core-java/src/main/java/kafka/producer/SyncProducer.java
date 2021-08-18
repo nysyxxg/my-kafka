@@ -141,7 +141,7 @@ public class SyncProducer {
                 channel.socket().setSoTimeout(config.socketTimeoutMs);
                 channel.socket().setKeepAlive(true);
                 channel.connect(new InetSocketAddress(config.host, config.port));
-                logger.info("Connected to " + config.host + ":" + config.port + " for producing");
+                logger.info("开始连接服务端-----------Connected to " + config.host + ":" + config.port + " for producing");
             } catch (Exception e) {
                 disconnect();
                 Long endTimeMs = SystemTime.getMilliseconds();
@@ -159,7 +159,7 @@ public class SyncProducer {
     private void disconnect() {
         try {
             if (channel != null) {
-                logger.info("Disconnecting from " + config.host + ":" + config.port);
+                logger.info("-----关闭客户端连接--------------Disconnecting from " + config.host + ":" + config.port);
                 channel.close();
                 channel.socket().close();
                 channel = null;

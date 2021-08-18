@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 
 import kafka.producer.async.CallbackHandler;
@@ -205,12 +206,13 @@ public class Producer<K, V> {
     public void close() {
         boolean canShutdown = hasShutdown.compareAndSet(false, true);
         if (canShutdown) {
-             producerPool.close();
-             brokerPartitionInfo.close();
+            producerPool.close();
+            brokerPartitionInfo.close();
         }
     }
     
     private List<Partition> getPartitionListForTopic(ProducerData<K, V> pd) {
+        List<Partition> partitionList = new ArrayList<>();
         if (logger.isDebugEnabled()) {
             logger.debug("Getting the number of broker partitions registered for topic: " + pd.getTopic());
         }
@@ -222,7 +224,8 @@ public class Producer<K, V> {
         if (totalNumPartitions == 0) {
             throw new NoBrokersForPartitionException("Partition = " + pd.getKey());
         }
-        return (List<Partition>) topicPartitionsList;
+        partitionList = topicPartitionsList.stream().collect(Collectors.toList());
+        return partitionList;
     }
     
 }
