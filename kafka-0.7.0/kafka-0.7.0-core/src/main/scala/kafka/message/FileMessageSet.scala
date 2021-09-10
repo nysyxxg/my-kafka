@@ -37,7 +37,7 @@ class FileMessageSet private[kafka](private[message] val channel: FileChannel,
                                     private[message] val limit: Long,
                                     val mutable: Boolean,
                                     val needRecover: AtomicBoolean) extends MessageSet {
-
+  println("-----------------------------FileMessageSet---------------------------channel : " + channel)
   private val setSize = new AtomicLong()
   private val setHighWaterMark = new AtomicLong()
   private val logger = Logger.getLogger(classOf[FileMessageSet])

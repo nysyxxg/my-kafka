@@ -56,6 +56,7 @@ private[kafka] class AsyncProducer[T](config: AsyncProducerConfig,
     serializer, producer,
     if (eventHandler != null) eventHandler else new DefaultEventHandler[T](new ProducerConfig(config.props), cbkHandler),
     cbkHandler, config.queueTime, config.batchSize, AsyncProducer.Shutdown) // 实例化发送数据线程，从queue 获取发送event对象
+
   sendThread.setDaemon(false) // 设置为false，主方法执行完成并不会结束.
   //  thread.setDaemon(true);当为守护线程的时候,主方法结束,守护线程就会结束.
 

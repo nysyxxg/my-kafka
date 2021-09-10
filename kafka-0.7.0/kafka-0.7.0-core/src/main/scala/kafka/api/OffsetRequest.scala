@@ -76,7 +76,13 @@ class OffsetRequest(val topic: String,
 
 @nonthreadsafe
 private[kafka] class OffsetArraySend(offsets: Array[Long]) extends Send {
-  private var size: Long = offsets.foldLeft(4)((sum, _) => sum + 8)
+  private var size: Long = offsets.foldLeft(4)((sum, _) => sum + 8) // 根据 offsets 数组的长度，每次都增加 8
+  //改写成另外一种方式：
+//  var  size = 4
+//  for(i <- 0 until  offsets.size){
+//    size +=8
+//  }
+
   private val header = ByteBuffer.allocate(6)
   header.putInt(size.asInstanceOf[Int] + 2)
   header.putShort(ErrorMapping.NoError.asInstanceOf[Short])

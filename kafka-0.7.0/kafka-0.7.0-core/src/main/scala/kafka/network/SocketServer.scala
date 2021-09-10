@@ -304,7 +304,7 @@ private[kafka] class Processor(val handlerMapping: Handler.HandlerMapping,
   def read(key: SelectionKey) {
     println(Thread.currentThread().getName + "-------------Processor----------read(key: SelectionKey)----------------------start------------")
     val socketChannel = channelFor(key)  // 根据key 获取对应的 socketChannel
-    var request = key.attachment.asInstanceOf[Receive]
+    var request: Receive = key.attachment.asInstanceOf[Receive]
     if (key.attachment == null) {
       println(Thread.currentThread().getName + "-------------Processor----------read(key: SelectionKey)---------------key.attachment------------" + key.attachment)
       request = new BoundedByteBufferReceive(maxRequestSize) //

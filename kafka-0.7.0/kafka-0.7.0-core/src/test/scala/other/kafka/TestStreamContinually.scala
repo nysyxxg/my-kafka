@@ -3,9 +3,9 @@ package other.kafka
 object TestStreamContinually {
 
   def main(args: Array[String]): Unit = {
-      val l  = List(1, 2, 3)
-//     val  list = Stream.continually(l.toStream).flatten.take(10).toList
-    val  list = Stream.continually(1) .takeWhile(_ > 1).toList
+      val list0  = List(3,0,1, 2, 3)
+     val  list = Stream.continually(list0.toStream).flatten.take(10).takeWhile(_ >= 3).toList
+//    val  list = Stream.continually(10) .takeWhile(item =>  item >  1).toList
 
     list.foreach(line=>{
       println(line)

@@ -102,8 +102,7 @@ private[async] class ProducerSendThread[T](val threadName: String,
         }
     }
     if(queue.size > 0)
-      throw new IllegalQueueStateException("Invalid queue state! After queue shutdown, %d remaining items in the queue"
-        .format(queue.size))
+      throw new IllegalQueueStateException("Invalid queue state! After queue shutdown, %d remaining items in the queue".format(queue.size))
     if(cbkHandler != null) {
       logger.info("Invoking the callback handler before handling the last batch of %d events".format(events.size))
       val addedEvents = cbkHandler.lastBatchBeforeClose

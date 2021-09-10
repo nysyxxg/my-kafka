@@ -33,8 +33,7 @@ class KafkaMessageStream[T](val topic: String,
    extends Iterable[T] with java.lang.Iterable[T]{
 
   private val logger = Logger.getLogger(getClass())
-  private val iter: ConsumerIterator[T] =
-    new ConsumerIterator[T](topic, queue, consumerTimeoutMs, decoder)
+  private val iter: ConsumerIterator[T] = new ConsumerIterator[T](topic, queue, consumerTimeoutMs, decoder)
     
   /**
    *  Create an iterator over messages in the stream.

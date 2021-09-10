@@ -42,7 +42,7 @@ class ConsumerIterator[T](private val topic: String,
   private var consumedOffset: Long = -1L
 
   override def next(): T = {
-    val decodedMessage = super.next()
+    val decodedMessage: T = super.next()
     if(consumedOffset < 0)
       throw new IllegalStateException("Offset returned by the message set is invalid %d".format(consumedOffset))
     currentTopicInfo.resetConsumeOffset(consumedOffset)

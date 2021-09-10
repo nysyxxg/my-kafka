@@ -36,9 +36,11 @@ class TopicCountTest extends JUnitSuite {
       )
     val expectedTopicCount = new TopicCount(consumer, topicCountMap)
     assertTrue(expectedTopicCount == topicCount)
+    println(expectedTopicCount == topicCount)
 
     val topicCount2 = TopicCount.constructTopicCount(consumer, expectedTopicCount.toJsonString)
     assertTrue(expectedTopicCount == topicCount2)
+    println(expectedTopicCount == topicCount2)
   }
 
   @Test

@@ -163,14 +163,14 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
   : Map[String, List[KafkaMessageStream[T]]] = {
     println(getClass() + "---------------------entering---consume--------")
     logger.debug("entering consume ")
-    if (topicCountMap == null){
+    if (topicCountMap == null) {
       throw new RuntimeException("topicCountMap is null")
     }
     val dirs = new ZKGroupDirs(config.groupId)
-    println(getClass() + "------------------entering------consume--------dirs= "+ dirs)
+    println(getClass() + "------------------entering------consume--------dirs= " + dirs)
     var ret = new mutable.HashMap[String, List[KafkaMessageStream[T]]]
 
-    var consumerUuid: String = null  // 创建消费者uuid
+    var consumerUuid: String = null // 创建消费者uuid
     config.consumerId match {
       case Some(consumerId) // for testing only 
       => consumerUuid = consumerId
@@ -180,7 +180,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
           InetAddress.getLocalHost.getHostName, System.currentTimeMillis,
           uuid.getMostSignificantBits().toHexString.substring(0, 8))
     }
-    val consumerIdString = config.groupId + "_" + consumerUuid  // 拼接消费者id
+    val consumerIdString = config.groupId + "_" + consumerUuid // 拼接消费者id
     val topicCount = new TopicCount(consumerIdString, topicCountMap)
 
     // listener to consumer and partition changes
@@ -207,13 +207,13 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       logger.debug("adding topic " + topic + " and stream to map.............")
 
       // register on broker partition path changes
-      val partitionPath = ZkUtils.BrokerTopicsPath + "/" + topic  // /brokers/topics/topicname
+      val partitionPath = ZkUtils.BrokerTopicsPath + "/" + topic // /brokers/topics/topicname
       ZkUtils.makeSurePersistentPathExists(zkClient, partitionPath) // 确保持久化节点路径存在
       zkClient.subscribeChildChanges(partitionPath, loadBalancerListener) // 监听这个目录子节点改变
     }
 
     // explicitly trigger load balancing for this consumer
-    loadBalancerListener.syncedRebalance()  // 同步平衡
+    loadBalancerListener.syncedRebalance() // 同步平衡
     ret
   }
 
@@ -585,7 +585,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
       val offsetString = ZkUtils.readDataMaybeNull(zkClient, znode)
       // If first time starting a consumer, set the initial offset based on the config
       var offset: Long = 0L
-      if (offsetString == null){
+      if (offsetString == null) {
         offset = config.autoOffsetReset match { // 根据设置autoOffsetReset，来获取offset的消费位置
           case OffsetRequest.SmallestTimeString => // 从 smallest开始
             earliestOrLatestOffset(topic, partition.brokerId, partition.partId, OffsetRequest.EarliestTime)
@@ -594,7 +594,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
           case _ =>
             throw new InvalidConfigException("Wrong value in autoOffsetReset in ConsumerConfig")
         }
-      }else{
+      } else {
         offset = offsetString.toLong
       }
       val queue = queues.get((topic, consumerThreadId))
@@ -608,7 +608,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
         fetchedOffset,
         new AtomicInteger(config.fetchSize))
       partTopicInfoMap.put(partition, partTopicInfo)
-      if (logger.isDebugEnabled){
+      if (logger.isDebugEnabled) {
         logger.debug(partTopicInfo + " selected new offset " + offset)
       }
     }

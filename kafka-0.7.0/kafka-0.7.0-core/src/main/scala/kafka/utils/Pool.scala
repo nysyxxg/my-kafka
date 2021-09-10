@@ -17,8 +17,10 @@
 
 package kafka.utils
 
-import java.util.ArrayList
+import java.util
+import java.util.{ArrayList, Map}
 import java.util.concurrent._
+
 import collection.JavaConversions
 
 class Pool[K,V] extends Iterable[(K, V)] {
@@ -53,7 +55,7 @@ class Pool[K,V] extends Iterable[(K, V)] {
   
   override def iterator = new Iterator[(K,V)]() {
     
-    private val iter = pool.entrySet.iterator
+    private val iter: util.Iterator[Map.Entry[K, V]] = pool.entrySet.iterator
     
     def hasNext: Boolean = iter.hasNext
     

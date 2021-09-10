@@ -71,9 +71,9 @@ private[kafka] class LogManager(val config: KafkaConfig,
         logger.info("Loading log '" + dir.getName() + "'")
         println("--------------------LogManager-------init-------------dir---------:"+ dir)
         val log = new Log(dir, maxSize, flushInterval, needRecovery) // 创建Log对象
-        val topicPartion = Utils.getTopicPartition(dir.getName) // 获取topic 和 partition
+        val topicPartion: (String, Int) = Utils.getTopicPartition(dir.getName) // 获取topic 和 partition
         logs.putIfNotExists(topicPartion._1, new Pool[Int, Log]())   // 放入缓冲中
-        val parts = logs.get(topicPartion._1)
+        val parts: Pool[Int, Log] = logs.get(topicPartion._1)
         parts.put(topicPartion._2, log) // 分区和文件对象建立对应关系
       }
     }

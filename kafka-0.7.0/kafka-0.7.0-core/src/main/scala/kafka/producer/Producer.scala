@@ -179,7 +179,7 @@ class Producer[K, V](config: ProducerConfig,
   private def getPartitionListForTopic(pd: ProducerData[K, V]): Seq[Partition] = {
     if (logger.isDebugEnabled)
       logger.debug("Getting the number of broker partitions registered for topic: " + pd.getTopic)
-    val topicPartitionsList = brokerPartitionInfo.getBrokerPartitionInfo(pd.getTopic).toSeq // 根据数据的topic，找出对应的分区列表
+    val topicPartitionsList: Seq[Partition] = brokerPartitionInfo.getBrokerPartitionInfo(pd.getTopic).toSeq // 根据数据的topic，找出对应的分区列表
     if (logger.isDebugEnabled)
       logger.debug("Broker partitions registered for topic: " + pd.getTopic + " = " + topicPartitionsList)
     val totalNumPartitions = topicPartitionsList.length
