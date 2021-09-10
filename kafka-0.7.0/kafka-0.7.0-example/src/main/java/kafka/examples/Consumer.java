@@ -40,9 +40,10 @@ public class Consumer extends Thread {
         Properties props = new Properties();
         props.put("zk.connect", KafkaProperties.zkConnect);
         props.put("groupid", KafkaProperties.groupId);
-        props.put("zk.sessiontimeout.ms", "400");
-        props.put("zk.synctime.ms", "200");
-        props.put("autocommit.interval.ms", "1000");
+        props.put("zk.sessiontimeout.ms", "40000");
+        props.put("zk.synctime.ms", "20000");
+        props.put("autocommit.interval.ms", "10000");
+        props.put("autocommit.enable", "false"); // 关闭自动提交offset
         
         return new ConsumerConfig(props);
         
@@ -54,8 +55,18 @@ public class Consumer extends Thread {
         Map<String, List<KafkaMessageStream<Message>>> consumerMap = consumer.createMessageStreams(topicCountMap);
         KafkaMessageStream<Message> stream = consumerMap.get(topic).get(0);
         ConsumerIterator<Message> it = stream.iterator();
+//        System.out.println("消费kafka的消息数据： data:  "+ ExampleUtils.getMessage(it.next()));
+    
         while (it.hasNext()) {
-            System.out.println(ExampleUtils.getMessage(it.next()));
+            System.out.println("消费kafka的消息数据： data:  "+ ExampleUtils.getMessage(it.next()));
         }
+        
+        System.out.println("-------------------手动提交offset--------1--------------------");
+        consumer.commitOffsets();
+        System.out.println("-------------------手动提交offset--------2--------------------");
+        // 测试1： 不用关闭
+        // 测试2：进行关闭
+       // consumer.shutdown();
+        
     }
 }

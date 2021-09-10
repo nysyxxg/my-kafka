@@ -12,7 +12,9 @@
         <module>kafka-0.7.0-core</module>
         <module>kafka-0.7.0-example</module>
         <module>kafka-0.7.0-contrib</module>
+        <module>kafka-0.7.0-assembly</module>
         <module>kafka-0.7.0-core-java</module>
+        <!--<module>kafka-0.7.0-core-scala</module>-->
     </modules>
 
     <properties>
@@ -22,7 +24,7 @@
 
     <dependencies>
 
-         <dependency>
+        <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-actors</artifactId>
             <version>2.10.6</version>

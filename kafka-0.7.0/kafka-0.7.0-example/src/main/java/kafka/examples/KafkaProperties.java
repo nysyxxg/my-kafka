@@ -16,10 +16,15 @@
  */
 package kafka.examples;
 
+/**
+ * 测试描述：
+ * 读取文件发送数据： 一条数据的长度，大于分隔文件设置的最大的长度
+ */
 public interface KafkaProperties {
-    final static String zkConnect = "127.0.0.1:2181";
-    final static String groupId = "group1";
-    final static String topic = "test-xxg";
+    final static String zkConnect = "localhost:2181";
+    final static String groupId = "group-5";
+//    final static String topic = "test-xxg";
+    final static String topic = "test-xxg-demo";
     final static String kafkaServerURL = "localhost";
     final static int kafkaServerPort = 9092;
     final static int kafkaProducerBufferSize = 64 * 1024;

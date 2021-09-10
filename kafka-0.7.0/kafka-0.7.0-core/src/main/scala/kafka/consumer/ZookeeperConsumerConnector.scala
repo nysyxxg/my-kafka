@@ -401,7 +401,8 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
     private def releasePartitionOwnership() {
       for ((topic, infos) <- topicRegistry) {
         val topicDirs = new ZKGroupTopicDirs(group, topic)
-        for (partition <- infos.keys) {
+        val keyList: mutable.Set[Partition] = infos.keys
+        for (partition <- keyList) {
           val znode = topicDirs.consumerOwnerDir + "/" + partition
           ZkUtils.deletePath(zkClient, znode)
           if (logger.isDebugEnabled)

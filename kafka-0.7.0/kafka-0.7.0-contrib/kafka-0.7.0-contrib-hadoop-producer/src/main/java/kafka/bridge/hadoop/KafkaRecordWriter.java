@@ -17,10 +17,8 @@
 package kafka.bridge.hadoop;
 
 import kafka.message.Message;
-import kafka.javaapi.message.ByteBufferMessageSet;
 import kafka.javaapi.producer.SyncProducer;
 
-import kafka.message.NoCompressionCodec;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.RecordWriter;
