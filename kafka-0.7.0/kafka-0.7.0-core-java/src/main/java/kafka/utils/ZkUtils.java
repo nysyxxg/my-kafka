@@ -199,7 +199,14 @@ public class ZkUtils {
     public static void registerConsumerInZK(ZkClient zkClient,
                                             ZKGroupDirs dirs, String consumerIdString, TopicCount topicCount) {
         logger.info("begin registering consumer " + consumerIdString + " in ZK");
-        ZkUtils.createEphemeralPathExpectConflict(zkClient, dirs.getConsumerRegistryDir() + "/" + consumerIdString, topicCount.toJsonString());
+        String path = dirs.getConsumerRegistryDir() + "/" + consumerIdString;
+        if (zkClient.exists(path)) {
+            System.out.println(path + "----------------说明已经存在目录--------进行删除-----------------");
+            ZkUtils.deletePath(zkClient,path);
+        }else{
+            System.out.println(path + "----------------说明 不存在目录-------- -----------------");
+        }
+        ZkUtils.createEphemeralPathExpectConflict(zkClient,path, topicCount.toJsonString());
         logger.info("end registering consumer " + consumerIdString + " in ZK");
     }
     

@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import java.util.concurrent.atomic.AtomicLong;
 
 interface ConsumerTopicStatMBean {
-    Long getMessagesPerTopic();
+    long getMessagesPerTopic();
 }
 
 
@@ -41,7 +41,7 @@ public class ConsumerTopicStat   implements  ConsumerTopicStatMBean{
     }
     
     @Override
-    public Long getMessagesPerTopic() {
+    public long getMessagesPerTopic() {
         return numCumulatedMessagesPerTopic.get();
     }
 }

@@ -3,10 +3,7 @@ package kafka.consumer;
 import com.alibaba.fastjson.JSON;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class TopicCount {
     private static Logger logger = Logger.getLogger(TopicCount.class);
@@ -26,7 +23,7 @@ public class TopicCount {
         Map<String, Integer> topMap = null;
         try {
 //            Object obj = JSON.parseFull(jsonString).get();
-            Object obj =  JSON.parseObject(jsonString, Map.class);
+            Object obj = JSON.parseObject(jsonString, Map.class);
             if (obj instanceof Map) {
                 topMap = (Map<String, Integer>) obj;
             } else {
@@ -60,17 +57,30 @@ public class TopicCount {
     }
     
     @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof TopicCount) {
-            TopicCount n = (TopicCount) obj;
-            return consumerIdString == n.consumerIdString && topicCountMap == n.topicCountMap;
-        } else {
-            return false;
-        }
+    public boolean equals(Object o) {
+        System.out.println("-------------------equals--------------------");
+        if (this == o) return true;
+        if (!(o instanceof TopicCount)) return false;
+        TopicCount that = (TopicCount) o;
+        return Objects.equals(consumerIdString, that.consumerIdString) &&
+                Objects.equals(topicCountMap, that.topicCountMap);
     }
+    
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(consumerIdString, topicCountMap);
+//    }
+    
+//    @Override
+//    public boolean equals(TopicCount obj) {
+//        if (obj == null) {
+//            return false;
+//        }else {
+//            TopicCount n = (TopicCount) obj;
+//            return consumerIdString == n.consumerIdString && topicCountMap == n.topicCountMap;
+//        }
+//        return false;
+//    }
     
     public String toJsonString() {
         StringBuilder builder = new StringBuilder();

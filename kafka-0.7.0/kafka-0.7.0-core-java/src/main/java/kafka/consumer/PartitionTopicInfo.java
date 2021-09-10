@@ -105,11 +105,11 @@ public class PartitionTopicInfo {
         return topic + ":" + partition.toString() + ": fetched offset = " + fetchedOffset.get() + ": consumed offset = " + consumedOffset.get();
     }
     
-    public Long getConsumeOffset() {
+    public long getConsumeOffset() {
         return consumedOffset.get();
     }
     
-    public Long getFetchOffset() {
+    public long getFetchOffset() {
         return fetchedOffset.get();
     }
     

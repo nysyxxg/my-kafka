@@ -16,7 +16,7 @@ public class ByteBufferMessageSet extends MessageSet {
     
     private ByteBuffer buffer;
     private Long initialOffset = 0L;
-    private int errorCode = ErrorMapping.NoError;
+    private int errorCode;
     
     private kafka.message.ByteBufferMessageSet underlying;
     
@@ -69,7 +69,7 @@ public class ByteBufferMessageSet extends MessageSet {
         return underlying.toString();
     }
     
-    
+    @Override
     public java.util.Iterator<MessageAndOffset> iterator() {
         return new java.util.Iterator<MessageAndOffset>() {
             Iterator<MessageAndOffset> underlyingIterator = underlying.iterator();

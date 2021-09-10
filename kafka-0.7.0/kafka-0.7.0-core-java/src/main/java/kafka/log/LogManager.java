@@ -215,7 +215,7 @@ public class LogManager {
     
     private Iterator<Log> getLogIterator() {
         return new IteratorTemplate<Log>() {
-            Iterator<Pool> partsIter = logs.values.iterator();
+            Iterator<Pool> partsIter = logs.values().iterator();
             Iterator<Log> logIter = null;
             
             @Override
@@ -226,7 +226,7 @@ public class LogManager {
                     if (!partsIter.hasNext())
                         return allDone();
                     Pool pool = partsIter.next();
-                    logIter = pool.values.iterator();
+                    logIter = pool.values().iterator();
                 }
                 // should never reach here
             }
@@ -315,7 +315,7 @@ public class LogManager {
     
     
     Iterator<String> getAllTopics() {
-        return logs.keys.iterator();
+        return logs.keys().iterator();
     }
     
     public void startup() {
@@ -358,8 +358,9 @@ public class LogManager {
                 if (logger.isDebugEnabled())
                     logger.debug(log.getTopicName() + " flush interval  " + logFlushInterval +
                             " last flushed " + log.getLastFlushedTime() + " timesincelastFlush: " + timeSinceLastFlush);
-                if (timeSinceLastFlush >= logFlushInterval)
+                if (timeSinceLastFlush >= logFlushInterval) {
                     log.flush();
+                }
             } catch (Exception e) {
                 logger.error("Error flushing topic " + log.getTopicName(), e);
                 logger.fatal("Halting due to unrecoverable I/O error while flushing logs: " + e.getMessage(), e);

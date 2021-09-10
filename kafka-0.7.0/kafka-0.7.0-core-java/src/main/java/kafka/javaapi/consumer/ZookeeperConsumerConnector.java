@@ -15,18 +15,19 @@ public class ZookeeperConsumerConnector implements ConsumerConnector {
     
     public kafka.consumer.ZookeeperConsumerConnector underlying;
     
+    public ZookeeperConsumerConnector(ConsumerConfig config) {
+        this(config, true);
+    }
+    
     public ZookeeperConsumerConnector(ConsumerConfig config, Boolean enableFetcher) {
         super();
         //  初始化消费端连接器
         this.underlying = new kafka.consumer.ZookeeperConsumerConnector(config, enableFetcher);
     }
     
-    public ZookeeperConsumerConnector(ConsumerConfig config) {
-        this(config, true);
-    }
-    
     @Override
-    public <T> Map<String, List<KafkaMessageStream<T>>> createMessageStreams(Map<String, Integer> topicCountMap, Decoder<T> decoder) throws UnknownHostException {
+    public <T> Map<String, List<KafkaMessageStream<T>>>
+    createMessageStreams(Map<String, Integer> topicCountMap, Decoder<T> decoder) throws UnknownHostException {
         System.out.println("------------------------createMessageStreams--------");
         // 核心消息方法
         Map<String, List<KafkaMessageStream<T>>> scalaReturn = underlying.consume(topicCountMap, decoder);

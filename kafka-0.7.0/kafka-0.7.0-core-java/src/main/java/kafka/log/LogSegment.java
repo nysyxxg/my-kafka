@@ -1,21 +1,22 @@
 package kafka.log;
 
 import kafka.message.FileMessageSet;
-import kafka.utils.Range;
 
 import java.io.File;
 
-public class LogSegment extends Range {
+public class LogSegment {
     File file;
     FileMessageSet messageSet;
-    static Long start;
+    Long start;
     volatile boolean deleted = false;
     public Long size;
+    
     public LogSegment(File file, FileMessageSet messageSet, Long start) {
         this.file = file;
         this.messageSet = messageSet;
         this.start = start;
-        this.size = messageSet.highWaterMark();;
+        this.size = messageSet.highWaterMark();
+        System.out.println(this.getClass().getName() + "------------messageSet---highWaterMark---size---" + size);
     }
     
     public File getFile() {
@@ -34,12 +35,12 @@ public class LogSegment extends Range {
         this.messageSet = messageSet;
     }
     
-    public static Long getStart() {
+    public Long getStart() {
         return start;
     }
     
-    public static void setStart(Long start) {
-        LogSegment.start = start;
+    public void setStart(Long start) {
+        this.start = start;
     }
     
     public boolean isDeleted() {
@@ -62,5 +63,15 @@ public class LogSegment extends Range {
         return "(file=" + file + ", start=" + start + ", size=" + size + ")";
     }
     
+    public Boolean isEmpty() {
+        return size == 0;
+    }
+    
+    public Boolean contains(Long value) {
+        if (start == 0 && value == start || (size > 0 && value >= start && value <= start + size - 1))
+            return true;
+        else
+            return false;
+    }
     
 }

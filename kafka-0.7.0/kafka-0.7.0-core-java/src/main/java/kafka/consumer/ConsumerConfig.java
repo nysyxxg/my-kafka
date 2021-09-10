@@ -40,11 +40,11 @@ public class ConsumerConfig extends ZKConfig {
     
     int maxFetchSize;
     
-    Long backoffIncrementMs;
+    long backoffIncrementMs;
     
     Boolean autoCommit;
     
-    Long autoCommitIntervalMs;
+    long autoCommitIntervalMs;
     
     int maxQueuedChunks;
     

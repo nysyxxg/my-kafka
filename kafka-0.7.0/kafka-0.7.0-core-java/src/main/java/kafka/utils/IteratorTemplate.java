@@ -23,8 +23,9 @@ public abstract class IteratorTemplate<T> implements Iterator<T> {
             return nextItem;
         } else if (nextItem == null) {
             throw new IllegalStateException("Expected item but none found.");
+        }else{
+            return null;
         }
-        return null;
     }
     
     public boolean hasNext() {
@@ -36,9 +37,8 @@ public abstract class IteratorTemplate<T> implements Iterator<T> {
         } else if (state == State.READY) {
             return true;
         } else {
-            maybeComputeNext();
+            return  maybeComputeNext();
         }
-        return false;
     }
     
     protected abstract T makeNext() throws Throwable;

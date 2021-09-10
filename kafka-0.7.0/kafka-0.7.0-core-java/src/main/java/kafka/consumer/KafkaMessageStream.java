@@ -19,13 +19,13 @@ public class KafkaMessageStream<T> implements Iterable<T> {
         return iter;
     }
     
-    public KafkaMessageStream(String topic, BlockingQueue<FetchedDataChunk> queue,
+    public KafkaMessageStream(String topic, BlockingQueue<FetchedDataChunk> chunkQueue,
                               int consumerTimeoutMs, Decoder<T> decoder) {
         this.topic = topic;
-        this.queue = queue;
+        this.queue = chunkQueue;
         this.consumerTimeoutMs = consumerTimeoutMs;
         this.decoder = decoder;
-        this.iter = new ConsumerIterator<T>(topic, queue, consumerTimeoutMs, decoder);
+        this.iter = new ConsumerIterator<T>(topic, chunkQueue, consumerTimeoutMs, decoder);
     }
     
     

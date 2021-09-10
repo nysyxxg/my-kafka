@@ -17,7 +17,7 @@ public class MessageSetSend extends Send {
     public Long size;
     private ByteBuffer header;
     
-    public MessageSetSend(MessageSet messages, Integer errorCode) throws IOException {
+    public MessageSetSend(MessageSet messages, Integer errorCode) {
         this.messages = messages;
         this.errorCode = errorCode;
         this.size = messages.sizeInBytes();
@@ -29,7 +29,7 @@ public class MessageSetSend extends Send {
     }
     
     
-    public MessageSetSend(MessageSet messages) throws IOException {
+    public MessageSetSend(MessageSet messages) {
         this(messages, ErrorMapping.NoError);
     }
     
@@ -44,8 +44,8 @@ public class MessageSetSend extends Send {
         if (header.hasRemaining())
             written += channel.write(header);
         if (!header.hasRemaining()) {
-            Long fileBytesSent =  messages.writeTo(channel, sent, size - sent);
-            written += fileBytesSent ;
+            Long fileBytesSent = messages.writeTo(channel, sent, size - sent);
+            written += fileBytesSent;
             sent += fileBytesSent;
         }
         

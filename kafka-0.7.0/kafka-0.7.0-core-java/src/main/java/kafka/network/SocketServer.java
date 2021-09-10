@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract class AbstractServerThread implements Runnable {
     protected Logger logger = Logger.getLogger(AbstractServerThread.class);
-    protected Selector selector = Selector.open();
+    protected Selector selector = Selector.open();        //得到一个Selecor对象
     
     private CountDownLatch startupLatch = new CountDownLatch(1);
     private CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -54,11 +54,9 @@ abstract class AbstractServerThread implements Runnable {
         startupLatch.countDown();
     }
     
-    
     protected void shutdownComplete() {
         shutdownLatch.countDown();
     }
-    
     
     protected boolean isRunning() {
         return alive.get();
@@ -66,7 +64,7 @@ abstract class AbstractServerThread implements Runnable {
     
     
 }
-
+//  接收客户端连接， 得到 SocketChannel
 class Acceptor extends AbstractServerThread {
     private int port;
     private Processor[] processors;
@@ -85,15 +83,15 @@ class Acceptor extends AbstractServerThread {
         
         ServerSocketChannel serverChannel = null;
         try {
-            serverChannel = ServerSocketChannel.open();
+            serverChannel = ServerSocketChannel.open(); //创建ServerSocketChannel -> ServerSocket
         } catch (IOException e) {
             e.printStackTrace();
         }
         
         try {
-            serverChannel.configureBlocking(false);
-            serverChannel.socket().bind(new InetSocketAddress(port));
-            serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+            serverChannel.configureBlocking(false);        //设置为非阻塞
+            serverChannel.socket().bind(new InetSocketAddress(port));        //绑定一个端口6666, 在服务器端监听
+            serverChannel.register(selector, SelectionKey.OP_ACCEPT);   //把 serverSocketChannel 注册到  selector 关心 事件为 OP_ACCEPT
         } catch (ClosedChannelException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -106,21 +104,33 @@ class Acceptor extends AbstractServerThread {
         while (isRunning()) {
             int ready = 0;
             try {
+                // selector.select 监控所有的通道，当其中有IO操作可以进行时，将对应的SelectionKey加入内部集合中
+                //这里我们等待1秒，如果没有事件发生, 返回
                 ready = selector.select(500);
+                if(ready == 0 ){//没有事件发生
+                   // System.out.println( Thread.currentThread().getName() +  " --> 服务器等待了500 耗秒，无连接");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            //如果返回的>0, 就获取到相关的 selectionKey集合
+            //1.如果返回的>0， 表示已经获取到关注的事件
+            //2. selector.selectedKeys() 返回关注事件的集合
+            //   通过 selectionKeys 反向获取通道
             if (ready > 0) {
                 Set<SelectionKey> keys = selector.selectedKeys();
+                System.out.println("selectionKeys 数量 = " + keys.size());
+                
+                //遍历 Set<SelectionKey>, 使用迭代器遍历
                 Iterator<SelectionKey> iter = keys.iterator();
                 while (iter.hasNext() && isRunning()) {
                     SelectionKey key = null;
                     try {
-                        key = iter.next();
-                        iter.remove();
+                        key = iter.next();  //  //获取到SelectionKey
+                        iter.remove(); // //手动从集合中移动当前的selectionKey, 防止重复操作
                         
-                        if (key.isAcceptable()) {
-                            accept(key, processors[currentProcessor]);
+                        if (key.isAcceptable()) { //  //根据key 对应的通道发生的事件做相应处理
+                            accept(key, processors[currentProcessor]);//  //如果是 OP_ACCEPT, 有新的客户端连接
                         } else {
                             throw new IllegalStateException("Unrecognized key state for acceptor thread.");
                         }
@@ -145,34 +155,40 @@ class Acceptor extends AbstractServerThread {
         
     }
     
-    
+    //   //如果是 OP_ACCEPT, 有新的客户端连接
     void accept(SelectionKey key, Processor processor) throws IOException {
         SelectableChannel selectableChannel = key.channel();
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectableChannel;
-        SocketChannel socketChannel = serverSocketChannel.accept();
+        SocketChannel socketChannel = serverSocketChannel.accept(); //该该客户端生成一个 SocketChannel
+        System.out.println("客户端连接成功 生成了一个 socketChannel " + socketChannel.hashCode());
         if (logger.isDebugEnabled()) {
-            logger.info("Accepted connection from " + socketChannel.socket().getInetAddress() + " on "
-                    + socketChannel.socket().getLocalSocketAddress());
+            logger.info("Accepted connection from " + socketChannel.socket().getInetAddress() + " on " + socketChannel.socket().getLocalSocketAddress());
         }
         try {
-            socketChannel.configureBlocking(false);
-            socketChannel.socket().setTcpNoDelay(true);
-            processor.accept(socketChannel);
+            socketChannel.configureBlocking(false);   //将  SocketChannel 设置为非阻塞
+            socketChannel.socket().setTcpNoDelay(true);// TcpNoDelay=false，为启用nagle算法，也是默认值。
+            processor.accept(socketChannel); // 处理这个socketChannel
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
     
 }
-
+//  处理客户端连接的核心线程
 class Processor extends AbstractServerThread {
     private Logger requestLogger = Logger.getLogger("kafka.request.logger");
+    /**
+     * 一个基于链接节点的无界线程安全队列。此队列按照 FIFO（先进先出）原则对元素进行排序。
+     * 队列的头部 是队列中时间最长的元素。队列的尾部 是队列中时间最短的元素。
+     * 新的元素插入到队列的尾部，队列获取操作从队列头部获得元素。
+     * 当多个线程共享访问一个公共 collection 时，ConcurrentLinkedQueue 是一个恰当的选择。此队列不允许使用 null 元素
+     */
     private ConcurrentLinkedQueue<SocketChannel> newConnections = new ConcurrentLinkedQueue<SocketChannel>();
     
-    KafkaRequestHandlers   handlers;
-    Time time;
-    SocketServerStats stats;
-    int maxRequestSize;
+    private  KafkaRequestHandlers   handlers;
+    private  Time time;
+    private SocketServerStats stats;
+    private int maxRequestSize;
     
     protected Processor() throws IOException {
     }
@@ -191,7 +207,7 @@ class Processor extends AbstractServerThread {
     @Override
     public void run() {
         startupComplete();
-        while (isRunning()) {
+        while (isRunning()) {  //
             try {
                 Thread.sleep(3* 1000);
                // System.out.println("-------------正在后台运行的线程---->" + Thread.currentThread().getName());
@@ -200,7 +216,7 @@ class Processor extends AbstractServerThread {
             }
            
             // setup any new connections that have been queued up
-            configureNewConnections();
+            configureNewConnections(); //  配置一个新的连接，针对SocketChannel 进行配置
             int ready = 0;
             try {
                 ready = selector.select(500);
@@ -213,12 +229,14 @@ class Processor extends AbstractServerThread {
                 while (iter.hasNext() && isRunning()) {
                     SelectionKey key = null;
                     try {
-                        key = iter.next();
-                        iter.remove();
-                        if (key.isReadable()) {
-                            read(key);
-                        } else if (key.isWritable()) {
-                            write(key);
+                        key = iter.next(); //获取到SelectionKey
+                        iter.remove();     //手动从集合中移动当前的selectionKey, 防止重复操作
+                        if (key.isReadable()) {  //发生 OP_READ
+                            System.out.println(SystemTime.getDateFormat() + "------------------------------OP_READ-------------key.isReadable()---" + key.isReadable());
+                            read(key); // 读取操作
+                        } else if (key.isWritable()) { // OP_WRITE
+                            System.out.println(SystemTime.getDateFormat() + "------------------------------OP_WRITE-------------key.isWritable()---" + key.isWritable());
+                            write(key); // 写操作
                         } else if (!key.isValid()) {
                             close(key);
                         } else {
@@ -268,7 +286,7 @@ class Processor extends AbstractServerThread {
     }
     
     private  Send  handle(SelectionKey key, Receive request) {
-        Short requestTypeId = request.buffer().getShort();
+        Short requestTypeId = request.buffer().getShort(); //获取客户端请求类型Id
         System.out.println(" kafka 服务器端开始处理接收到的请求： requestTypeId = " +  requestTypeId );
         requestLogger.setLevel(Level.DEBUG);
         if (requestLogger.isTraceEnabled()) {
@@ -286,7 +304,7 @@ class Processor extends AbstractServerThread {
                 throw new InvalidRequestException("No mapping found for handler id " + requestTypeId);
             }
         }
-        Send send =  handlers.handlerFor(requestTypeId,request);
+        Send send =  handlers.handlerFor(requestTypeId,request); // 根据客户端请求类型Id，进行不同的处理
         if (send  == null) {
             throw new InvalidRequestException("No handler found for request.....没有handler 处理这个请求!!!!");
         }
@@ -296,29 +314,34 @@ class Processor extends AbstractServerThread {
     }
     
     private void read(SelectionKey key) {
-        SocketChannel socketChannel = channelFor(key);
-        Receive request = (Receive) key.attachment();
-        if(key.attachment() == null) {
-            request = new BoundedByteBufferReceive(maxRequestSize);
+        SocketChannel socketChannel = channelFor(key);//  通过key 反向获取到对应channel
+        Receive request = (Receive) key.attachment();  //获取到该channel关联的  request
+        System.out.println(SystemTime.getDateFormat()+"--------1---read---------------request----" + request);
+        if(key.attachment() == null) { // 如果为null，就创建一个对象
+            request = new BoundedByteBufferReceive(maxRequestSize); //
             key.attach(request);
         }
-        int read = request.readFrom(socketChannel);
+        System.out.println(SystemTime.getDateFormat()+ "--------2---read----------------request---" + request);
+        int read = request.readFrom(socketChannel);  // 从 socketChannel 中读取数据 ，并返回读取数据的长度
+        System.out.println(SystemTime.getDateFormat()+"--------3---read----------------read: " + read);
+    
         stats.recordBytesRead(read);
         if(logger.isTraceEnabled())
             logger.trace(read + " bytes read from " + socketChannel.socket().getRemoteSocketAddress());
-        if(read < 0) {
+        if(read < 0) {  // 说明没有读取到数据
+            System.out.println(SystemTime.getDateFormat()+"----------4--------close------------------------read:" + read);
             close(key);
             return;
-        } else if(request.complete()) {
-           Send  maybeResponse = handle(key, request);
+        } else if(request.complete()) { //  如果 从 channel 中 数据读取完成
+           Send  maybeResponse = handle(key, request); // 开始进行处理
             key.attach(null);
             // if there is a response, send it, otherwise do nothing
             if(maybeResponse != null) {  // Optional.isPresent - 判断值是否存在
                 // Optional.orElse - 如果值存在，返回它，否则返回默认值
-                key.attach(maybeResponse);
-                key.interestOps(SelectionKey.OP_WRITE);
+                key.attach(maybeResponse); //将key进行关联--> 需要写入的对象 maybeResponse
+                key.interestOps(SelectionKey.OP_WRITE);//将 key设置为写操作事件
             }
-        } else {
+        } else { // 如果没有完成，继续注册操作事件：OP_READ
             // more reading to be done
             key.interestOps(SelectionKey.OP_READ);
             selector.wakeup();
@@ -332,7 +355,7 @@ class Processor extends AbstractServerThread {
         stats.recordBytesWritten(written);
         if(logger.isTraceEnabled())
             logger.trace(written + " bytes written to " + socketChannel.socket().getRemoteSocketAddress());
-        if(response.complete()) {
+        if(response.complete()) { // 如果完成操作，就切换操作类型为 OP_READ
             key.attach(null);
             key.interestOps(SelectionKey.OP_READ);
         } else {
@@ -343,10 +366,11 @@ class Processor extends AbstractServerThread {
     
     private void configureNewConnections() {
         while (newConnections.size() > 0) {
-            SocketChannel channel = newConnections.poll();
+            SocketChannel channel = newConnections.poll();  // 从队列中获取
             if (logger.isDebugEnabled())
                 logger.debug("Listening to new connection from " + channel.socket().getRemoteSocketAddress());
             try {
+                //将socketChannel 注册到selector, 关注事件为 OP_READ， 同时给socketChannel
                 channel.register(selector, SelectionKey.OP_READ);
             } catch (ClosedChannelException e) {
                 e.printStackTrace();
@@ -356,7 +380,7 @@ class Processor extends AbstractServerThread {
     }
     
     void accept(SocketChannel socketChannel) {
-        newConnections.add(socketChannel);
+        newConnections.add(socketChannel);  // 将这个 SocketChannel  添加到  ConcurrentLinkedQueue
         selector.wakeup();
     }
     

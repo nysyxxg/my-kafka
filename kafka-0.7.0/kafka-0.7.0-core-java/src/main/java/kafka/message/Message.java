@@ -19,7 +19,7 @@ public class Message {
     
     static int CrcLength = 4;
     
-    public static int MinHeaderSize;
+    public  static int MinHeaderSize;
     
     public ByteBuffer buffer;
     
@@ -27,8 +27,12 @@ public class Message {
     public int size;
     public byte magic;
     public byte attributes;
-    public Long checksum;
+    public long checksum;
     public int serializedSize;
+    
+    static {
+         MinHeaderSize = headerSize((byte) 0);
+    }
     
     public Message(ByteBuffer buffer) {
         this.buffer = buffer;
@@ -39,7 +43,6 @@ public class Message {
         
         this.checksum = Utils.getUnsignedInt(buffer, crcOffset(magic));
         this.serializedSize = 4 /* int size*/ + buffer.limit();
-        this.MinHeaderSize = headerSize((byte) 0);
     }
     
     public Message(Long checksum, byte bytes[], CompressionCodec compressionCodec) {
@@ -129,6 +132,11 @@ public class Message {
             return false;
         }
     }
+    
+    public static int getMinHeaderSize() {
+        return MinHeaderSize;
+    }
+    
     
     public int hashCode() {
         return buffer.hashCode();

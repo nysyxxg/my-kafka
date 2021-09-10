@@ -22,8 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ZookeeperConsumerConnector extends ConsumerConnector implements ZookeeperConsumerConnectorMBean {
     private Logger logger = Logger.getLogger(getClass());
     
-    ConsumerConfig config;
-    Boolean enableFetcher;
+    private ConsumerConfig config;
+    private  Boolean enableFetcher;
     
     public static int MAX_N_RETRIES = 4;
     public static FetchedDataChunk shutdownCommand = new FetchedDataChunk(null, null, -1L);
@@ -86,9 +86,9 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         if (zkClient == null) {
             return;
         }
-        for (String topic : topicRegistry.keys) {
+        for (String topic : topicRegistry.keys()) {
             Pool<Partition, PartitionTopicInfo> pool = topicRegistry.get(topic);
-            Iterable<PartitionTopicInfo> iterable = pool.values;
+            Iterable<PartitionTopicInfo> iterable = pool.values();
             Iterator<PartitionTopicInfo> iterator = iterable.iterator();
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(config.groupId, topic);
             while (iterator.hasNext()) {
@@ -195,7 +195,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
             Set<String> threadIdSet = consumerThreadIdsPerTopic.get(topic);
             List<KafkaMessageStream<T>> streamList = new ArrayList<>();
             for (String threadId : threadIdSet) {
-                LinkedBlockingQueue stream = new LinkedBlockingQueue<FetchedDataChunk>(config.maxQueuedChunks);
+                LinkedBlockingQueue<FetchedDataChunk> stream = new LinkedBlockingQueue<FetchedDataChunk>(config.maxQueuedChunks);
                 Tuple2 tuple2 = new Tuple2<>(topic, threadId);
                 queues.put(tuple2, stream);
                 streamList.add(new KafkaMessageStream(topic, stream, config.consumerTimeoutMs, defaultDecoder));
@@ -218,9 +218,9 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
     public String getPartOwnerStats() {
         StringBuilder builder = new StringBuilder();
         
-        for (String topic : topicRegistry.keys) {
+        for (String topic : topicRegistry.keys()) {
             Pool<Partition, PartitionTopicInfo> pool = topicRegistry.get(topic);
-            Iterable<PartitionTopicInfo> iterable = pool.values;
+            Iterable<PartitionTopicInfo> iterable = pool.values();
             Iterator<PartitionTopicInfo> iterator = iterable.iterator();
             
             builder.append("\n" + topic + ": [");
@@ -299,7 +299,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
     
     
     private void sendShudownToAllQueues() {
-        Iterable<BlockingQueue<FetchedDataChunk>> queueValues = queues.values;
+        Iterable<BlockingQueue<FetchedDataChunk>> queueValues = queues.values();
         Iterator<BlockingQueue<FetchedDataChunk>> iterator = queueValues.iterator();
         while (iterator.hasNext()) {
             BlockingQueue<FetchedDataChunk> queue = iterator.next();

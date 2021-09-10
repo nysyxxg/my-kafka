@@ -10,7 +10,7 @@ public class ErrorMapping {
     
     static int UnknownCode = -1;
     public static int NoError = 0;
-    static int OffsetOutOfRangeCode = 1;
+    public static int OffsetOutOfRangeCode = 1;
     static int InvalidMessageCode = 2;
     static int WrongPartitionCode = 3;
     static int InvalidFetchSizeCode = 4;

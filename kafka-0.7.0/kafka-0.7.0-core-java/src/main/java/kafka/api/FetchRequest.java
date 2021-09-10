@@ -19,11 +19,12 @@ public class FetchRequest extends Request {
         this.maxSize = size;
     }
     
-    public  static FetchRequest readFrom(ByteBuffer buffer) {
+    public static FetchRequest readFrom(ByteBuffer buffer) {
         String topic = Utils.readShortString(buffer, "UTF-8");
         int partition = buffer.getInt();
         long offset = buffer.getLong();
         int size = buffer.getInt();
+        System.out.println(" ---------FetchRequest-----------topic:" + topic + " --partition="+ partition + " --offset:" + offset + " --size:" + size);
         return new FetchRequest(topic, partition, offset, size);
     }
     

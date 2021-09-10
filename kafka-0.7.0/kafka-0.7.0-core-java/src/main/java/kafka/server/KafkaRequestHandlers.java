@@ -26,15 +26,15 @@ public class KafkaRequestHandlers {
     public Send handlerFor(Short requestTypeId, Receive receive) {
         Send send = null;
         if (requestTypeId == RequestKeys.Produce) {
-            send =   handleProducerRequest(receive);
+            send = handleProducerRequest(receive);
         } else if (requestTypeId == RequestKeys.Fetch) {
             send = handleFetchRequest(receive);
         } else if (requestTypeId == RequestKeys.MultiFetch) {
-            send =   handleMultiFetchRequest(receive);
+            send = handleMultiFetchRequest(receive);
         } else if (requestTypeId == RequestKeys.MultiProduce) {
-            send =  handleMultiProducerRequest(receive);
+            send = handleMultiProducerRequest(receive);
         } else if (requestTypeId == RequestKeys.Offsets) {
-            send =  handleOffsetRequest(receive);
+            send = handleOffsetRequest(receive);
         } else {
             throw new IllegalStateException("No mapping found for handler id " + requestTypeId);
         }
@@ -42,7 +42,8 @@ public class KafkaRequestHandlers {
     }
     
     /**
-     *  处理 根据offset 消息消息请求
+     * 处理 根据offset 消息消息请求
+     *
      * @param request
      * @return
      */
@@ -91,13 +92,15 @@ public class KafkaRequestHandlers {
     
     Send handleFetchRequest(Receive request) {
         FetchRequest fetchRequest = FetchRequest.readFrom(request.buffer());
-        if (requestLogger.isTraceEnabled())
+        if (requestLogger.isTraceEnabled()) {
             requestLogger.trace("Fetch request " + fetchRequest.toString());
+        }
         return readMessageSet(fetchRequest);
     }
     
     /**
      * 处理生产者请求
+     *
      * @param receive
      * @return
      */
@@ -132,15 +135,17 @@ public class KafkaRequestHandlers {
     private MessageSetSend readMessageSet(FetchRequest fetchRequest) {
         MessageSetSend response = null;
         try {
+            System.out.println("消费：Fetching log segment for topic = " + fetchRequest.topic + " and partition = " + fetchRequest.partition);
             logger.trace("Fetching log segment for topic = " + fetchRequest.topic + " and partition = " + fetchRequest.partition);
             Log log = logManager.getOrCreateLog(fetchRequest.topic, fetchRequest.partition);
-            response = new MessageSetSend(log.read(fetchRequest.offset, (long) fetchRequest.maxSize));
+            System.out.println("--------------------------MessageSetSend--------------log-----------" + log);
+            MessageSet messageSet = log.read(fetchRequest.offset, (long) fetchRequest.maxSize);
+            response = new MessageSetSend(messageSet);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("error when processing request " + fetchRequest, e);
             try {
                 response = new MessageSetSend(MessageSet.Empty, ErrorMapping.codeFor(e.getClass().newInstance().getCause()));
-            } catch (IOException e1) {
-                e1.printStackTrace();
             } catch (InstantiationException e1) {
                 e1.printStackTrace();
             } catch (IllegalAccessException e1) {

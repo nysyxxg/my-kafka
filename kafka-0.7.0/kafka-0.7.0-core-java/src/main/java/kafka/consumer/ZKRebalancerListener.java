@@ -40,7 +40,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     public ZKRebalancerListener(ConsumerConfig config, ZkClient zkClient, String groupId, String consumerIdString,
                                 Pool<String, Pool<Partition, PartitionTopicInfo>> topicRegistry,
-                                Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>> queues ,
+                                Pool<Tuple2<String, String>, BlockingQueue<FetchedDataChunk>> queues,
                                 Fetcher fetcher) {
         this.config = config;
         this.zkClient = zkClient;
@@ -53,9 +53,9 @@ public class ZKRebalancerListener implements IZkChildListener {
     }
     
     private void releasePartitionOwnership() {
-        for (String topic : topicRegistry.keys) {
+        for (String topic : topicRegistry.keys()) {
             Pool<Partition, PartitionTopicInfo> pool = topicRegistry.get(topic);
-            Iterable<PartitionTopicInfo> iterable = pool.values;
+            Iterable<PartitionTopicInfo> iterable = pool.values();
             Iterator<PartitionTopicInfo> iterator = iterable.iterator();
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(groupId, topic);
             while (iterator.hasNext()) {
@@ -113,7 +113,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     }
     
     private TopicCount getTopicCount(String consumerId) {
-        String path  = dirs.getConsumerRegistryDir() + "/" + consumerId;
+        String path = dirs.getConsumerRegistryDir() + "/" + consumerId;
         System.out.println("path : " + path);
         String topicCountJson = ZkUtils.readData(zkClient, path);
         return TopicCount.constructTopicCount(consumerId, topicCountJson);
@@ -124,6 +124,7 @@ public class ZKRebalancerListener implements IZkChildListener {
     }
     
     public void syncedRebalance() {
+        System.out.println("-------------------开始执行------------syncedRebalance--------------------------");
         synchronized (rebalanceLock) {
             for (int i = 0; i < ZookeeperConsumerConnector.MAX_N_RETRIES; i++) {
                 logger.info("begin rebalancing consumer " + consumerIdString + " try #" + i);
@@ -151,6 +152,8 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     
     private Boolean rebalance() {
+        System.out.println("-------------ZKRebalancerListener------开始执行------------rebalance--------------------------");
+    
         Map<String, Set<String>> myTopicThreadIdsMap = getTopicCount(consumerIdString).getConsumerThreadIdsPerTopic();
         Cluster cluster = ZkUtils.getCluster(zkClient);
         Map<String, List<String>> consumersPerTopicMap = getConsumersPerTopic(groupId);
@@ -222,34 +225,34 @@ public class ZKRebalancerListener implements IZkChildListener {
         return true;
     }
     
-    private void updateFetcher(Cluster cluster  , Iterable<BlockingQueue<FetchedDataChunk>> queuesTobeCleared  ) {
+    private void updateFetcher(Cluster cluster, Iterable<BlockingQueue<FetchedDataChunk>> queuesTobeCleared) {
         // update partitions for fetcher
         List<PartitionTopicInfo> allPartitionInfos = new ArrayList<>();
-    
-        Iterable<Pool<Partition, PartitionTopicInfo>> iterable =    topicRegistry.values;
-        Iterator<Pool<Partition, PartitionTopicInfo>> iterator =   iterable.iterator();
-        while(iterator.hasNext()) {
+        
+        Iterable<Pool<Partition, PartitionTopicInfo>> iterable = topicRegistry.values();
+        Iterator<Pool<Partition, PartitionTopicInfo>> iterator = iterable.iterator();
+        while (iterator.hasNext()) {
             Pool<Partition, PartitionTopicInfo> partitionInfos = iterator.next();
-            Iterator<PartitionTopicInfo> infoIterator = partitionInfos.values.iterator();
+            Iterator<PartitionTopicInfo> infoIterator = partitionInfos.values().iterator();
             while (infoIterator.hasNext()) {
                 PartitionTopicInfo partition = infoIterator.next();
                 allPartitionInfos.add(partition);
             }
         }
-        Collections.sort(allPartitionInfos,new Comparator<PartitionTopicInfo>() {
+        Collections.sort(allPartitionInfos, new Comparator<PartitionTopicInfo>() {
             @Override
             public int compare(PartitionTopicInfo o1, PartitionTopicInfo o2) {
-                if( o1.partition.equals( o2.partition)){
-                    return  1;
-                }else {
-                    return  -1;
+                if (o1.partition.equals(o2.partition)) {
+                    return 1;
+                } else {
+                    return -1;
                 }
             }
         });
         
-        logger.info("Consumer " + consumerIdString + " selected partitions : " +StringUtils.join(allPartitionInfos.toArray(),","));
+        logger.info("Consumer " + consumerIdString + " selected partitions : " + StringUtils.join(allPartitionInfos.toArray(), ","));
         
-        if(fetcher  !=null) {
+        if (fetcher != null) {
             fetcher.initConnections(allPartitionInfos, cluster, queuesTobeCleared);
         }
     }
@@ -278,7 +281,7 @@ public class ZKRebalancerListener implements IZkChildListener {
         String znode = topicDirs.getConsumerOffsetDir() + "/" + partition.name;
         String offsetString = ZkUtils.readDataMaybeNull(zkClient, znode);
         // If first time starting a consumer, set the initial offset based on the config
-        Long offset = 0L;
+        long offset = 0L;
         String offsetReset = config.autoOffsetReset;
         if (offsetString == null) {
             if (offsetReset == OffsetRequest.SmallestTimeString) {
@@ -331,9 +334,9 @@ public class ZKRebalancerListener implements IZkChildListener {
         if (zkClient == null) {
             return;
         }
-        for (String topic : topicRegistry.keys) {
+        for (String topic : topicRegistry.keys()) {
             Pool<Partition, PartitionTopicInfo> pool = topicRegistry.get(topic);
-            Iterable<PartitionTopicInfo> iterable = pool.values;
+            Iterable<PartitionTopicInfo> iterable = pool.values();
             Iterator<PartitionTopicInfo> iterator = iterable.iterator();
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(groupId, topic);
             while (iterator.hasNext()) {

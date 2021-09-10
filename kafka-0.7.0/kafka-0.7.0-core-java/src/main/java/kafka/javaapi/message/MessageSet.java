@@ -11,7 +11,7 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
         super();
     }
     
-    public abstract java.util.Iterator<MessageAndOffset> iterator();
+    public abstract  Iterator<MessageAndOffset> iterator();
     
     public abstract Long sizeInBytes();
     

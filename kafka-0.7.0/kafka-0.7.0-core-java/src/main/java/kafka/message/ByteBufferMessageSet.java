@@ -189,6 +189,7 @@ public class ByteBufferMessageSet extends MessageSet {
     
     @Override
     public Iterator<MessageAndOffset> iterator() {
+        System.out.println("--------------------------ByteBufferMessageSet-------------------iterator()---------");
         try {
             return deepIterator();
         } catch (Throwable throwable) {

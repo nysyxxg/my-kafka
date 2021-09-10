@@ -6,8 +6,6 @@ import kafka.common.OffsetOutOfRangeException;
 import kafka.message.FileMessageSet;
 import kafka.message.MessageAndOffset;
 import kafka.message.MessageSet;
-import kafka.utils.Range;
-import kafka.utils.SystemTime;
 import kafka.utils.Utils;
 import org.apache.log4j.Logger;
 import scala.Tuple2;
@@ -59,36 +57,43 @@ public class Log {
         Utils.registerMBean(logStats, "kafka:type=kafka.logs." + dir.getName());
     }
     
-    
-    public <T> Range findRange(Range<? extends Range<T>>[] ranges, Long value, int arraySize) {
+    /**
+     * 二分查找 offset
+     *
+     * @param ranges
+     * @param value
+     * @param arraySize
+     * @return
+     */
+    public LogSegment findRange(LogSegment ranges[], Long value, int arraySize) {
         if (ranges.length < 1) {
             return null;
         }
-        
         // check out of bounds
-        if (value < ranges[0].start || value > ranges[arraySize - 1].start + ranges[arraySize - 1].size)
+        if (value < ranges[0].start || value > ranges[arraySize - 1].start + ranges[arraySize - 1].size) {
             throw new OffsetOutOfRangeException("offset " + value + " is out of range");
-        
+        }
         // check at the end
-        if (value == ranges[arraySize - 1].start + ranges[arraySize - 1].size)
+        if (value == ranges[arraySize - 1].start + ranges[arraySize - 1].size) {
             return null;
-        
+        }
         int low = 0;
         int high = arraySize - 1;
         while (low <= high) {
             int mid = (high + low) / 2;
-            Range found = ranges[mid];
-            if (found.contains(value))
+            LogSegment found = ranges[mid];
+            if (found.contains(value)) {
                 return found;
-            else if (value < found.start)
+            } else if (value < found.start) {
                 high = mid - 1;
-            else
+            } else {
                 low = mid + 1;
+            }
         }
         return null;
     }
     
-    public <T> Range findRange(Range<? extends Range<T>>[] ranges, Long value) {
+    public LogSegment findRange(LogSegment ranges[], Long value) {
         return findRange(ranges, value, ranges.length);
     }
     
@@ -187,9 +192,9 @@ public class Log {
     }
     
     public Long getHighwaterMark() {
-        Object[] objects = segments.getView();
+        LogSegment[] objects = segments.getView();
         if (objects[objects.length - 1] instanceof LogSegment) {
-            LogSegment logSegment = (LogSegment) objects[objects.length - 1];
+            LogSegment logSegment = objects[objects.length - 1];
             return logSegment.messageSet.highWaterMark();
         }
         return null;
@@ -212,8 +217,9 @@ public class Log {
         // validate the messages
         int numberOfMessages = 0;
         for (MessageAndOffset messageAndOffset : messages) {
-            if (!messageAndOffset.message.isValid())
+            if (!messageAndOffset.message.isValid()) {
                 throw new InvalidMessageException();
+            }
             numberOfMessages += 1;
         }
         
@@ -236,7 +242,9 @@ public class Log {
     }
     
     public void flush() {
-        if (unflushed.get() == 0) return;
+        if (unflushed.get() == 0) {
+            return;
+        }
         
         synchronized (lock) {
             if (logger.isDebugEnabled()) {
@@ -408,15 +416,15 @@ public class Log {
     
     public MessageSet read(Long offset, Long length) {
         LogSegment view[] = segments.view;
-        LogSegment segment = (LogSegment) findRange(view, offset, view.length);
+        LogSegment segment = findRange(view, offset, view.length);
         if (segment != null) {
             try {
-                return   segment.messageSet.read((offset - segment.start), length);
+                return segment.messageSet.read((offset - segment.start), length);
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
         } else {
-            return  MessageSet.Empty;
+            return MessageSet.Empty;
         }
         return null;
     }

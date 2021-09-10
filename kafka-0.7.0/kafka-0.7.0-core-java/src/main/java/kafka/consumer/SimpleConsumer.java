@@ -65,7 +65,7 @@ public class SimpleConsumer {
         if (logger.isDebugEnabled()) {
             logger.debug("Disconnecting from " + channel.socket().getRemoteSocketAddress());
         }
-    
+        
         try {
             channel.socket().close();
         } catch (IOException e) {
@@ -80,7 +80,7 @@ public class SimpleConsumer {
             logger.warn(e.getMessage(), e);
         }
         
-      
+        
     }
     
     public void close() {
@@ -107,7 +107,7 @@ public class SimpleConsumer {
                 try {
                     channel = connect();
                     sendRequest(request);
-                    response = getResponse();
+                    response = getResponse();  // 得到返回的数据
                 } catch (SocketException e1) {
                     e1.printStackTrace();
                 }
@@ -124,15 +124,19 @@ public class SimpleConsumer {
             Long startTime = SystemTime.getMilliseconds();
             getOrMakeConnection();
             Tuple2<Receive, Integer> response = null;
+    
+            FetchRequest[] fetchRequests = new FetchRequest[fetches.size()];
+            fetches.toArray(fetchRequests);
+            Request request = new MultiFetchRequest(fetchRequests);
             try {
-                sendRequest(new MultiFetchRequest((FetchRequest[]) fetches.toArray()));
+                sendRequest(request);
                 response = getResponse();
             } catch (Exception e) {
                 logger.info("multifetch reconnect due to " + e);
                 // retry once
                 try {
                     channel = connect();
-                    sendRequest(new MultiFetchRequest((FetchRequest[]) fetches.toArray()));
+                    sendRequest(request);
                     response = getResponse();
                 } catch (SocketException e1) {
                     e1.printStackTrace();
@@ -193,13 +197,14 @@ public class SimpleConsumer {
     }
     
     private Tuple2<Receive, Integer> getResponse() {
-        System.out.println(this.getClass().getName() + "----------------getResponse------------------");
-    
+        System.out.println(SystemTime.getDateFormat() + " " + this.getClass().getName() + "--------1--------getResponse------------------");
+        
         BoundedByteBufferReceive response = new BoundedByteBufferReceive();
         response.readCompletely(channel);
-        // this has the side effect of setting the initial position of buffer correctly
+        System.out.println(SystemTime.getDateFormat() + " " + this.getClass().getName() + "--------2--------getResponse------------------");
+        
         int errorCode = response.buffer().getShort();
-        System.out.println("-------------errorCode---------> " + errorCode);
+        System.out.println(SystemTime.getDateFormat() + "-------------errorCode---------> " + errorCode);
         return new Tuple2<>(response, errorCode);
     }
     

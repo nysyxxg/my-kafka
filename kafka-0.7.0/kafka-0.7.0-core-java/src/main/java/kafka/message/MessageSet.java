@@ -28,11 +28,11 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
     public MessageSet() throws Throwable {
     }
     
-    static int entrySize(Message message) {
+    public static int entrySize(Message message) {
         return LogOverhead + message.size;
     }
     
-    static int messageSetSize(Iterable<Message> messages) {
+    public static int messageSetSize(Iterable<Message> messages) {
         int size = 0;
         Iterator<Message> it = messages.iterator();
         while (it.hasNext()) {
@@ -43,7 +43,7 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
         return size;
     }
     
-   static int messageSetSize(List<Message> messages) {
+    public  static int messageSetSize(List<Message> messages) {
         int size = 0;
         Iterator<Message> iter = messages.iterator();
         while (iter.hasNext()) {
@@ -87,25 +87,6 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
         }
     }
     
-    
-    @Override
-    public Iterator<MessageAndOffset> iterator() {
-        return null;
-    }
-    
-    @Override
-    public void forEach(Consumer<? super MessageAndOffset> action) {
-    
-    }
-    
-    @Override
-    public Spliterator<MessageAndOffset> spliterator() {
-        return null;
-    }
-    
-    
-    public abstract Long sizeInBytes();
-    
     public void validate() {
         for (MessageAndOffset messageAndOffset : this)
             if (!messageAndOffset.message.isValid()) {
@@ -115,4 +96,7 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
     
     public abstract Long writeTo(WritableByteChannel channel, Long offset, Long maxSize) throws IOException;
     
+    public abstract Iterator<MessageAndOffset> iterator();
+    
+    public abstract Long sizeInBytes();
 }

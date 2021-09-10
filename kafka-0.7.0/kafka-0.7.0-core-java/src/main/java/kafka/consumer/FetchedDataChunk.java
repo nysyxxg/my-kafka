@@ -7,7 +7,7 @@ import java.util.Objects;
 public class FetchedDataChunk {
     ByteBufferMessageSet messages;
     PartitionTopicInfo topicInfo;
-    Long fetchOffset;
+    long fetchOffset;
     
     public FetchedDataChunk(ByteBufferMessageSet messages,
                             PartitionTopicInfo topicInfo,
