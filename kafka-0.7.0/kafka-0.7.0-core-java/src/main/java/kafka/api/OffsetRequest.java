@@ -9,8 +9,8 @@ public class OffsetRequest extends Request {
     
     public static String SmallestTimeString = "smallest";
     public static String LargestTimeString = "largest";
-    public static Long LatestTime = -1L;  // 从最新的offset开始消息
-    public static Long EarliestTime = -2L;// 从最早的offset开始消息
+    public static long LatestTime = -1L;  // 从最新的offset开始消息
+    public static long EarliestTime = -2L;// 从最早的offset开始消息
     
     public String topic;
     public int partition;

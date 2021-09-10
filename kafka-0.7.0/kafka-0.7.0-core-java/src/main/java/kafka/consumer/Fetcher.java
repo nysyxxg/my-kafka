@@ -15,8 +15,9 @@ public class Fetcher {
     
     private volatile FetcherRunnable fetcherThreads[] = EMPTY_FETCHER_THREADS;
     
-    private  ConsumerConfig config;
-    private  ZkClient zkClient;
+    private ConsumerConfig config;
+    private ZkClient zkClient;
+    
     public Fetcher(ConsumerConfig config, ZkClient zkClient) {
         this.config = config;
         this.zkClient = zkClient;
@@ -48,9 +49,7 @@ public class Fetcher {
         // re-arrange by broker id
         Map<Integer, List<PartitionTopicInfo>> m = new HashMap<Integer, List<PartitionTopicInfo>>();
         
-        Iterator<PartitionTopicInfo> it = topicInfos.iterator();
-        while (it.hasNext()) {
-            PartitionTopicInfo info = it.next();
+        for (PartitionTopicInfo info : topicInfos) {
             List<PartitionTopicInfo> list = m.get(info.brokerId);
             if (list == null) {
                 List<PartitionTopicInfo> listInfo = new ArrayList<>();
@@ -63,16 +62,14 @@ public class Fetcher {
         }
         
         // open a new fetcher thread for each broker
-        List<Integer>  ids = new ArrayList();
-        List<Broker>  brokers = new ArrayList<>();
+        List<Integer> ids = new ArrayList();
+        List<Broker> brokers = new ArrayList<>();
         
-        Iterator<PartitionTopicInfo> it2 = topicInfos.iterator();
-        while (it2.hasNext()) {
-            PartitionTopicInfo partitionTopicInfo =  it2.next();
+        for (PartitionTopicInfo partitionTopicInfo: topicInfos){
             int brokerId = partitionTopicInfo.brokerId;
             ids.add(brokerId);
-    
-            Broker  broker =  cluster.getBroker(brokerId);
+            
+            Broker broker = cluster.getBroker(brokerId);
             brokers.add(broker);
         }
         
@@ -81,6 +78,7 @@ public class Fetcher {
         for (Broker broker : brokers) {
             FetcherRunnable fetcherThread = new FetcherRunnable("FetchRunnable-" + i, zkClient, config, broker, m.get(broker.getId()));
             fetcherThreads[i] = fetcherThread;
+            System.out.println(Thread.currentThread().getName() + "---------------------启动拉取数据线程----------------------------");
             fetcherThread.start();
             i += 1;
         }

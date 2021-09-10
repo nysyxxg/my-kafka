@@ -42,7 +42,7 @@ public class TopicCount {
         }
     }
     
-    Map<String, Set<String>> getConsumerThreadIdsPerTopic() {
+    public Map<String, Set<String>> getConsumerThreadIdsPerTopic() {
         Map<String, Set<String>> consumerThreadIdsPerTopicMap = new HashMap<String, Set<String>>();
         for (String topic : topicCountMap.keySet()) {
             int nConsumers = topicCountMap.get(topic);

@@ -69,12 +69,14 @@ public class Log {
         if (ranges.length < 1) {
             return null;
         }
+        System.out.println("ranges[0].start = " + ranges[0].start());
+        System.out.println("ranges[arraySize - 1].start + ranges[arraySize - 1].size  = " + (ranges[arraySize - 1].start() + ranges[arraySize - 1].size()));
         // check out of bounds
-        if (value < ranges[0].start || value > ranges[arraySize - 1].start + ranges[arraySize - 1].size) {
+        if (value < ranges[0].start() || value > ranges[arraySize - 1].start() + ranges[arraySize - 1].size()) {
             throw new OffsetOutOfRangeException("offset " + value + " is out of range");
         }
         // check at the end
-        if (value == ranges[arraySize - 1].start + ranges[arraySize - 1].size) {
+        if (value == ranges[arraySize - 1].start() + ranges[arraySize - 1].size()) {
             return null;
         }
         int low = 0;
@@ -84,7 +86,7 @@ public class Log {
             LogSegment found = ranges[mid];
             if (found.contains(value)) {
                 return found;
-            } else if (value < found.start) {
+            } else if (value < found.start()) {
                 high = mid - 1;
             } else {
                 low = mid + 1;
@@ -423,7 +425,7 @@ public class Log {
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
             }
-        } else {
+        } else if(segment == null){ // 说明没有找到日志分片
             return MessageSet.Empty;
         }
         return null;

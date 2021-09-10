@@ -105,7 +105,7 @@ public class FileMessageSet extends MessageSet {
         }
     }
     
-    public Long sizeInBytes() {
+    public long sizeInBytes() {
         return setSize.get();
     }
     

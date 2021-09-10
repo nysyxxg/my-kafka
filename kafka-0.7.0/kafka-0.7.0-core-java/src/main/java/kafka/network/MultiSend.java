@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 
-public abstract class MultiSend<S> extends Send { // S 泛型必须是Send的子类
-    public List<S> sends;
+public abstract class MultiSend extends Send { // S 泛型必须是Send的子类
     
-    public List<S> current;
+    public List<Send> current;
     public int totalWritten = 0;
     
-    public MultiSend(List<S> sends) {
-        this.sends = sends;
+    public MultiSend(List<Send> sends) {
         this.current = sends;
+        this.current.add(0, new ByteBufferSend(6)); // 将对象加入到头部
     }
     
     protected MultiSend() {
@@ -23,7 +22,9 @@ public abstract class MultiSend<S> extends Send { // S 泛型必须是Send的子
     
     public int writeTo(WritableByteChannel channel) throws IOException {
         expectIncomplete();
-        Send send = (Send) current.get(0);
+        Send send = this.current.get(0);//head 获取第一个元素
+        System.out.println("----------------------获取集合中头部元素：send = " + send);
+//        ByteBufferSend  send = new ByteBufferSend(6);
         int written = send.writeTo(channel);
         totalWritten += written;
         if (send.complete()) {
@@ -34,9 +35,10 @@ public abstract class MultiSend<S> extends Send { // S 泛型必须是Send的子
     
     @Override
     public Boolean complete() {
-        if (current == null) {
-            if (totalWritten != getExpectedBytesToWrite())
+        if (current.size() == 0 ) {
+            if (totalWritten != getExpectedBytesToWrite()) {
                 logger.error("mismatch in sending bytes over socket; expected: " + getExpectedBytesToWrite() + " actual: " + totalWritten);
+            }
             return true;
         } else
             return false;

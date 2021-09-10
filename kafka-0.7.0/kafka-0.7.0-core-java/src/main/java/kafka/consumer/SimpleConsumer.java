@@ -127,16 +127,15 @@ public class SimpleConsumer {
     
             FetchRequest[] fetchRequests = new FetchRequest[fetches.size()];
             fetches.toArray(fetchRequests);
-            Request request = new MultiFetchRequest(fetchRequests);
             try {
-                sendRequest(request);
+                sendRequest(new MultiFetchRequest(fetchRequests));
                 response = getResponse();
             } catch (Exception e) {
                 logger.info("multifetch reconnect due to " + e);
-                // retry once
                 try {
+                    // retry once
                     channel = connect();
-                    sendRequest(request);
+                    sendRequest( new MultiFetchRequest(fetchRequests));
                     response = getResponse();
                 } catch (SocketException e1) {
                     e1.printStackTrace();
@@ -187,7 +186,7 @@ public class SimpleConsumer {
     
     
     private void sendRequest(Request request) {
-        System.out.println(this.getClass().getName() + "----------------sendRequest------------------");
+        System.out.println(this.getClass().getName() + "----------XXG------sendRequest------------------");
         Send send = new BoundedByteBufferSend(request);
         try {
             send.writeCompletely(channel);

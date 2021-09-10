@@ -18,6 +18,7 @@ import scala.Tuple2;
 
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -55,11 +56,9 @@ public class ZKRebalancerListener implements IZkChildListener {
     private void releasePartitionOwnership() {
         for (String topic : topicRegistry.keys()) {
             Pool<Partition, PartitionTopicInfo> pool = topicRegistry.get(topic);
-            Iterable<PartitionTopicInfo> iterable = pool.values();
-            Iterator<PartitionTopicInfo> iterator = iterable.iterator();
+            ConcurrentHashMap.KeySetView<Partition, PartitionTopicInfo> keys = pool.keys();
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(groupId, topic);
-            while (iterator.hasNext()) {
-                PartitionTopicInfo partition = iterator.next();
+            for (Partition partition : keys) {
                 String znode = topicDirs.getConsumerOwnerDir() + "/" + partition;
                 ZkUtils.deletePath(zkClient, znode);
                 if (logger.isDebugEnabled())
@@ -106,15 +105,16 @@ public class ZKRebalancerListener implements IZkChildListener {
         Map<String, Set<String>> relevantTopicThreadIdsMap = new HashMap<String, Set<String>>();
         for (String topic : myTopicThreadIdsMap.keySet()) {
             Set<String> consumerThreadIdSet = myTopicThreadIdsMap.get(topic);
-            if (oldPartMap.get(topic) != newPartMap.get(topic) || oldConsumerMap.get(topic) != newConsumerMap.get(topic))
+            if (oldPartMap.get(topic) != newPartMap.get(topic) || oldConsumerMap.get(topic) != newConsumerMap.get(topic)) {
                 relevantTopicThreadIdsMap.put(topic, consumerThreadIdSet);
+            }
         }
         return relevantTopicThreadIdsMap;
     }
     
     private TopicCount getTopicCount(String consumerId) {
         String path = dirs.getConsumerRegistryDir() + "/" + consumerId;
-        System.out.println("path : " + path);
+        System.out.println("获取消费者 path : " + path);
         String topicCountJson = ZkUtils.readData(zkClient, path);
         return TopicCount.constructTopicCount(consumerId, topicCountJson);
     }
@@ -126,8 +126,8 @@ public class ZKRebalancerListener implements IZkChildListener {
     public void syncedRebalance() {
         System.out.println("-------------------开始执行------------syncedRebalance--------------------------");
         synchronized (rebalanceLock) {
-            for (int i = 0; i < ZookeeperConsumerConnector.MAX_N_RETRIES; i++) {
-                logger.info("begin rebalancing consumer " + consumerIdString + " try #" + i);
+            for (int i = 0; i < ZookeeperConsumerConnector.MAX_N_RETRIES; i++) { // MAX_N_RETRIES 平衡最大重试次数
+                logger.info("begin rebalancing consumer " + consumerIdString + " try #" + i); // 开始平衡消费者
                 boolean done = false;
                 try {
                     done = rebalance();
@@ -153,11 +153,12 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     private Boolean rebalance() {
         System.out.println("-------------ZKRebalancerListener------开始执行------------rebalance--------------------------");
-    
+        
         Map<String, Set<String>> myTopicThreadIdsMap = getTopicCount(consumerIdString).getConsumerThreadIdsPerTopic();
         Cluster cluster = ZkUtils.getCluster(zkClient);
         Map<String, List<String>> consumersPerTopicMap = getConsumersPerTopic(groupId);
-        Map<String, List<String>> partitionsPerTopicMap = ZkUtils.getPartitionsForTopics(zkClient, myTopicThreadIdsMap.keySet().iterator());
+        Iterator<String> topics = myTopicThreadIdsMap.keySet().iterator();
+        Map<String, List<String>> partitionsPerTopicMap = ZkUtils.getPartitionsForTopics(zkClient, topics);
         Map<String, Set<String>> relevantTopicThreadIdsMap = getRelevantTopicMap(myTopicThreadIdsMap, partitionsPerTopicMap, oldPartitionsPerTopicMap, consumersPerTopicMap, oldConsumersPerTopicMap);
         if (relevantTopicThreadIdsMap.size() <= 0) {
             logger.info("Consumer " + consumerIdString + " with " + consumersPerTopicMap + " doesn't need to rebalance.");
@@ -201,19 +202,19 @@ public class ZKRebalancerListener implements IZkChildListener {
                     nParts = nPartsPerConsumer + 1;
                 }
                 
-                
                 /**
                  * Range-partition the sorted partitions to consumers for better locality.
                  * The first few consumers pick up an extra partition, if any.
                  */
-                if (nParts <= 0)
+                if (nParts <= 0) {
                     logger.warn("No broker partitions consumed by consumer thread " + consumerThreadId + " for topic " + topic);
-                else {
+                }else {
                     for (int i = startPart; i < startPart + nParts; i++) {
                         String partition = curPartitions.get(i);
                         logger.info(consumerThreadId + " attempting to claim partition " + partition);
-                        if (!processPartition(topicDirs, partition, topic, consumerThreadId))
+                        if (!processPartition(topicDirs, partition, topic, consumerThreadId)) {
                             return false;
+                        }
                     }
                     queuesToBeCleared.add(queues.get(new Tuple2<>(topic, consumerThreadId)));
                 }
@@ -282,8 +283,8 @@ public class ZKRebalancerListener implements IZkChildListener {
         String offsetString = ZkUtils.readDataMaybeNull(zkClient, znode);
         // If first time starting a consumer, set the initial offset based on the config
         long offset = 0L;
-        String offsetReset = config.autoOffsetReset;
         if (offsetString == null) {
+            String offsetReset = config.autoOffsetReset;
             if (offsetReset == OffsetRequest.SmallestTimeString) {
                 offset = earliestOrLatestOffset(topic, partition.getBrokerId(), partition.partId, OffsetRequest.EarliestTime);
             } else if (offsetReset == OffsetRequest.LargestTimeString) {

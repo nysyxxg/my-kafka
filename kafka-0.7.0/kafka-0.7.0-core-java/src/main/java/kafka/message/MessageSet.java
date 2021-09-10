@@ -98,5 +98,5 @@ public abstract class MessageSet implements Iterable<MessageAndOffset> {
     
     public abstract Iterator<MessageAndOffset> iterator();
     
-    public abstract Long sizeInBytes();
+    public abstract long sizeInBytes();
 }

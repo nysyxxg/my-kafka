@@ -38,7 +38,7 @@ public class FetcherRunnable extends Thread {
                            ConsumerConfig config,
                            Broker broker,
                            List<PartitionTopicInfo> partitionTopicInfos) {
-        this.name = name;
+        this.name = threadName;
         this.zkClient = zkClient;
         this.config = config;
         this.broker = broker;
@@ -79,9 +79,9 @@ public class FetcherRunnable extends Thread {
                 if (logger.isTraceEnabled()) {
                     logger.trace("fetch request: " + fetches.toString());
                 }
-                
+                System.out.println(Thread.currentThread().getName() + "-----------fetches =  " + fetches.size());
                 MultiFetchResponse response = simpleConsumer.multifetch(fetches);
-                
+                System.out.println(Thread.currentThread().getName() + "-----------fetches =  " +" + numSets = " + response.numSets);
                 long read = 0L;
                 int index = 0;
                 //  for ((messages, info) <- response.zip(partitionTopicInfos)) {  scala 使用zip拉链操作，需要转化
@@ -100,7 +100,7 @@ public class FetcherRunnable extends Thread {
                             }
                         }
                         if (!done) {
-                            System.out.println(Thread.currentThread().getName() + "-------FetcherRunnable-----run---");
+                            System.out.println(Thread.currentThread().getName() + "-------FetcherRunnable----添加消息到队列中-----run---");
                             // 将拉取的数据，转化为数据块对象，存储到队列中BlockingQueue
                             read += info.enqueue(messages, info.getFetchOffset());
                         }
@@ -140,6 +140,7 @@ public class FetcherRunnable extends Thread {
         shutdownLatch.countDown();
     }
     
+    //  重新设置消费者的 offset
     public Long resetConsumerOffsets(String topic, Partition partition) {
         Long offset = 0L;
         String autoOffsetReset = config.autoOffsetReset;
@@ -156,14 +157,14 @@ public class FetcherRunnable extends Thread {
         
         String signStr = "";
         if (offset == OffsetRequest.EarliestTime) {
-            signStr = "earliest ";
+            signStr = "earliest";
         } else {
-            signStr = " latest ";
+            signStr = "latest";
         }
         
         // reset manually in zookeeper
         logger.info("updating partition " + partition.name + " for topic " + topic + " with " + signStr + "offset " + offsets[0]);
-        
+        // 更新消费者的offset
         ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + partition.name, String.valueOf(offsets[0]));
         
         return offsets[0];

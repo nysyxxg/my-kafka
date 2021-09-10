@@ -25,7 +25,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
     private ConsumerConfig config;
     private  Boolean enableFetcher;
     
-    public static int MAX_N_RETRIES = 4;
+    public static int MAX_N_RETRIES = 4;  // 平衡最大重试次数
     public static FetchedDataChunk shutdownCommand = new FetchedDataChunk(null, null, -1L);
     private AtomicBoolean isShuttingDown = new AtomicBoolean(false);
     
@@ -59,7 +59,6 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
                 public void call() {
                     autoCommit();
                 }
-                
                 @Override
                 public Object call(Object v) {
                     return null;
@@ -93,9 +92,10 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
             ZKGroupTopicDirs topicDirs = new ZKGroupTopicDirs(config.groupId, topic);
             while (iterator.hasNext()) {
                 PartitionTopicInfo info = iterator.next();
-                Long newOffset = info.getConsumeOffset();
+                long newOffset = info.getConsumeOffset();
                 try {
-                    ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + info.partition.name, newOffset.toString());
+                    System.out.println("--------------------------保存offset的值：newOffset=  " + newOffset);
+                    ZkUtils.updatePersistentPath(zkClient, topicDirs.getConsumerOffsetDir() + "/" + info.partition.name, String.valueOf(newOffset));
                 } catch (Throwable t) {
                     // log it and let it go
                     logger.warn("exception during commitOffsets", t);
@@ -115,6 +115,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
     }
     
     private void createFetcher() {
+        System.out.println("------------是否创建 createFetcher ： enableFetcher ：" + enableFetcher);
         if (enableFetcher) {
             fetcher = new Fetcher(config, zkClient);
         }
@@ -181,12 +182,13 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         TopicCount topicCount = new TopicCount(consumerIdString, topicCountMap);
         
         // listener to consumer and partition changes
+        // 监听 消费者 和 topic的分区变化，可能在同一个消费组中， 增加了新的消费者，或者订阅的topic的分区发生了改变
         ZKRebalancerListener loadBalancerListener = new ZKRebalancerListener(config, zkClient, config.groupId, consumerIdString, topicRegistry, queues, fetcher);
         ZkUtils.registerConsumerInZK(zkClient, dirs, consumerIdString, topicCount);
         
-        // register listener for session expired event
+        // register listener for session expired event   订阅节点的状态变化
         zkClient.subscribeStateChanges(new ZKSessionExpireListenner(dirs, consumerIdString, topicCount, loadBalancerListener));
-        
+        // 订阅 孩子节点数据的变化
         zkClient.subscribeChildChanges(dirs.getConsumerRegistryDir(), loadBalancerListener);
         
         // create a queue per topic per consumer thread
@@ -279,7 +281,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         return earliestOrLatestOffset(topic, brokerId, partitionId, OffsetRequest.LatestTime);
     }
     
-    private Long earliestOrLatestOffset(String topic, int brokerId, int partitionId, Long earliestOrLatest) {
+    private Long earliestOrLatestOffset(String topic, int brokerId, int partitionId, long earliestOrLatest) {
         SimpleConsumer simpleConsumer = null;
         Long producedOffset = -1L;
         try {

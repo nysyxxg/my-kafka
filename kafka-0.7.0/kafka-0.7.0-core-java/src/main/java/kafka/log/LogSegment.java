@@ -1,14 +1,16 @@
 package kafka.log;
 
 import kafka.message.FileMessageSet;
+import kafka.utils.Range;
 
 import java.io.File;
 
-public class LogSegment {
-    File file;
-    FileMessageSet messageSet;
-    Long start;
-    volatile boolean deleted = false;
+public class LogSegment extends Range {
+    
+    public File file;
+    public FileMessageSet messageSet;
+    public volatile boolean deleted = false;
+    public Long start;
     public Long size;
     
     public LogSegment(File file, FileMessageSet messageSet, Long start) {
@@ -61,6 +63,16 @@ public class LogSegment {
     
     public String toString() {
         return "(file=" + file + ", start=" + start + ", size=" + size + ")";
+    }
+    
+    @Override
+    public Long start() {
+        return start;
+    }
+    
+    @Override
+    public Long size() {
+        return messageSet.highWaterMark();
     }
     
     public Boolean isEmpty() {

@@ -199,7 +199,7 @@ public class ByteBufferMessageSet extends MessageSet {
     }
     
     @Override
-    public Long sizeInBytes() {
+    public long sizeInBytes() {
         return Long.valueOf(buffer.limit());
     }
     

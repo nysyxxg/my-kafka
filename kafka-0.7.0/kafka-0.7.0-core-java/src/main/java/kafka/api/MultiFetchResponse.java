@@ -53,16 +53,6 @@ public class MultiFetchResponse implements Iterable<ByteBufferMessageSet> {
     }
     
     @Override
-    public void forEach(Consumer<? super ByteBufferMessageSet> action) {
-    
-    }
-    
-    @Override
-    public Spliterator<ByteBufferMessageSet> spliterator() {
-        return null;
-    }
-    
-    @Override
     public String toString(){
        return   this.messageSets.toString();
     }

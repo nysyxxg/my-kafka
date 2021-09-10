@@ -63,7 +63,9 @@ public class Pool<K, V> implements Iterable<Tuple2<K, V>> {
     
     @Override
     public Iterator<Tuple2<K, V>> iterator() {
+        
         return new Iterator<Tuple2<K, V>>() {
+            
             private Iterator<Map.Entry<K, V>> iter = pool.entrySet().iterator();
             
             @Override
@@ -75,16 +77,6 @@ public class Pool<K, V> implements Iterable<Tuple2<K, V>> {
             public Tuple2<K, V> next() {
                 Map.Entry<K, V> n = iter.next();
                 return new Tuple2<K, V>(n.getKey(), n.getValue());
-            }
-            
-            @Override
-            public void remove() {
-            
-            }
-            
-            @Override
-            public void forEachRemaining(Consumer action) {
-            
             }
         };
     }
