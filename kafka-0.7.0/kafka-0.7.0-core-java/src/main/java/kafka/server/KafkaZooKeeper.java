@@ -77,7 +77,7 @@ public class KafkaZooKeeper {
         }
         
         String creatorId = hostName + "-" + System.currentTimeMillis();
-        ;
+     
         Broker broker = new Broker(config.brokerId, creatorId, hostName, config.port);
         try {
             logger.info("开始创建临时节点...... " + brokerIdPath);

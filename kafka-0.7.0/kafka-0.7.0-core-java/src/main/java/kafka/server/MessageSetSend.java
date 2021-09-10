@@ -11,10 +11,10 @@ import java.nio.channels.WritableByteChannel;
 
 public class MessageSetSend extends Send {
     private Long sent = 0L;
-    Boolean complete = false;
-    MessageSet messages;
-    Integer errorCode;
-    public Long size;
+    private Boolean complete = false;
+    private MessageSet messages;
+    private Integer errorCode;
+    public long size;
     private ByteBuffer header;
     
     public MessageSetSend(MessageSet messages, Integer errorCode) {
@@ -23,9 +23,9 @@ public class MessageSetSend extends Send {
         this.size = messages.sizeInBytes();
         
         this.header = ByteBuffer.allocate(6);
-        header.putInt(Integer.valueOf(size.toString()) + 2);
-        header.putShort(Short.parseShort(errorCode.toString()));
-        header.rewind();
+        this.header.putInt(Integer.valueOf(String.valueOf(size)) + 2);
+        this.header.putShort(Short.parseShort(errorCode.toString()));
+        this.header.rewind();
     }
     
     

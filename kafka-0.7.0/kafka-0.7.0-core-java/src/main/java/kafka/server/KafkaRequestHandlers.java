@@ -77,14 +77,15 @@ public class KafkaRequestHandlers {
             requestLogger.trace("Multifetch request");
         }
         FetchRequest fetches[] = multiFetchRequest.fetches;
-        
+       
         for (FetchRequest req : fetches) {
             requestLogger.trace(req.toString());
         }
-        List<MessageSetSend> responses = new ArrayList<>();
         
+        List<Send> responses = new ArrayList<>();
         for (FetchRequest fetch : fetches) {
-            responses.add(readMessageSet(fetch));
+            MessageSetSend messageSetSend = readMessageSet(fetch);
+            responses.add(messageSetSend);
         }
         return new MultiMessageSetSend(responses);
     }
