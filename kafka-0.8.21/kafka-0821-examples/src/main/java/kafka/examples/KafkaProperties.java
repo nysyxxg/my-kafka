@@ -18,11 +18,11 @@ package kafka.examples;
 
 public interface KafkaProperties {
     // 单机模式
-//	 final static String Broker_List = "localhost:9092";
-//	 final static String ZK_CONNECT = "localhost:2181";
+	 final static String Broker_List = "localhost:9092";
+	 final static String ZK_CONNECT = "localhost:2181";
     
-    final static String Broker_List = "xxg.kafka.cn:9095";
-    final static String ZK_CONNECT = "xxg.kafka.cn:2181";
+//    final static String Broker_List = "xxg.kafka.cn:9095";
+//    final static String ZK_CONNECT = "xxg.kafka.cn:2181";
 
 //    final static String Broker_List = "xxg.kafka.cn:9091,xxg.kafka.cn:9092,xxg.kafka.cn:9093";
 //    final static String ZK_CONNECT = "xxg.kafka.cn:2181";
@@ -30,7 +30,7 @@ public interface KafkaProperties {
 //	public final static String Broker_List = "localhost1:9093,localhost2:9094,localhost3:9095";
 //	public final static String ZK_CONNECT = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183";
     
-    final static String GroupId = "group3";
+    final static String GroupId = "group-0821-test";
     
     final static String kafkaServerURL = "xxg.kafka.cn";
     final static int kafkaServerPort = 9092;
@@ -38,7 +38,7 @@ public interface KafkaProperties {
     final static int connectionTimeOut = 100000;
     final static int reconnectInterval = 10000;
     
-    final static String topic_Test = "test";
+    final static String topic_Test = "topic_test";
     final static String topic = "topic1";
     final static String topic1 = "topic1";
     final static String topic2 = "topic2";

@@ -1,0 +1,156 @@
+1）启动zookeeper server
+bin/zookeeper-server-start.sh config/zookeeper.properties &
+
+2）启动Kafka
+bin/kafka-server-start.sh config/server.properties &
+
+3）运行producer
+bin/kafka-console-producer.sh --zookeeper localhost:2181 --topic test
+
+4）运行consumer
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic test --from- beginning
+
+学习资料
+https://github.com/smipo/mykafka-0.7
+
+
+1：启动breaker
+  配置：
+    args(0) = "../config/server.properties"
+    args(1) = "../config/consumer.properties"
+    args(2) = "../config/producer.properties"
+
+2： 分析消费数据： 发送了10条数据：
+
+ [2021-06-22 17:58:21,363] DEBUG Committed offset 573 for topic test-xxg:0-0: fetched offset = 573: consumed offset = 573 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:21,725] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:21,725] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+ [2021-06-22 17:58:22,352] DEBUG Reading reply sessionid:0x17a32edf3a10016, packet:: clientPath:null serverPath:null finished:false header:: 265,5  replyHeader:: 265,449,0  request:: '/consumers/group1/offsets/test-xxg/0-0,#353733,-1  response:: s{213,449,1624355667375,1624355902351,235,0,0,0,3,0,213}  (org.apache.zookeeper.ClientCnxn:797)
+ [2021-06-22 17:58:22,352] DEBUG Committed offset 573 for topic test-xxg:0-0: fetched offset = 573: consumed offset = 573 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:22,734] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:22,735] DEBUG Message is uncompressed. Valid byte count = 573 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:22,735] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:22,735] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:22,735] DEBUG updated fetch offset of ( test-xxg:0-0: fetched offset = 592: consumed offset = 573 ) to 592 (kafka.consumer.PartitionTopicInfo:71)
+ [2021-06-22 17:58:22,735] DEBUG Message is uncompressed. Valid byte count = 573 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:22,735] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 592: consumed offset = 592 to 592 (kafka.consumer.PartitionTopicInfo:49)
+ Message_1
+ [2021-06-22 17:58:22,735] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:22,736] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:22,736] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+ [2021-06-22 17:58:23,351] DEBUG Reading reply sessionid:0x17a32edf3a10016, packet:: clientPath:null serverPath:null finished:false header:: 266,5  replyHeader:: 266,450,0  request:: '/consumers/group1/offsets/test-xxg/0-0,#353932,-1  response:: s{213,450,1624355667375,1624355903349,236,0,0,0,3,0,213}  (org.apache.zookeeper.ClientCnxn:797)
+ [2021-06-22 17:58:23,351] DEBUG Committed offset 592 for topic test-xxg:0-0: fetched offset = 592: consumed offset = 592 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:23,741] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:23,741] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+ [2021-06-22 17:58:24,366] DEBUG Reading reply sessionid:0x17a32edf3a10016, packet:: clientPath:null serverPath:null finished:false header:: 267,5  replyHeader:: 267,451,0  request:: '/consumers/group1/offsets/test-xxg/0-0,#353932,-1  response:: s{213,451,1624355667375,1624355904363,237,0,0,0,3,0,213}  (org.apache.zookeeper.ClientCnxn:797)
+ [2021-06-22 17:58:24,367] DEBUG Committed offset 592 for topic test-xxg:0-0: fetched offset = 592: consumed offset = 592 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:24,748] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 592 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 611 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 630 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 649 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 668 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 687 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 706 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,749] DEBUG Message is uncompressed. Valid byte count = 725 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,749] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 744 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG updated fetch offset of ( test-xxg:0-0: fetched offset = 764: consumed offset = 592 ) to 764 (kafka.consumer.PartitionTopicInfo:71)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 592 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 611 to 611 (kafka.consumer.PartitionTopicInfo:49)
+ Message_2
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 611 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 630 to 630 (kafka.consumer.PartitionTopicInfo:49)
+ Message_3
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 630 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 649 to 649 (kafka.consumer.PartitionTopicInfo:49)
+ Message_4
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 649 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 668 to 668 (kafka.consumer.PartitionTopicInfo:49)
+ Message_5
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,750] DEBUG Message is uncompressed. Valid byte count = 668 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,750] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 687 to 687 (kafka.consumer.PartitionTopicInfo:49)
+ Message_6
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,751] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+ [2021-06-22 17:58:24,750] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,751] DEBUG Message is uncompressed. Valid byte count = 687 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,751] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 706 to 706 (kafka.consumer.PartitionTopicInfo:49)
+ Message_7
+ [2021-06-22 17:58:24,751] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,751] DEBUG Message is uncompressed. Valid byte count = 706 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,751] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 725 to 725 (kafka.consumer.PartitionTopicInfo:49)
+ Message_8
+ [2021-06-22 17:58:24,751] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,751] DEBUG Message is uncompressed. Valid byte count = 725 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,751] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 744 to 744 (kafka.consumer.PartitionTopicInfo:49)
+ Message_9
+ [2021-06-22 17:58:24,751] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:24,751] DEBUG Message is uncompressed. Valid byte count = 744 (kafka.message.ByteBufferMessageSet:115)
+ [2021-06-22 17:58:24,751] DEBUG reset consume offset of test-xxg:0-0: fetched offset = 764: consumed offset = 764 to 764 (kafka.consumer.PartitionTopicInfo:49)
+ Message_10
+ [2021-06-22 17:58:24,751] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:25,361] DEBUG Reading reply sessionid:0x17a32edf3a10016, packet:: clientPath:null serverPath:null finished:false header:: 268,5  replyHeader:: 268,452,0  request:: '/consumers/group1/offsets/test-xxg/0-0,#373634,-1  response:: s{213,452,1624355667375,1624355905359,238,0,0,0,3,0,213}  (org.apache.zookeeper.ClientCnxn:797)
+ [2021-06-22 17:58:25,361] DEBUG Committed offset 764 for topic test-xxg:0-0: fetched offset = 764: consumed offset = 764 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:25,764] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:25,764] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+ [2021-06-22 17:58:26,359] DEBUG Reading reply sessionid:0x17a32edf3a10016, packet:: clientPath:null serverPath:null finished:false header:: 269,5  replyHeader:: 269,453,0  request:: '/consumers/group1/offsets/test-xxg/0-0,#373634,-1  response:: s{213,453,1624355667375,1624355906357,239,0,0,0,3,0,213}  (org.apache.zookeeper.ClientCnxn:797)
+ [2021-06-22 17:58:26,360] DEBUG Committed offset 764 for topic test-xxg:0-0: fetched offset = 764: consumed offset = 764 (kafka.consumer.ZookeeperConsumerConnector:257)
+ [2021-06-22 17:58:26,782] DEBUG makeNext() in deepIterator: innerDone = true (kafka.message.ByteBufferMessageSet:136)
+ [2021-06-22 17:58:26,782] DEBUG backing off 1000 ms (kafka.consumer.FetcherRunnable:102)
+
+
+for topic test-xxg:0-0: fetched offset = 573
+
+消费了10条数据：
+Message_1
+Message_2
+Message_3
+.........
+Message_9
+Message_10
+
+for topic test-xxg:0-0: fetched offset = 764
+
+764 - 573  =  191
+
+9 * 19 + 20  = 191
+从上面可以分析得出： 消费一条数据，数据offset的偏移量增加了：19
+数据内容大小：9个字节
+1 + 1 + 4 + 固定 4个字节 = 10 个字节
+
+
+https://www.iteblog.com/archives/2232.html
+从上面可以看出，Kafka 0.7.x 版本的消息格式比较简单，主要包括：
+
+magic：这个占用1个字节，主要用于标识 Kafka 版本。这个版本的 Kafka magic有 0 和 1 两个值，不过默认 Message 使用的是 1；
+attributes：占用1个字节，这里面存储了消息压缩使用的编码。这个版本的 Kafka 仅支持 gzip 和 snappy 两种压缩格式；后四位如果是0001则标识gzip压缩，如果是0010则是snappy压缩，如果是0000则表示没有使用压缩。
+crc：占用4个字节，主要用于校验消息的内容，也就是上图的Value。
+value：这个占用的字节为 N - 6，N为Message总字节数，6就是前面几个属性占用的字节和。
+       value即是消息的真实内容，在 Kafka 中这个也叫做payload。
+
+大家在上图还看到 MessageSet 的格式，一个 MessageSet 包含多条消息，其中：
+
+offset：占用8个字节，这个是 Kafka 消息存储到磁盘之后的物理偏移量；
+size：占用4个字节，这是消息的大小。
+message：占用N个字节，这个就是上图的Message，格式见Message Format。
+需要注意的是， Kafka 从 Producer 发送到 Broker 是以 MessageSet 为单位发送的，
+而不是以 Message 发送的。
+而且压缩的时候也是以 MessageSet 进行压缩的，并不是只压缩一条消息，
+这样做的目的是提高效率。压缩之后的消息格式如下：
+
+Message_Format
+从上图可以看出，压缩之后的内容作为另外一条消息的内容进行存储，其中包含了多条消息。

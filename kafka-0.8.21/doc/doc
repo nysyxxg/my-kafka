@@ -1,0 +1,297 @@
+kafka的消费者消费消息的三种机制：
+1：at most once: 最多一次,这个和JMS中"非持久化"消息类似.发送一次,无论成败,将不会重发.
+2：at least once: 消息至少发送一次,如果消息未能接受成功,可能会重发,直到接收成功.
+3：exactly once: 消息只会发送一次.
+at most once:
+消费者fetch消息,然后保存offset,然后处理消息;当client保存offset之后,但是在消息处理过程中出现了异常,
+导致部分消息未能继续处理.那么此后"未处理"的消息将不能被fetch到,这就是"at most once".
+at least once:
+消费者fetch消息,然后处理消息,然后保存offset.如果消息处理成功之后,
+但是在保存offset阶段zookeeper异常导致保存操作未能执行成功,这就导致接下来再次fetch时可能获得上次已经处理过的消息,
+这就是"at least once"，原因offset没有及时的提交给zookeeper，zookeeper恢复正常还是之前offset状态.
+exactly once: kafka中并没有严格的去实现(基于2阶段提交,事务),我们认为这种策略在kafka中是没有必要的.
+注：通常情况下"at-least-once"是我们首选.(相比at most once而言,重复接收数据总比丢失数据要好).
+javaapi      --提供java的producer和consumer接口api
+
+1：启动breaker
+  配置：
+    args(0) = "../config/server.properties"
+
+2: 查看ZK中元数据的变化：
+
+启动kafka之前，ZK节点的结构：
+[zk: localhost:2181(CONNECTED) 161] ls /
+[zookeeper, elastic-job-boot-java, admin, lock, services]
+
+
+启动Kafka之后，发现多出来的节点：
+[zk: localhost:2181(CONNECTED) 162] ls /
+[controller, controller_epoch, brokers, zookeeper, elastic-job-boot-java, admin, lock, consumers, services, config]
+
+下面是启动kafak需要创建的节点：
+controller
+controller_epoch
+brokers
+consumers
+config
+
+--------------controller_epoch----------------------------
+[zk: localhost:2181(CONNECTED) 165] get /controller_epoch
+1
+cZxid = 0x97fd
+ctime = Tue Jun 22 15:12:46 CST 2021
+mZxid = 0x97fd
+mtime = Tue Jun 22 15:12:46 CST 2021
+pZxid = 0x97fd
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 1
+numChildren = 0
+
+----------------------controller---------------------
+[zk: localhost:2181(CONNECTED) 166] get /controller
+{"version":1,"brokerid":0,"timestamp":"1624345966740"}
+cZxid = 0x97fb
+ctime = Tue Jun 22 15:12:46 CST 2021
+mZxid = 0x97fb
+mtime = Tue Jun 22 15:12:46 CST 2021
+pZxid = 0x97fb
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x17a318cc46d00b9
+dataLength = 54
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 167]
+
+-------------------------brokers---------------------------
+[zk: localhost:2181(CONNECTED) 167] ls /brokers
+[ids, topics]
+[zk: localhost:2181(CONNECTED) 168] ls /brokers/ids
+[0]
+[zk: localhost:2181(CONNECTED) 169] ls /brokers/ids/0
+[]
+[zk: localhost:2181(CONNECTED) 170] get /brokers/ids/0
+{"jmx_port":-1,"timestamp":"1624345966865","host":"192.168.75.122","version":1,"port":9092}
+cZxid = 0x97ff
+ctime = Tue Jun 22 15:12:46 CST 2021
+mZxid = 0x97ff
+mtime = Tue Jun 22 15:12:46 CST 2021
+pZxid = 0x97ff
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x17a318cc46d00b9
+dataLength = 91
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 171]
+
+
+[zk: localhost:2181(CONNECTED) 175] ls /brokers/topics
+[]
+
+[zk: localhost:2181(CONNECTED) 177] ls /consumers
+[]
+[zk: localhost:2181(CONNECTED) 178]
+
+[zk: localhost:2181(CONNECTED) 178] ls /config
+[changes, topics]
+[zk: localhost:2181(CONNECTED) 179]
+[zk: localhost:2181(CONNECTED) 178] ls /config
+[changes, topics]
+[zk: localhost:2181(CONNECTED) 179] ls /config/changes
+[]
+[zk: localhost:2181(CONNECTED) 180] ls /config/topics
+[]
+[zk: localhost:2181(CONNECTED) 181]
+
+3:  发送27条数据给：测试的topic名称：topic1，观察ZK中的元数据：
+topic 自动创建，默认一个分区，一个副本
+
+[zk: localhost:2181(CONNECTED) 189] ls /brokers/topics
+[topic1]   --- 多出了一个topic1
+[zk: localhost:2181(CONNECTED) 190] ls /brokers/topics/topic1
+[partitions]
+[zk: localhost:2181(CONNECTED) 191] ls /brokers/topics/topic1/partitions
+[0]
+[zk: localhost:2181(CONNECTED) 192]
+
+查看数据：
+
+[zk: localhost:2181(CONNECTED) 219] ls /brokers/topics/topic1/partitions/0
+[state]
+[zk: localhost:2181(CONNECTED) 220] ls /brokers/topics/topic1/partitions/0/state
+[]
+[zk: localhost:2181(CONNECTED) 221] get /brokers/topics/topic1/partitions/0/state
+{"controller_epoch":1,"leader":0,"version":1,"leader_epoch":0,"isr":[0]}
+cZxid = 0x9808
+ctime = Tue Jun 22 15:27:10 CST 2021
+mZxid = 0x9808
+mtime = Tue Jun 22 15:27:10 CST 2021
+pZxid = 0x9808
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 72
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 222]
+
+
+[zk: localhost:2181(CONNECTED) 192] get /brokers/topics/topic1/partitions/0
+null
+cZxid = 0x9807
+ctime = Tue Jun 22 15:27:10 CST 2021
+mZxid = 0x9807
+mtime = Tue Jun 22 15:27:10 CST 2021
+pZxid = 0x9808
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 1
+[zk: localhost:2181(CONNECTED) 193] get /brokers/topics/topic1/partitions
+null
+cZxid = 0x9806
+ctime = Tue Jun 22 15:27:10 CST 2021
+mZxid = 0x9806
+mtime = Tue Jun 22 15:27:10 CST 2021
+pZxid = 0x9807
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 1
+[zk: localhost:2181(CONNECTED) 194] get /brokers/topics/topic1
+{"version":1,"partitions":{"0":[0]}}
+cZxid = 0x9803
+ctime = Tue Jun 22 15:27:10 CST 2021
+mZxid = 0x9803
+mtime = Tue Jun 22 15:27:10 CST 2021
+pZxid = 0x9806
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 36
+numChildren = 1
+[zk: localhost:2181(CONNECTED) 195]
+
+----------------------config------------------------
+[zk: localhost:2181(CONNECTED) 207] ls /config
+[changes, topics]
+[zk: localhost:2181(CONNECTED) 208] ls /config/topics
+[topic1]
+[zk: localhost:2181(CONNECTED) 209]
+[zk: localhost:2181(CONNECTED) 209]
+[zk: localhost:2181(CONNECTED) 204] get /config/topics/topic1
+{"version":1,"config":{}}
+cZxid = 0x9802
+ctime = Tue Jun 22 15:27:10 CST 2021
+mZxid = 0x9802
+mtime = Tue Jun 22 15:27:10 CST 2021
+pZxid = 0x9802
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 25
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 205] get /config/topics
+null
+cZxid = 0x97fa
+ctime = Tue Jun 22 15:12:44 CST 2021
+mZxid = 0x97fa
+mtime = Tue Jun 22 15:12:44 CST 2021
+pZxid = 0x9802
+cversion = 1
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 1
+
+
+recovery-point-offset-checkpoint 已经被确认写入磁盘的offset
+replication-offset-checkpoint 已经确认复制给其他replica的offset。也就是HW。
+
+查看数据文件：replication-offset-checkpoint
+
+0
+1
+topic1 0 18
+
+4：启动消费端，消费kafka的数据，消费者是：group-0821
+查看zk中元数据的变化：
+---------主要查看：consumers-------------------
+[zk: localhost:2181(CONNECTED) 237] ls /consumers
+[group-0821]
+[zk: localhost:2181(CONNECTED) 238] ls /consumers/group-0821
+[ids, owners, offsets]
+[zk: localhost:2181(CONNECTED) 239] ls /consumers/group-0821
+[ids, owners, offsets]
+[zk: localhost:2181(CONNECTED) 240]
+
+[zk: localhost:2181(CONNECTED) 249] ls /consumers/group-0821/ids
+[]
+[zk: localhost:2181(CONNECTED) 250] get /consumers/group-0821/ids
+null
+cZxid = 0x9822
+ctime = Tue Jun 22 16:00:18 CST 2021
+mZxid = 0x9822
+mtime = Tue Jun 22 16:00:18 CST 2021
+pZxid = 0x982e
+cversion = 2
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 0
+numChildren = 0
+
+下面保存了消费端对应的groupid的offset消费位置：
+[zk: localhost:2181(CONNECTED) 254] ls /consumers/group-0821/offsets
+[topic1]
+[zk: localhost:2181(CONNECTED) 255] ls /consumers/group-0821/offsets/topic1
+[0]
+[zk: localhost:2181(CONNECTED) 256] ls /consumers/group-0821/offsets/topic1/0
+[]
+[zk: localhost:2181(CONNECTED) 257] get /consumers/group-0821/offsets/topic1/0    ---- 这个消费组消费这个topic1对应分区的offset位置是27
+27
+cZxid = 0x982d
+ctime = Tue Jun 22 16:00:20 CST 2021
+mZxid = 0x982d
+mtime = Tue Jun 22 16:00:20 CST 2021
+pZxid = 0x982d
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 2
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 258]
+
+
+更换消费组消费数据：查看
+[zk: localhost:2181(CONNECTED) 269] ls /consumers
+[group-0821, group-0821-test]
+
+get /consumers/group-0821-test/offsets/topic1/0
+
+[zk: localhost:2181(CONNECTED) 275] get /consumers/group-0821-test/offsets/topic1/0
+27
+cZxid = 0x9842
+ctime = Tue Jun 22 16:11:49 CST 2021
+mZxid = 0x9842
+mtime = Tue Jun 22 16:11:49 CST 2021
+pZxid = 0x9842
+cversion = 0
+dataVersion = 0
+aclVersion = 0
+ephemeralOwner = 0x0
+dataLength = 2
+numChildren = 0
+[zk: localhost:2181(CONNECTED) 276]

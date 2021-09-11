@@ -121,6 +121,8 @@ public class ZKRebalancerListener implements IZkChildListener {
     
     @Override
     public void handleChildChange(String s, List<String> list) throws Exception {
+        System.out.println("子节点变化："+s);
+    
     }
     
     public void syncedRebalance() {

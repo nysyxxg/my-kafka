@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="Gradle 1" modules="org.apache.kafka.core.main,org.apache.kafka.core.test">
+    <profile name="Gradle 1" modules="org.apache.kafka.core.main,org.apache.kafka.core.test,org.apache.kafka.streams-scala.main,org.apache.kafka.streams-scala.test">
       <option name="postfixOps" value="true" />
       <option name="implicitConversions" value="true" />
       <option name="existentials" value="true" />
@@ -9,12 +9,25 @@
       <option name="uncheckedWarnings" value="true" />
       <option name="featureWarnings" value="true" />
       <parameters>
-        <parameter value="-target:jvm-1.7" />
+        <parameter value="-target:jvm-1.8" />
         <parameter value="-encoding" />
         <parameter value="utf8" />
         <parameter value="-Xlog-reflective-calls" />
+        <parameter value="-Xlint:by-name-right-associative" />
+        <parameter value="-Xlint:delayedinit-select" />
+        <parameter value="-Xlint:doc-detached" />
+        <parameter value="-Xlint:missing-interpolator" />
+        <parameter value="-Xlint:nullary-override" />
+        <parameter value="-Xlint:nullary-unit" />
+        <parameter value="-Xlint:option-implicit" />
+        <parameter value="-Xlint:package-object-classes" />
+        <parameter value="-Xlint:poly-implicit-overload" />
+        <parameter value="-Xlint:private-shadow" />
+        <parameter value="-Xlint:stars-align" />
+        <parameter value="-Xlint:type-parameter-shadow" />
+        <parameter value="-Xlint:unsound-match" />
       </parameters>
     </profile>
-    <profile name="Maven 1" modules="kafka-0.7.0-core,kafka-0821,kafka-0821-clients,kafka-0821-common,kafka-0821-core,kafka-0821-examples" />
+    <profile name="Maven 1" modules="kafka-0.7.0-core,kafka-0.7.0-core-scala,kafka-0821,kafka-0821-clients,kafka-0821-common,kafka-0821-core,kafka-0821-examples" />
   </component>
 </project>

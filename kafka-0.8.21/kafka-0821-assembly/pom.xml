@@ -12,22 +12,18 @@
     <artifactId>kafka-0821-assembly</artifactId>
 
 
-
     <dependencies>
-
         <dependency>
             <groupId>kafka-0821</groupId>
             <artifactId>kafka-0821-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-
         <dependency>
             <groupId>kafka-0821</groupId>
             <artifactId>kafka-0821-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
 
         <dependency>
             <groupId>kafka-0821</groupId>
@@ -36,7 +32,6 @@
         </dependency>
 
     </dependencies>
-
 
     <build>
         <plugins>

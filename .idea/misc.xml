@@ -14,6 +14,8 @@
         <option value="$PROJECT_DIR$/kafka-0.7.0/kafka-0.7.0-contrib/hadoop-producer/pom.xml" />
         <option value="$PROJECT_DIR$/kafka-0.7.0/kafka-0.7.0-contrib/hadoop-consumer/pom.xml" />
         <option value="$PROJECT_DIR$/kafka-0.7.0/pom.xml" />
+        <option value="$PROJECT_DIR$/NIO-Socket/pom.xml" />
+        <option value="$PROJECT_DIR$/nio-socket-master/pom.xml" />
       </list>
     </option>
   </component>

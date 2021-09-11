@@ -22,8 +22,8 @@ import org.I0Itec.zkclient.ZkClient
 import kafka.utils.{ZKStringSerializer, TestZKUtils, Utils}
 
 trait ZooKeeperTestHarnessV2 extends JUnit3Suite {
-//  val zkConnect = "127.0.0.1:2181"
-  val zkConnect = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183"
+  val zkConnect = "127.0.0.1:2181"
+//  val zkConnect = "127.0.0.1:2181,127.0.0.1:2182,127.0.0.1:2183"
   var zkClient: ZkClient = null
   val zkConnectionTimeout = 6000
   val zkSessionTimeout = 6000

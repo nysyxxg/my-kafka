@@ -1,6 +1,7 @@
-  tools           --一看这就是工具模块，包含内容比较多：
-			a.导出对应consumer的offset值.
-			b.导出LogSegments信息，当前topic的log写的位置信息.
-			c.导出zk上所有consumer的offset值.
-			d.修改注册在zk的consumer的offset值.
-			f.producer和consumer的使用例子.
+  tools
+--一看这就是工具模块，包含内容比较多：
+    a.导出对应consumer的offset值.
+    b.导出LogSegments信息，当前topic的log写的位置信息.
+    c.导出zk上所有consumer的offset值.
+    d.修改注册在zk的consumer的offset值.
+    f.producer和consumer的使用例子.

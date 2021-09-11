@@ -187,6 +187,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         ZkUtils.registerConsumerInZK(zkClient, dirs, consumerIdString, topicCount);
         
         // register listener for session expired event   订阅节点的状态变化
+        // 订阅节点连接及状态的变化情况
         zkClient.subscribeStateChanges(new ZKSessionExpireListenner(dirs, consumerIdString, topicCount, loadBalancerListener));
         // 订阅 孩子节点数据的变化
         zkClient.subscribeChildChanges(dirs.getConsumerRegistryDir(), loadBalancerListener);
@@ -334,11 +335,13 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         
         @Override
         public void handleStateChanged(Watcher.Event.KeeperState keeperState) throws Exception {
+            System.out.println("节点连接及状态变化："+keeperState.name());
         }
         
         @Override
         public void handleNewSession() throws Exception {
             logger.info("ZK expired; release old broker parition ownership; re-register consumer " + consumerIdString);
+            System.out.println("节点Session变化。。。");
             loadBalancerListener.resetState();
             ZkUtils.registerConsumerInZK(zkClient, dirs, consumerIdString, topicCount);
             // explicitly trigger load balancing for this consumer

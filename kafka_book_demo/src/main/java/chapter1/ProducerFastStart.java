@@ -15,10 +15,8 @@ public class ProducerFastStart {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put("key.serializer",
-                "org.apache.kafka.common.serialization.StringSerializer");
-        properties.put("value.serializer",
-                "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+        properties.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         properties.put("bootstrap.servers", brokerList);
 
 

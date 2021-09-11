@@ -30,13 +30,15 @@ class CreateTopicCommandTest extends JUnit3Suite with ZooKeeperTestHarnessV2 wit
 
   @Test
   def testConfigPreservationAcrossPartitionAlteration() {
-    val topic = "test"
+    val topic = "test-xxg"
     val numPartitionsOriginal = 2  // 两个分区
     val cleanupKey = "cleanup.policy"
     val cleanupVal = "compact"
     // create brokers
     val brokers = List(0)
-//    TestUtils.createBrokersInZk(zkClient, brokers)
+
+    // 第一步： 将broker注册到zk中
+    TestUtils.createBrokersInZk(zkClient, brokers)
     // create the topic
     val createOpts = new TopicCommandOptions(Array(
       "--partitions", numPartitionsOriginal.toString,

@@ -1,6 +1,6 @@
 This directory contains examples of client code that uses kafka.
 
-The default target for ant is kafka.examples.KafkaConsumerProducerDemo which sends and receives 
+The default target for ant is kafka.examples.KafkaConsumerDemo which sends and receives
 messages from Kafka server.
 
 In order to run demo from SBT:

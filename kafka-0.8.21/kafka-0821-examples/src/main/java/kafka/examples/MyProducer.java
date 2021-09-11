@@ -19,6 +19,7 @@ public class MyProducer extends Thread {
          * 而是任选一个或几个即可。因为他会通过您选择的broker和topics信息而获取最新的所有的broker信息。
          * 通过设置的broker来获取topic的元数据信息
          */
+//        props.put("zookeeper.connect", KafkaProperties.ZK_CONNECT);
         props.put("metadata.broker.list", KafkaProperties.Broker_List);
         props.put("request.required.acks", "-1");
         // Use random partitioner. Don't need the key type. Just set it to
@@ -39,7 +40,7 @@ public class MyProducer extends Thread {
             // 第二种
 //            producer.send(messages: java.util.List[KeyedMessage[K,V]]);
             messageNo++;
-            if (messageNo == 1000000) {
+            if (messageNo == 10) {
                 break;
             }
     

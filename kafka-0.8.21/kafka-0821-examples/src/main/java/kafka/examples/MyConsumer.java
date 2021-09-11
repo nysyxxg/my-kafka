@@ -25,6 +25,7 @@ public class MyConsumer extends Thread {
     private static ConsumerConfig createConsumerConfig() {
         Properties props = new Properties();
         props.put("zookeeper.connect", KafkaProperties.ZK_CONNECT);
+//        props.put("metadata.broker.list", KafkaProperties.Broker_List);
         props.put("group.id", KafkaProperties.GroupId);
         props.put("zookeeper.session.timeout.ms", "5000");
         props.put("zookeeper.connection.timeout.ms", "10000");
@@ -44,7 +45,7 @@ public class MyConsumer extends Thread {
         Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
         topicCountMap.put(topic, new Integer(3));// 设置需要几个消费者
         Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumer.createMessageStreams(topicCountMap);
-    
+        
         List<KafkaStream<byte[], byte[]>>  kafkaStreamsList =  consumerMap.get(topic);
         for(KafkaStream<byte[], byte[]> stream :kafkaStreamsList) {
             ConsumerIterator<byte[], byte[]> it = stream.iterator();

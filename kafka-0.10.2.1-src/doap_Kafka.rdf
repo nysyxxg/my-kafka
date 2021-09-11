@@ -41,10 +41,10 @@
       </SVNRepository>
     </repository>
     <maintainer>
-      <foaf:Person>
+      <foaf:iterable.Person>
         <foaf:name>Jun Rao</foaf:name>
           <foaf:mbox rdf:resource="mailto:junrao@apache.org"/>
-      </foaf:Person>
+      </foaf:iterable.Person>
     </maintainer>
   </Project>
 </rdf:RDF>

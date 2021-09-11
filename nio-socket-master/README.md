@@ -1,0 +1,9 @@
+> NIO与Socket编程技术指南
+
+* 第1章介绍NIO技术中的缓冲区，包括Buffer、ByteBuffer、CharBuffer类的核心API的使用。
+* 第2章介绍NIO技术中的Channel（通道）类的继承关系、核心接口的作用，并重点介绍FileChannel类的使用，以增加读者对NIO操作File类的熟悉度。
+* 第3章介绍如何使用NetworkInterface类获得网络接口的信息，包括IP地址、子网掩码等，还会介绍InetAddress和InterfaceAddress类的常见API。如果进行Java开发，且基于Socket技术，那么这章可以给你需要的信息。
+* 第4章介绍如何使用Java语言实现Socket通信。Socket通信是基于TCP/IP和UDP实现的。另外，将介绍ServerSocket、Socket、DatagramSocket和DatagramPacket类的全部API。只有熟练掌握Socket技术后，在阅读相关网络框架的源代码时才不会迷茫。也就是说，如果读者想要进行Java高性能后台处理，那么必须要学习Socket，并且它是进行细化学习的基础。
+* 第5章介绍NIO技术中最重要的Selector（选择器）技术。NIO技术的核心——多路复用就是在此章体现的。学习这章内容需要有Socket的编程基础，这就是为什么在前面用两章篇幅来介绍Java的Socket编程的原因。同步非阻塞可以大幅度提升程序运行的效率，就在此章体会一下吧。
+* 第6章介绍AIO。AIO是异步IO, NIO是非阻塞IO。AIO在NIO的基础上实现了异步执行、回调处理等高级功能，可以在不同的场景使用AIO或NIO，可以说NIO和AIO是Java高级程序员、架构师等必须要掌握的技术。
+
