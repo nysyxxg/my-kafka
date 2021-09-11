@@ -64,7 +64,7 @@ abstract class AbstractServerThread implements Runnable {
     
     
 }
-//  接收客户端连接， 得到 SocketChannel
+//  接收客户端连接， 得到 SocketChannel, 如果是多个broker，就会在每个机器上，都会启动一个Acceptor线程
 class Acceptor extends AbstractServerThread {
     private int port;
     private Processor[] processors;
@@ -207,9 +207,10 @@ class Processor extends AbstractServerThread {
     @Override
     public void run() {
         startupComplete();
-        while (isRunning()) {  //
+        while (isRunning()) {
             try {
-                Thread.sleep(3* 1000);
+                // 主要为了测试，加上了休眠时间，生成环境，应去掉
+                Thread.sleep(1* 1000);
                // System.out.println("-------------正在后台运行的线程---->" + Thread.currentThread().getName());
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -415,7 +416,7 @@ public class SocketServer {
         
         processors = new Processor[numProcessorThreads];
         try {
-            acceptor = new Acceptor(port, processors);
+            acceptor = new Acceptor(this.port, processors); //单独启动一个线程， 接收客户端连接，为了提高性能，可以初始化一个数组，和processors一样
         } catch (IOException e) {
             e.printStackTrace();
         }
