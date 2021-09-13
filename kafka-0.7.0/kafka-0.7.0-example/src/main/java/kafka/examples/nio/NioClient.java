@@ -1,5 +1,7 @@
 package kafka.examples.nio;
 
+import kafka.examples.util.NioUtil;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
@@ -71,8 +73,16 @@ public class NioClient {
                             client.register(selector, SelectionKey.OP_READ);//注册读事件
                         } else if(selectionKey.isReadable()){//可读取
                             SocketChannel socketChannel1 = (SocketChannel) selectionKey.channel();
-                            ByteBuffer readBuffer = ByteBuffer.allocate(1024);
-                            int readCount = socketChannel1.read(readBuffer);
+                            
+                            //  方法1： 接收服务器端发送的消息的时候，一次性申请最大内存
+//                            ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+//                            int readCount = socketChannel1.read(readBuffer);
+                            
+                            // 方法2：每次读取少量数据，申请最小内存，多次读取
+                            ByteBuffer readBuffer = NioUtil.getDataByteBuffer(socketChannel);
+                            int readCount = readBuffer.capacity();
+                            System.out.println(" ============读到的字节数=======readCount=" + readCount);
+                            
                             if(readCount > 0) {
                                 String receiveMsg = new String(readBuffer.array());
                                 System.out.println("receiveMsg : " + receiveMsg);
