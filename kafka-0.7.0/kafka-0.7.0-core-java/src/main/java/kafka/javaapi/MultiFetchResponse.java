@@ -25,19 +25,21 @@ public class MultiFetchResponse implements java.lang.Iterable<ByteBufferMessageS
         this.underlying = new kafka.api.MultiFetchResponse(underlyingBuffer, numSets, offsets);
         
     }
-    
+    @Override
     public String toString() {
         return underlying.toString();
     }
-    
+    @Override
     public java.util.Iterator<ByteBufferMessageSet> iterator() {
         return new IteratorTemplate<ByteBufferMessageSet>() {
             Iterator<ByteBufferMessageSet>  iter = underlying.iterator();
+            @Override
             public  ByteBufferMessageSet makeNext() {
-                if (iter.hasNext())
+                if (iter.hasNext()) {
                     iter.next();
-                else
+                } else {
                     return allDone();
+                }
                 return null;
             }
         };

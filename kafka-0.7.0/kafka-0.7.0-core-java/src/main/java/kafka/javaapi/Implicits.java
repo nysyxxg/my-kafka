@@ -40,17 +40,18 @@ public class Implicits {
     public static kafka.producer.async.EventHandler toScalaEventHandler(kafka.javaapi.producer.async.EventHandler eventHandler) {
         
         return new kafka.producer.async.EventHandler() {
+            @Override
             public void init(java.util.Properties props) {
                 eventHandler.init(props);
             }
-            
+            @Override
             public void handle(List events, kafka.producer.SyncProducer producer, Encoder encoder) {
 //        import collection.JavaConversions._
 //        eventHandler.handle(JavaConversions.asList(events), producer, encoder)
                 kafka.javaapi.producer.SyncProducer producer2 = toJavaSyncProducer(producer); // 将 kafka.producer.SyncProducer 转化 producer;
                 eventHandler.handle(events, producer2, encoder);
             }
-            
+            @Override
             public void close() {
                 eventHandler.close();
             }
@@ -142,7 +143,7 @@ public class Implicits {
             public void afterEnqueue(QueueItem data, boolean added) {
                 cbkHandler.afterEnqueue(data, added);
             }
-    
+            @Override
             public List<QueueItem> afterDequeuingExistingData(QueueItem data) {
                 return cbkHandler.afterDequeuingExistingData(data);
             }

@@ -56,7 +56,7 @@ public class PartitionTopicInfo {
     public void resetFetchOffset(Long newFetchOffset) {
         fetchedOffset.set(newFetchOffset);
         if (logger.isDebugEnabled()) {
-            logger.debug("reset fetch offset of ( %s ) to %d".format(this.toString(), newFetchOffset));
+            logger.debug(String.format("reset fetch offset of ( %s ) to %d", this.toString(), newFetchOffset));
         }
     }
     

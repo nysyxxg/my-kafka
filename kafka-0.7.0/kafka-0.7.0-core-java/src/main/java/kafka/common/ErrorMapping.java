@@ -1,5 +1,6 @@
 package kafka.common;
 
+import java.io.EOFException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +15,7 @@ public class ErrorMapping {
     static int InvalidMessageCode = 2;
     static int WrongPartitionCode = 3;
     static int InvalidFetchSizeCode = 4;
+    static  int EOFException = 5;
     
     private static Map<Throwable, Integer> exceptionToCode = new HashMap<>();
     private static Map<Integer, Throwable> codeToException = new HashMap<>();
@@ -23,6 +25,8 @@ public class ErrorMapping {
         exceptionToCode.put(new InvalidMessageException(), InvalidMessageCode);
         exceptionToCode.put(new InvalidPartitionException(), WrongPartitionCode);
         exceptionToCode.put(new InvalidMessageSizeException(), InvalidFetchSizeCode);
+        
+        exceptionToCode.put(new EOFException(), EOFException);
         exceptionToCode.put(new UnknownException(), UnknownCode);
         
         codeToException.put(OffsetOutOfRangeCode, new OffsetOutOfRangeException());
@@ -30,6 +34,7 @@ public class ErrorMapping {
         codeToException.put(WrongPartitionCode, new InvalidPartitionException());
         codeToException.put(InvalidFetchSizeCode, new InvalidMessageSizeException());
         codeToException.put(UnknownCode, new UnknownException());
+        codeToException.put(EOFException, new EOFException());
     }
     
     

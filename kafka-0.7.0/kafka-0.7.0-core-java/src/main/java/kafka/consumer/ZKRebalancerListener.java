@@ -327,8 +327,9 @@ public class ZKRebalancerListener implements IZkChildListener {
             e.printStackTrace();
             logger.error("error in earliestOrLatestOffset() ", e);
         } finally {
-            if (simpleConsumer != null)
+            if (simpleConsumer != null) {
                 simpleConsumer.close();
+            }
         }
         return producedOffset;
     }

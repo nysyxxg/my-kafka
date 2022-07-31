@@ -19,7 +19,7 @@ public abstract class MultiSend extends Send { // S 泛型必须是Send的子类
     
     public abstract int getExpectedBytesToWrite();
     
-    
+    @Override
     public int writeTo(WritableByteChannel channel) throws IOException {
         expectIncomplete();
         Send send = this.current.get(0);//head 获取第一个元素
@@ -40,8 +40,9 @@ public abstract class MultiSend extends Send { // S 泛型必须是Send的子类
                 logger.error("mismatch in sending bytes over socket; expected: " + getExpectedBytesToWrite() + " actual: " + totalWritten);
             }
             return true;
-        } else
+        } else {
             return false;
+        }
     }
     
 }

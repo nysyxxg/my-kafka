@@ -29,6 +29,7 @@ public class MultiMessageSetSend extends MultiSend {
         this.buffer.rewind();
     }
     
+    @Override
     public int getExpectedBytesToWrite() {
         return expectedBytesToWrite;
     }

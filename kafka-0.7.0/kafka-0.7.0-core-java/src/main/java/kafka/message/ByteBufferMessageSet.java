@@ -116,7 +116,7 @@ public class ByteBufferMessageSet extends MessageSet {
         
         return new IteratorTemplate<MessageAndOffset>() {
             ByteBuffer topIter = buffer.slice();
-            Long currValidBytes = initialOffset;
+            long currValidBytes = initialOffset;
             Iterator<MessageAndOffset> innerIter = null;
             Long lastMessageSize = 0L;
             
@@ -136,10 +136,11 @@ public class ByteBufferMessageSet extends MessageSet {
                     logger.trace("size of data = " + size);
                 }
                 if (size < 0 || topIter.remaining() < size) {
-                    if (currValidBytes == initialOffset || size < 0)
+                    if (currValidBytes == initialOffset || size < 0) {
                         throw new InvalidMessageSizeException("invalid message size: " + size + " only received bytes: " +
                                 topIter.remaining() + " at " + currValidBytes + "( possible causes (1) a single message larger than " +
                                 "the fetch size; (2) log corruption )");
+                    }
                     return allDone();
                 }
                 ByteBuffer message = topIter.slice();
@@ -149,16 +150,18 @@ public class ByteBufferMessageSet extends MessageSet {
                 CompressionCodec compressionCodec = newMessage.compressionCodec();
                 if (compressionCodec instanceof NoCompressionCodec) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Message is uncompressed. Valid byte count = %d".format(String.valueOf(currValidBytes)));
+                        logger.debug(String.format("Message is uncompressed. Valid byte count = %d",String.valueOf(currValidBytes)));
                     }
                     innerIter = null;
                     currValidBytes += 4 + size;
-                    if (logger.isTraceEnabled())
+                    if (logger.isTraceEnabled()) {
                         logger.trace("currValidBytes = " + currValidBytes);
+                    }
                     return new MessageAndOffset(newMessage, currValidBytes);
                 } else {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Message is compressed. Valid byte count = %d".format(String.valueOf(currValidBytes)));
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(String.format("Message is compressed. Valid byte count = %d", String.valueOf(currValidBytes)));
+                    }
                     innerIter = CompressionUtils.decompress(newMessage).deepIterator();
                     if (!innerIter.hasNext()) {
                         currValidBytes += 4 + lastMessageSize;
@@ -167,7 +170,7 @@ public class ByteBufferMessageSet extends MessageSet {
                     return makeNext();
                 }
             }
-            
+            @Override
             protected MessageAndOffset makeNext() throws Throwable {
                 Boolean isInnerDone = innerDone();
                 if (logger.isDebugEnabled()) {
@@ -203,7 +206,7 @@ public class ByteBufferMessageSet extends MessageSet {
         return Long.valueOf(buffer.limit());
     }
     
-    
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("ByteBufferMessageSet(");
@@ -214,11 +217,11 @@ public class ByteBufferMessageSet extends MessageSet {
         builder.append(")");
         return builder.toString();
     }
-    
+    @Override
     public boolean equals(Object other) {
         if (other instanceof ByteBufferMessageSet) {
             ByteBufferMessageSet that = (ByteBufferMessageSet) other;
-            return ((that == this) && errorCode == that.errorCode && buffer.equals(that.buffer) && initialOffset == that.initialOffset);
+            return ((that == this) && errorCode == that.errorCode && buffer.equals(that.buffer) && initialOffset.longValue() == that.initialOffset);
         } else {
             return false;
         }
@@ -231,6 +234,7 @@ public class ByteBufferMessageSet extends MessageSet {
         return false;
     }
     
+    @Override
     public int hashCode() {
         return 31 + (17 * errorCode) + buffer.hashCode() + initialOffset.hashCode();
     }

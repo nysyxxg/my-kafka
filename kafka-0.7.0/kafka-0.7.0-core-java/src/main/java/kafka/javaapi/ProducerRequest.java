@@ -37,12 +37,12 @@ public class ProducerRequest extends Request {
 //    int getTranslatedPartition(randomSelector: String => Int) {
 //        underlying.getTranslatedPartition(randomSelector)
 //    }
-    
+    @Override
     public String toString() {
         return underlying.toString();
     }
     
-    
+    @Override
     public boolean equals(Object other) {
         if (other instanceof kafka.api.ProducerRequest) {
             kafka.api.ProducerRequest that = (kafka.api.ProducerRequest) other;
@@ -55,7 +55,7 @@ public class ProducerRequest extends Request {
     public Boolean canEqual(Object other) {
         return other instanceof kafka.api.ProducerRequest;
     }
-    
+    @Override
     public int hashCode() {
         return 31 + (17 * partition) + topic.hashCode() + messages.hashCode();
     }

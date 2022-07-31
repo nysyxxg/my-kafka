@@ -145,13 +145,8 @@ public class KafkaRequestHandlers {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("error when processing request " + fetchRequest, e);
-            try {
-                response = new MessageSetSend(MessageSet.Empty, ErrorMapping.codeFor(e.getClass().newInstance().getCause()));
-            } catch (InstantiationException e1) {
-                e1.printStackTrace();
-            } catch (IllegalAccessException e1) {
-                e1.printStackTrace();
-            }
+               // Throwable throwable =  e.getClass().newInstance().getCause();
+                response = new MessageSetSend(MessageSet.Empty, ErrorMapping.codeFor(e));
         }
         return response;
     }

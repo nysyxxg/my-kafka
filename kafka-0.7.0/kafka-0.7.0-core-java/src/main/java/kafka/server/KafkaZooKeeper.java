@@ -103,9 +103,11 @@ public class KafkaZooKeeper {
             logger.info("初始化 SessionExpireListener........");
         }
         
+        @Override
         public void handleStateChanged(Watcher.Event.KeeperState state) {
         }
         
+        @Override
         public void handleNewSession() {
             logger.info("re-registering broker info in ZK for broker " + config.brokerId);
             registerBrokerInZk();

@@ -64,7 +64,7 @@ abstract class AbstractServerThread implements Runnable {
     
     
 }
-//  接收客户端连接， 得到 SocketChannel, 如果是多个broker，就会在每个机器上，都会启动一个Acceptor线程
+//  监听，接收客户端连接， 得到 SocketChannel, 如果是多个broker，就会在每个机器上，都会启动一个Acceptor线程
 class Acceptor extends AbstractServerThread {
     private int port;
     private Processor[] processors;

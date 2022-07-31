@@ -81,6 +81,7 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         }
     }
     
+    @Override
     public void commitOffsets() {
         if (zkClient == null) {
             return;
@@ -162,8 +163,9 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
                                                                 Decoder<T> defaultDecoder) throws UnknownHostException {
         
         logger.debug("entering consume ");
-        if (topicCountMap == null)
+        if (topicCountMap == null) {
             throw new RuntimeException("topicCountMap is null");
+        }
         
         ZKGroupDirs dirs = new ZKGroupDirs(config.groupId);
         Map<String, List<KafkaMessageStream<T>>> ret = new HashMap<String, List<KafkaMessageStream<T>>>();
@@ -174,7 +176,8 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
             consumerUuid = consumerId;
         } else {  // generate unique consumerId automatically
             UUID uuid = UUID.randomUUID();
-            consumerUuid = "%s-%d-%s".format(
+            // "%s-%d-%s".format();
+            consumerUuid = String.format( "%s-%d-%s",
                     InetAddress.getLocalHost().getHostName(), System.currentTimeMillis(),
                     Long.toHexString(uuid.getMostSignificantBits()).substring(0, 8));
         }
@@ -258,8 +261,9 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         Pool<Partition, PartitionTopicInfo> partitionInfos = topicRegistry.get(topic);
         if (partitionInfos != null) {
             PartitionTopicInfo partitionInfo = partitionInfos.get(partition);
-            if (partitionInfo != null)
+            if (partitionInfo != null) {
                 return partitionInfo.getConsumeOffset();
+            }
         }
         //otherwise, try to get it from zookeeper
         try {
@@ -294,8 +298,9 @@ public class ZookeeperConsumerConnector extends ConsumerConnector implements Zoo
         } catch (Exception e) {
             logger.error("error in earliestOrLatestOffset() ", e);
         } finally {
-            if (simpleConsumer != null)
+            if (simpleConsumer != null) {
                 simpleConsumer.close();
+            }
         }
         return producedOffset;
     }

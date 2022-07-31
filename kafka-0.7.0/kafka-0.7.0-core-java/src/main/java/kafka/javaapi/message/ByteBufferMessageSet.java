@@ -64,7 +64,7 @@ public class ByteBufferMessageSet extends MessageSet {
     public kafka.message.ByteBufferMessageSet getUnderlying() {
         return underlying;
     }
-    
+    @Override
     public String toString() {
         return underlying.toString();
     }
@@ -73,26 +73,26 @@ public class ByteBufferMessageSet extends MessageSet {
     public java.util.Iterator<MessageAndOffset> iterator() {
         return new java.util.Iterator<MessageAndOffset>() {
             Iterator<MessageAndOffset> underlyingIterator = underlying.iterator();
-            
+            @Override
             public boolean hasNext() {
                 return underlyingIterator.hasNext();
             }
-            
+            @Override
             public MessageAndOffset next() {
                 return underlyingIterator.next();
             }
-            
+            @Override
             public void remove() {
                 throw new UnsupportedOperationException("remove API on MessageSet is not supported");
             }
         };
     }
-    
+    @Override
     public Long sizeInBytes() {
         return underlying.sizeInBytes();
     }
     
-    
+    @Override
     public boolean equals(Object other) {
         if (other instanceof kafka.message.ByteBufferMessageSet) {
             ByteBufferMessageSet that = (ByteBufferMessageSet) other;
@@ -109,7 +109,7 @@ public class ByteBufferMessageSet extends MessageSet {
         }
         return false;
     }
-    
+    @Override
     public int hashCode() {
         return 31 + (17 * errorCode) + buffer.hashCode() + initialOffset.hashCode();
     }

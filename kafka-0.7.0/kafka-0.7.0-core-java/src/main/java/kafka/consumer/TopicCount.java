@@ -59,8 +59,12 @@ public class TopicCount {
     @Override
     public boolean equals(Object o) {
         System.out.println("-------------------equals--------------------");
-        if (this == o) return true;
-        if (!(o instanceof TopicCount)) return false;
+        if (this == o){
+            return true;
+        }
+        if (!(o instanceof TopicCount)) {
+            return false;
+        }
         TopicCount that = (TopicCount) o;
         return Objects.equals(consumerIdString, that.consumerIdString) &&
                 Objects.equals(topicCountMap, that.topicCountMap);
